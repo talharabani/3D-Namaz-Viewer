@@ -1,0 +1,64 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Merriweather:wght@400;700&family=Inter:wght@400;700&family=Poppins:wght@400;700&family=Roboto:wght@400;700&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  @apply bg-background text-text font-body min-h-screen antialiased;
+}
+.dark body {
+  @apply bg-dark text-darktext;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  @apply font-heading text-brass;
+}
+
+a {
+  @apply text-brass font-semibold transition-colors duration-200;
+}
+a:hover {
+  @apply text-wood underline;
+}
+
+.card {
+  @apply bg-card dark:bg-darkcard border border-border dark:border-darkborder rounded-xl shadow-card p-6 mb-6;
+}
+
+button, .btn {
+  @apply rounded-full px-5 py-2 font-body font-semibold text-base shadow-button bg-brass text-white hover:bg-wood focus:outline-none focus:ring-2 focus:ring-wood transition;
+}
+
+input, textarea {
+  @apply bg-card dark:bg-darkcard border border-border dark:border-darkborder rounded-xl px-4 py-2 text-text dark:text-darktext font-body focus:outline-none focus:ring-2 focus:ring-brass transition;
+}
+
+nav, .footer-nav {
+  @apply fixed bottom-0 left-0 right-0 mx-auto max-w-2xl bg-card dark:bg-darkcard border-t border-border dark:border-darkborder flex justify-around py-3 px-2 z-50;
+}
+
+nav .active, .footer-nav .active {
+  @apply text-wood font-bold;
+}
+
+.islamic-icon {
+  @apply w-8 h-8;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  background: #f5f5f5;
+}
+::-webkit-scrollbar-thumb {
+  background: #956D37;
+  border-radius: 8px;
+}
+
+@media (max-width: 600px) {
+  .card, section, main, .main-container {
+    @apply p-4;
+  }
+  nav, .footer-nav {
+    @apply px-1 py-2;
+  }
+}
