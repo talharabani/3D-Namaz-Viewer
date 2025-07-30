@@ -49,16 +49,22 @@ export default function PrayerTimesScreen() {
       const { latitude, longitude } = pos.coords;
       setCoords({ latitude, longitude });
       try {
-        const res = await fetch(`https://api.aladhan.com/v1/timings?latitude=${latitude}&longitude=${longitude}&method=${method}&school=${fiqh === 'hanafi' ? 1 : 0}`);
+        const res = await fetch(`https://api.aladhan.com/v1/timings?latitude=${latitude}&longitude=${longitude}&method=${method}&school=${fiqh === 'hanafi' ? 1 : 0}`, {
+          timeout: 10000 // 10 second timeout
+        });
+        if (!res.ok) {
+          throw new Error(`Prayer times API responded with status: ${res.status}`);
+        }
         const data = await res.json();
-        if (data.code === 200) {
+        if (data.code === 200 && data.data && data.data.timings) {
           setTimes(data.data.timings);
           setHijri(`${data.data.date.hijri.day} ${data.data.date.hijri.month.en} ${data.data.date.hijri.year} AH`);
         } else {
-          setError('Failed to fetch prayer times.');
+          throw new Error('Invalid prayer times data');
         }
-      } catch {
-        setError('Failed to fetch prayer times.');
+      } catch (error) {
+        console.warn('Prayer times API failed:', error);
+        setError('Failed to fetch prayer times. Please check your internet connection and try again.');
       }
       setLoading(false);
     }, () => {

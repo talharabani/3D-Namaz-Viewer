@@ -1,3 +1,4 @@
+import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import HomeScreen from './screens/HomeScreen';
 import HadithScreen from './screens/HadithScreen';
@@ -18,8 +19,50 @@ import { notificationService } from './utils/notificationService';
 import DuaScreen from './screens/DuaScreen';
 import DuaListScreen from './screens/DuaListScreen';
 import NamazScreen from './screens/NamazScreen';
+import AIAssistantScreen from './screens/AIAssistantScreen';
+import { useTranslation, setLanguage, getCurrentLanguage } from './utils/translations';
+
+// Global Error Boundary Component
+class GlobalErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error, errorInfo) {
+    console.error('Global Error Boundary caught an error:', error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="min-h-screen bg-gradient-to-br from-mocha via-sand to-wood flex items-center justify-center p-4">
+          <div className="max-w-md w-full bg-white/90 backdrop-blur-sm rounded-2xl p-8 shadow-2xl border-2 border-brass text-center">
+            <div className="text-4xl mb-4">🕌</div>
+            <h1 className="text-2xl font-bold text-brass mb-4">Something went wrong</h1>
+            <p className="text-mocha mb-6">
+              We encountered an unexpected error. Please refresh the page to continue.
+            </p>
+            <button
+              onClick={() => window.location.reload()}
+              className="bg-gradient-to-r from-brass to-wood text-white px-6 py-3 rounded-xl font-bold hover:from-wood hover:to-brass transition-all duration-300"
+            >
+              Refresh Page
+            </button>
+          </div>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 function App() {
+  const { t, currentLang, setLanguage: changeLanguage } = useTranslation();
   const [dark, setDark] = useState(() => {
     const saved = localStorage.getItem('darkMode');
     return saved ? JSON.parse(saved) : window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -81,12 +124,22 @@ function App() {
   }
 
   return (
-    <Router>
-      <div className={`min-h-screen font-body text-text flex flex-col${dark ? ' dark' : ''}${childrenMode ? ' children' : ''}`}
-        style={{ transition: 'background 0.5s, color 0.5s' }}>
+    <GlobalErrorBoundary>
+      <Router>
+        <div className={`min-h-screen font-body text-text flex flex-col${dark ? ' dark' : ''}${childrenMode ? ' children' : ''}`}
+          style={{ transition: 'background 0.5s, color 0.5s' }}
+          lang={currentLang}>
+        {/* Floating language toggle button */}
+        <button
+          className="fixed bottom-32 right-6 z-50 w-14 h-14 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-button flex items-center justify-center text-lg font-bold hover:from-purple-600 hover:to-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+          onClick={() => changeLanguage(currentLang === 'en' ? 'ur' : 'en')}
+          aria-label="Toggle language"
+        >
+          {currentLang === 'en' ? 'اردو' : 'EN'}
+        </button>
         {/* Floating dark mode toggle button */}
         <button
-          className="fixed bottom-24 right-6 z-50 w-14 h-14 rounded-full bg-brass text-white shadow-button flex items-center justify-center text-2xl hover:bg-wood focus:outline-none focus:ring-2 focus:ring-wood transition"
+          className="fixed bottom-48 right-6 z-50 w-14 h-14 rounded-full bg-brass text-white shadow-button flex items-center justify-center text-2xl hover:bg-wood focus:outline-none focus:ring-2 focus:ring-wood transition"
           onClick={() => setDark(d => !d)}
           aria-label="Toggle dark mode"
         >
@@ -94,7 +147,7 @@ function App() {
         </button>
         {/* Floating children mode toggle button (optional, keep if needed) */}
         <button
-          className="fixed bottom-40 right-6 z-50 w-14 h-14 rounded-full bg-emerald-400 text-mocha shadow-button flex items-center justify-center text-2xl hover:bg-brass hover:text-white focus:outline-none focus:ring-2 focus:ring-brass transition"
+          className="fixed bottom-64 right-6 z-50 w-14 h-14 rounded-full bg-emerald-400 text-mocha shadow-button flex items-center justify-center text-2xl hover:bg-brass hover:text-white focus:outline-none focus:ring-2 focus:ring-brass transition"
           onClick={() => setChildrenMode(c => !c)}
           aria-label="Toggle children mode"
         >
@@ -121,12 +174,14 @@ function App() {
             <Route path="/prayer-times" element={<PrayerTimesScreen />} />
             <Route path="/mistakes" element={<NamazMistakesScreen />} />
             <Route path="/progress" element={<ProgressDashboardScreen />} />
+            <Route path="/ai-assistant" element={<AIAssistantScreen />} />
             <Route path="/settings" element={<SettingsScreen />} />
           </Routes>
         </main>
         <FooterNavTabs />
-      </div>
-    </Router>
+        </div>
+      </Router>
+    </GlobalErrorBoundary>
   );
 }
 

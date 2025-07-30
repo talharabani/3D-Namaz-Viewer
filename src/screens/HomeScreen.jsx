@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 export default function HomeScreen() {
+  const navigate = useNavigate();
   const [currentTime, setCurrentTime] = useState(new Date());
   const [greeting, setGreeting] = useState('');
 
@@ -42,7 +44,7 @@ export default function HomeScreen() {
   }, []);
 
   return (
-    <div className="relative flex flex-col gap-8 items-center w-full py-8 min-h-screen bg-background dark:bg-dark">
+    <div className="relative flex flex-col gap-6 sm:gap-8 items-center w-full py-4 sm:py-8 min-h-screen bg-background dark:bg-dark">
       {/* Islamic Pattern Background */}
       <div className="absolute inset-0 -z-10 opacity-5">
         <div className="w-full h-full" style={{
@@ -52,7 +54,7 @@ export default function HomeScreen() {
       </div>
 
       {/* Main Content */}
-      <div className="relative z-10 w-full max-w-4xl mx-auto px-4 flex flex-col items-center gap-8">
+      <div className="relative z-10 w-full max-w-4xl mx-auto px-2 sm:px-4 flex flex-col items-center gap-6 sm:gap-8">
         
         {/* Greeting Section */}
         <div className="w-full card text-center">
@@ -89,22 +91,34 @@ export default function HomeScreen() {
         </div>
 
         {/* Quick Actions */}
-        <div className="w-full grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="card text-center hover:scale-105 transition-transform cursor-pointer">
+        <div className="w-full grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
+          <div 
+            className="card text-center hover:scale-105 transition-transform cursor-pointer"
+            onClick={() => navigate('/prayer-times')}
+          >
             <div className="text-3xl mb-2">🕋</div>
             <div className="text-sm font-medium text-brass">Prayer Times</div>
           </div>
-          <div className="card text-center hover:scale-105 transition-transform cursor-pointer">
+          <div 
+            className="card text-center hover:scale-105 transition-transform cursor-pointer"
+            onClick={() => navigate('/learn')}
+          >
             <div className="text-3xl mb-2">📖</div>
             <div className="text-sm font-medium text-brass">Learn Namaz</div>
           </div>
-          <div className="card text-center hover:scale-105 transition-transform cursor-pointer">
+          <div 
+            className="card text-center hover:scale-105 transition-transform cursor-pointer"
+            onClick={() => navigate('/qibla')}
+          >
             <div className="text-3xl mb-2">🧭</div>
             <div className="text-sm font-medium text-brass">Qibla Direction</div>
           </div>
-          <div className="card text-center hover:scale-105 transition-transform cursor-pointer">
-            <div className="text-3xl mb-2">📊</div>
-            <div className="text-sm font-medium text-brass">Progress</div>
+          <div 
+            className="card text-center hover:scale-105 transition-transform cursor-pointer"
+            onClick={() => navigate('/ai-assistant')}
+          >
+            <div className="text-3xl mb-2">🤖</div>
+            <div className="text-sm font-medium text-brass">AI Assistant</div>
           </div>
         </div>
 

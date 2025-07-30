@@ -1,7 +1,30 @@
-import { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { MapContainer, TileLayer, Marker, Polyline, Popup, useMap, ZoomControl } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+
+// Simple Error Boundary Component
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error, errorInfo) {
+    console.error('Map Error:', error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return this.props.fallback || <div>Something went wrong.</div>;
+    }
+    return this.props.children;
+  }
+}
 
 // Kaaba coordinates
 const KAABA_LAT = 21.4225;
@@ -97,11 +120,82 @@ function RecenterButton({ userLatLng }) {
   );
 }
 
+// Separate Map Component to prevent initialization issues
+function QiblaMap({ userLatLng, kaabaLatLng, isAligned, isDark, distance, onMapCreated, onMapError }) {
+  const mapRef = useRef(null);
+
+  useEffect(() => {
+    return () => {
+      // Cleanup on unmount
+      if (mapRef.current) {
+        try {
+          mapRef.current.remove();
+        } catch (error) {
+          console.error('Error cleaning up map:', error);
+        }
+      }
+    };
+  }, []);
+
+  if (!userLatLng || !kaabaLatLng) {
+    return null;
+  }
+
+  return (
+    <MapContainer 
+      center={userLatLng} 
+      zoom={4} 
+      scrollWheelZoom={true} 
+      style={{ width: '100%', height: '100%' }} 
+      zoomControl={false}
+      whenCreated={(map) => {
+        try {
+          mapRef.current = map;
+          onMapCreated?.(map);
+        } catch (error) {
+          console.error('Error creating map:', error);
+          onMapError?.(error);
+        }
+      }}
+    >
+      <TileLayer
+        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        url={getTileLayerUrl(isDark)}
+      />
+      <Marker position={userLatLng} icon={userIcon}>
+        <Popup>You are here</Popup>
+      </Marker>
+      <Marker position={kaabaLatLng} icon={kaabaIcon}>
+        <Popup>Kaaba</Popup>
+      </Marker>
+      <Polyline positions={[userLatLng, kaabaLatLng]} color={isAligned ? '#10B981' : '#B5A642'} weight={5} opacity={0.8} />
+      <FitBounds userLatLng={userLatLng} kaabaLatLng={kaabaLatLng} />
+      <ZoomControl position="bottomright" />
+      <RecenterButton userLatLng={userLatLng} />
+    </MapContainer>
+  );
+}
+
 // Helper for dark mode tiles
 function getTileLayerUrl(isDark) {
   return isDark
     ? 'https://tiles.stadiamaps.com/tiles/alidade_dark/{z}/{x}/{y}{r}.png'
     : 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+}
+
+// Global map cleanup function
+function cleanupAllMaps() {
+  try {
+    // Remove all existing map containers
+    const mapContainers = document.querySelectorAll('.leaflet-container');
+    mapContainers.forEach(container => {
+      if (container._leaflet_id) {
+        container._leaflet_map?.remove();
+      }
+    });
+  } catch (error) {
+    console.error('Error cleaning up maps:', error);
+  }
 }
 
 export default function QiblaDirectionScreen() {
@@ -123,6 +217,11 @@ export default function QiblaDirectionScreen() {
   const [isCalibrating, setIsCalibrating] = useState(false);
   // Add a new state to track if we ever received real orientation data
   const [gotRealOrientation, setGotRealOrientation] = useState(false);
+  // Map state management
+  const [mapKey, setMapKey] = useState(0); // Force re-render when needed
+  const [mapError, setMapError] = useState(false);
+  const [mapInitialized, setMapInitialized] = useState(false);
+  const mapInstanceRef = useRef(null);
 
   // Function to request device orientation permission
   const requestOrientationPermission = () => {
@@ -197,9 +296,11 @@ export default function QiblaDirectionScreen() {
     }
   };
 
-  // Detect dark mode
+  // Detect dark mode and cleanup maps on mount
   useEffect(() => {
     setIsDark(document.documentElement.classList.contains('dark'));
+    // Clean up any existing maps when component mounts
+    cleanupAllMaps();
   }, []);
 
   // Get user location and calculate Qibla
@@ -239,6 +340,30 @@ export default function QiblaDirectionScreen() {
       if (requestRef.current) clearInterval(requestRef.current);
     };
   }, [orientationPermission, isAligned]);
+
+  // Cleanup map container on unmount
+  useEffect(() => {
+    return () => {
+      try {
+        // Clean up any existing map instances
+        if (mapInstanceRef.current) {
+          mapInstanceRef.current.remove();
+          mapInstanceRef.current = null;
+        }
+        setMapInitialized(false);
+        cleanupAllMaps();
+      } catch (error) {
+        console.error('Error cleaning up map:', error);
+      }
+    };
+  }, []);
+
+  // Cleanup when map key changes
+  useEffect(() => {
+    if (mapKey > 0) {
+      cleanupAllMaps();
+    }
+  }, [mapKey]);
 
   // Calculate accuracy and alignment
   useEffect(() => {
@@ -450,31 +575,101 @@ export default function QiblaDirectionScreen() {
         </div>
 
         {/* Map Section */}
-        {userLatLng && kaabaLatLng && (
+        {userLatLng && kaabaLatLng && !mapError && (
           <div className="w-full flex flex-col items-center">
             <div className="text-sm text-secondary mb-4">Your location and the Kaaba</div>
             <div className="w-full h-80 rounded-3xl overflow-hidden border-2 border-brass shadow-2xl relative" style={{ maxWidth: 600 }}>
-              <MapContainer center={userLatLng} zoom={4} scrollWheelZoom={true} style={{ width: '100%', height: '100%' }} zoomControl={false}>
-                <TileLayer
-                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                  url={getTileLayerUrl(isDark)}
-                />
-                <Marker position={userLatLng} icon={userIcon}>
-                  <Popup>You are here</Popup>
-                </Marker>
-                <Marker position={kaabaLatLng} icon={kaabaIcon}>
-                  <Popup>Kaaba</Popup>
-                </Marker>
-                <Polyline positions={[userLatLng, kaabaLatLng]} color={isAligned ? '#10B981' : '#B5A642'} weight={5} opacity={0.8} />
-                <FitBounds userLatLng={userLatLng} kaabaLatLng={kaabaLatLng} />
-                <ZoomControl position="bottomright" />
-                <RecenterButton userLatLng={userLatLng} />
-              </MapContainer>
+              {!mapInitialized ? (
+                <div className="w-full h-full flex flex-col items-center justify-center bg-sand/20 text-mocha p-4">
+                  <div className="text-2xl mb-2">🗺️</div>
+                  <div className="text-center">
+                    <div className="font-semibold mb-2">Loading map...</div>
+                    <div className="text-sm">Distance to Kaaba: {distance} km</div>
+                    <button 
+                      onClick={() => {
+                        setMapError(false);
+                        setMapKey(prev => prev + 1);
+                        setMapInitialized(false);
+                      }}
+                      className="mt-2 bg-brass text-mocha px-3 py-1 rounded text-sm hover:bg-wood transition"
+                    >
+                      Load Map
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <ErrorBoundary fallback={
+                  <div className="w-full h-full flex flex-col items-center justify-center bg-sand/20 text-mocha p-4">
+                    <div className="text-2xl mb-2">🗺️</div>
+                    <div className="text-center">
+                      <div className="font-semibold mb-2">Map loading error</div>
+                      <div className="text-sm">Distance to Kaaba: {distance} km</div>
+                      <button 
+                        onClick={() => {
+                          setMapError(false);
+                          setMapKey(prev => prev + 1);
+                          setMapInitialized(false);
+                        }}
+                        className="mt-2 bg-brass text-mocha px-3 py-1 rounded text-sm hover:bg-wood transition"
+                      >
+                        Retry Map
+                      </button>
+                    </div>
+                  </div>
+                                 }>
+                   <QiblaMap
+                     key={mapKey}
+                     userLatLng={userLatLng}
+                     kaabaLatLng={kaabaLatLng}
+                     isAligned={isAligned}
+                     isDark={isDark}
+                     distance={distance}
+                     onMapCreated={(map) => {
+                       mapInstanceRef.current = map;
+                       setMapInitialized(true);
+                       setMapError(false);
+                     }}
+                     onMapError={(error) => {
+                       setMapError(true);
+                       setMapInitialized(false);
+                     }}
+                   />
+                 </ErrorBoundary>
+              )}
               {/* Distance label positioned on the map */}
               <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-[1000]">
                 <span className="bg-brass text-mocha rounded-full px-6 py-2 text-base font-bold shadow border border-wood">
                   Distance: {distance} km
                 </span>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Map Error State */}
+        {userLatLng && kaabaLatLng && mapError && (
+          <div className="w-full flex flex-col items-center">
+            <div className="text-sm text-secondary mb-4">Your location and the Kaaba</div>
+            <div className="w-full h-80 rounded-3xl overflow-hidden border-2 border-brass shadow-2xl relative" style={{ maxWidth: 600 }}>
+              <div className="w-full h-full flex flex-col items-center justify-center bg-sand/20 text-mocha p-4">
+                <div className="text-2xl mb-2">🗺️</div>
+                <div className="text-center">
+                  <div className="font-semibold mb-2">Map unavailable</div>
+                  <div className="text-sm mb-4">Distance to Kaaba: {distance} km</div>
+                  <div className="text-xs text-mocha/70 mb-4">
+                    Your Qibla direction: {qibla.toFixed(1)}° from North
+                  </div>
+                  <button 
+                    onClick={() => {
+                      setMapError(false);
+                      setMapKey(prev => prev + 1);
+                      setMapInitialized(false);
+                    }}
+                    className="bg-brass text-mocha px-4 py-2 rounded text-sm hover:bg-wood transition"
+                  >
+                    Try Loading Map Again
+                  </button>
+                </div>
               </div>
             </div>
           </div>

@@ -3,6 +3,41 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Urdu font support */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400;500;600;700&display=swap');
+
+/* Arabic font support */
+@import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap');
+
+/* Custom styles for Urdu text */
+.urdu-text {
+  font-family: 'Noto Nastaliq Urdu', serif;
+  direction: rtl;
+  text-align: right;
+}
+
+.urdu-text-left {
+  font-family: 'Noto Nastaliq Urdu', serif;
+  direction: rtl;
+  text-align: left;
+}
+
+/* Custom styles for Arabic text */
+.font-arabic {
+  font-family: 'Amiri', serif;
+  direction: rtl;
+  text-align: right;
+}
+
+/* Language-specific styles */
+[lang="ur"] {
+  font-family: 'Noto Nastaliq Urdu', serif;
+}
+
+[lang="en"] {
+  font-family: inherit;
+}
+
 body {
   @apply bg-background text-text font-body min-h-screen antialiased;
 }
