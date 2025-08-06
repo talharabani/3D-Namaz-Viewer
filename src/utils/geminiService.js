@@ -86,12 +86,45 @@ class GeminiService {
         fullMessage += `\n\nUser Level: ${context.userLevel}`;
       }
 
-      const result = await this.chat.sendMessage([{ text: fullMessage }]);
+      // Add timeout to prevent hanging
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Request timeout - service overloaded')), 15000); // 15 second timeout
+      });
+
+      const result = await Promise.race([
+        this.chat.sendMessage([{ text: fullMessage }]),
+        timeoutPromise
+      ]);
+      
       const response = await result.response;
       return response.text();
     } catch (error) {
       console.error('Error sending message to Gemini:', error);
-      // Return fallback response instead of throwing error
+      
+      // Handle specific error types
+      if (error.message && error.message.includes('503')) {
+        return this.getServiceOverloadResponse(message);
+      }
+      
+      if (error.message && error.message.includes('overloaded')) {
+        return this.getServiceOverloadResponse(message);
+      }
+      
+      if (error.message && error.message.includes('quota')) {
+        return this.getQuotaExceededResponse(message);
+      }
+      
+      // Check for timeout errors
+      if (error.message && error.message.includes('timeout')) {
+        return this.getServiceOverloadResponse(message);
+      }
+      
+      // Check for network errors or other API issues
+      if (error.message && (error.message.includes('fetch') || error.message.includes('network') || error.message.includes('Failed to execute'))) {
+        return this.getServiceOverloadResponse(message);
+      }
+      
+      // Return fallback response for other errors
       return this.getFallbackResponse(message);
     }
   }
@@ -147,6 +180,72 @@ To get full AI-powered responses:
 For now, I can provide basic Islamic guidance, but for detailed, personalized responses, please configure the API key.`;
   }
 
+  getServiceOverloadResponse(message) {
+    const lowerMessage = message.toLowerCase();
+    
+    // Provide helpful responses for service overload
+    if (lowerMessage.includes('wudu') || lowerMessage.includes('ablution')) {
+      return `Assalamu alaikum! For Wudu (ablution), you need to wash:
+1. Face (from hairline to chin)
+2. Arms (from fingertips to elbows)
+3. Head (wipe with wet hands)
+4. Feet (from toes to ankles)
+
+This should be done before each prayer. The Prophet ﷺ said: "The key to prayer is purification." (Abu Dawud)
+
+🔄 Note: The AI service is currently experiencing high traffic. This is a basic response. Please try again in a few minutes for a more detailed answer.`;
+    }
+    
+    if (lowerMessage.includes('prayer') || lowerMessage.includes('namaz') || lowerMessage.includes('salah')) {
+      return `Assalamu alaikum! Prayer (Salah) is one of the five pillars of Islam. 
+
+The five daily prayers are:
+- Fajr (Dawn)
+- Dhuhr (Noon) 
+- Asr (Afternoon)
+- Maghrib (Sunset)
+- Isha (Night)
+
+Each prayer has specific times and requirements. The Prophet ﷺ said: "The first thing that will be judged among a person's deeds on the Day of Resurrection is the prayer."
+
+🔄 Note: The AI service is currently experiencing high traffic. This is a basic response. Please try again in a few minutes for a more detailed answer.`;
+    }
+    
+    if (lowerMessage.includes('hadith') || lowerMessage.includes('prophet')) {
+      return `Assalamu alaikum! Hadith are the sayings and actions of Prophet Muhammad ﷺ, which serve as a guide for Muslims alongside the Quran.
+
+The Prophet ﷺ said: "Whoever follows my Sunnah has loved me, and whoever loves me will be with me in Paradise." (Tirmidhi)
+
+🔄 Note: The AI service is currently experiencing high traffic. This is a basic response. Please try again in a few minutes for a more detailed answer.`;
+    }
+    
+    return `Assalamu alaikum! I'm here to help you with Islamic knowledge and guidance.
+
+🔄 The AI service is currently experiencing high traffic and is temporarily unavailable. 
+
+Here's a basic Islamic response to your question:
+"Seek knowledge from the cradle to the grave." - Prophet Muhammad ﷺ
+
+Please try again in a few minutes for a more detailed, AI-powered response. In the meantime, you can explore the app's other features like prayer times, hadith collection, and learning materials.`;
+  }
+
+  getQuotaExceededResponse(message) {
+    return `Assalamu alaikum! 
+
+⚠️ The AI service quota has been exceeded for today. 
+
+Here's a basic Islamic response to your question:
+"Verily, Allah is with those who are patient." - Quran 2:153
+
+Please try again tomorrow, or explore the app's other features:
+• Prayer times and Qibla direction
+• Hadith collection and search
+• Islamic learning materials
+• Dua collection
+
+The app will continue to work normally for all other features.`;
+  }
+
   // Specialized methods for different types of queries
   async getPrayerGuidance(prayerType, specificQuestion = '') {
     const message = `Please provide guidance for ${prayerType} prayer. ${specificQuestion}`;
@@ -187,5 +286,22 @@ For now, I can provide basic Islamic guidance, but for detailed, personalized re
 
 // Create and export a singleton instance
 const geminiService = new GeminiService();
+
+// Add global test function for debugging
+if (typeof window !== 'undefined') {
+  window.testGeminiService = async (message = 'Hello, can you help me with prayer guidance?') => {
+    console.log('🧪 Testing Gemini Service with message:', message);
+    try {
+      const response = await geminiService.sendMessage(message);
+      console.log('✅ Gemini Service Response:', response);
+      return response;
+    } catch (error) {
+      console.error('❌ Gemini Service Error:', error);
+      return null;
+    }
+  };
+  
+  window.geminiService = geminiService;
+}
 
 export default geminiService; 

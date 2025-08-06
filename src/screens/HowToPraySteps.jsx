@@ -6,7 +6,7 @@ const steps = [
   { title: 'Niyyah', desc: 'Intention in the heart.', icon: '🕋',
     audio: 'https://verses.quran.com/AbdulBaset/Mujawwad/mp3/001001.mp3',
     img: niyyahIcon,
-    video: 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExb2Z2d2J2d3F0b2J0d3B2d2J2d3F0b2J0d3B2d2J2d3F0b2J0/giphy.gif/giphy.gif',
+    video: 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExb2Z2d2J2d3F0b2J0d3B2d2J2d3F0b2J0d3B2d2J2d3F0b2J0d3B2d2J2d3F0b2J0/giphy.gif/giphy.gif',
   },
   { title: 'Takbir', desc: 'Raise hands and say Allahu Akbar.', icon: '🤲',
     audio: 'https://cdn.islamic.network/quran/audio/128/ar.alafasy/001.mp3',
@@ -176,13 +176,14 @@ export default function HowToPraySteps() {
   }
 
   return (
-    <div className="w-full max-w-xl flex flex-col items-center gap-6 mt-4">
-      <div
-        className={`w-full relative card flex flex-col items-center ${current === 0 ? 'ring-2 ring-brass' : ''}`}
-        style={{
-          overflow: 'hidden',
-        }}
-      >
+    <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[#44403c] via-[#78716c] to-[#d6d3d1]">
+      <div className="w-full max-w-xl flex flex-col items-center gap-6 mt-4">
+        <div
+          className={`w-full relative card flex flex-col items-center ${current === 0 ? 'ring-2 ring-brass' : ''}`}
+          style={{
+            overflow: 'hidden',
+          }}
+        >
         {/* Calligraphy watermark */}
         <svg
           className="absolute left-1/2 top-1/2 -z-10 opacity-10 pointer-events-none select-none"
@@ -302,6 +303,7 @@ export default function HowToPraySteps() {
           }
         `}</style>
       </div>
+    </div>
     </div>
   );
 } 

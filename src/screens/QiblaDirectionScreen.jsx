@@ -199,249 +199,209 @@ function cleanupAllMaps() {
 }
 
 export default function QiblaDirectionScreen() {
-  const [angle, setAngle] = useState(getInitialAngle());
-  const [hasOrientation, setHasOrientation] = useState(false);
-  const [qibla, setQibla] = useState(0); // Qibla bearing
-  const [geoError, setGeoError] = useState(null);
-  const [coords, setCoords] = useState(null); // { latitude, longitude }
-  const [accuracy, setAccuracy] = useState(0); // Accuracy in degrees
+  const [userLatLng, setUserLatLng] = useState(null);
+  const [kaabaLatLng] = useState([KAABA_LAT, KAABA_LON]);
   const [isAligned, setIsAligned] = useState(false);
-  const [currentQuote, setCurrentQuote] = useState('');
-  const [showQuote, setShowQuote] = useState(false);
   const [isDark, setIsDark] = useState(false);
-  const [headingSource, setHeadingSource] = useState(''); // For debug
-  const [orientationPermission, setOrientationPermission] = useState(false); // New: permission state
-  const requestRef = useRef();
-  const lastAngleRef = useRef(angle);
-  const [isSupported, setIsSupported] = useState(true);
-  const [isCalibrating, setIsCalibrating] = useState(false);
-  // Add a new state to track if we ever received real orientation data
-  const [gotRealOrientation, setGotRealOrientation] = useState(false);
-  // Map state management
-  const [mapKey, setMapKey] = useState(0); // Force re-render when needed
-  const [mapError, setMapError] = useState(false);
-  const [mapInitialized, setMapInitialized] = useState(false);
-  const mapInstanceRef = useRef(null);
+  const [distance, setDistance] = useState(null);
+  const [bearing, setBearing] = useState(0);
+  const [accuracy, setAccuracy] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [showMap, setShowMap] = useState(false);
+  const [orientationPermission, setOrientationPermission] = useState('denied');
+  const [currentQuote, setCurrentQuote] = useState(0);
+  const mapRef = useRef(null);
+  const orientationRef = useRef(null);
 
-  // Function to request device orientation permission
-  const requestOrientationPermission = () => {
-    if (window.DeviceOrientationEvent && typeof window.DeviceOrientationEvent.requestPermission === 'function') {
-      window.DeviceOrientationEvent.requestPermission()
-        .then((response) => {
-          if (response === 'granted') {
-            setOrientationPermission(true);
-            setIsSupported(true);
-            // Start listening immediately after permission is granted
-            startOrientationListener();
-          } else {
-            setIsSupported(false);
-            console.log('Device orientation permission denied');
-          }
-        })
-        .catch((error) => {
-          console.error('Error requesting device orientation permission:', error);
-          setIsSupported(false);
-        });
+  // Check for dark mode
+  useEffect(() => {
+    const darkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    setIsDark(darkMode);
+  }, []);
+
+  // Rotate quotes
+  useEffect(() => {
+    const quoteTimer = setInterval(() => {
+      setCurrentQuote((prev) => (prev + 1) % QIBLA_QUOTES.length);
+    }, 8000);
+    return () => clearInterval(quoteTimer);
+  }, []);
+
+  // Get user location
+  useEffect(() => {
+    if ('geolocation' in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude, accuracy: acc } = position.coords;
+          setUserLatLng([latitude, longitude]);
+          setAccuracy(acc);
+          const dist = getDistanceKm(latitude, longitude, KAABA_LAT, KAABA_LON);
+          setDistance(dist);
+          const qiblaBearing = getQiblaBearing(latitude, longitude);
+          setBearing(qiblaBearing);
+          setIsLoading(false);
+        },
+        (error) => {
+          console.error('Geolocation error:', error);
+          setError('Unable to get your location. Please enable location services.');
+          setIsLoading(false);
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 60000,
+        }
+      );
     } else {
-      // For browsers that don't require permission
-      setOrientationPermission(true);
-      setIsSupported(true);
-      // Start listening immediately
-      startOrientationListener();
+      setError('Geolocation is not supported by this browser.');
+      setIsLoading(false);
+    }
+  }, []);
+
+  // Request orientation permission
+  const requestOrientationPermission = () => {
+    if ('DeviceOrientationEvent' in window) {
+      if ('requestPermission' in DeviceOrientationEvent) {
+        DeviceOrientationEvent.requestPermission()
+          .then((permission) => {
+            setOrientationPermission(permission);
+            if (permission === 'granted') {
+              startOrientationListener();
+            }
+          })
+          .catch((error) => {
+            console.error('Orientation permission error:', error);
+            setOrientationPermission('denied');
+          });
+      } else {
+        // Permission not required, start listener directly
+        startOrientationListener();
+      }
     }
   };
 
-  // Function to start orientation listener
+  // Start orientation listener
   const startOrientationListener = () => {
     function handleOrientation(e) {
-      let heading = null;
-      let source = '';
-      // iOS: webkitCompassHeading (true north)
-      if ('webkitCompassHeading' in e && e.webkitCompassHeading != null) {
-        heading = e.webkitCompassHeading;
-        source = 'iOS (webkitCompassHeading)';
-      } else if (typeof e.alpha === 'number' && e.alpha != null) {
-        // Android/Chrome: alpha (magnetic north)
-        heading = 360 - e.alpha;
-        source = 'Android/Chrome (alpha)';
-      }
-      if (heading !== null && !isAligned) {
-        setAngle(heading);
-        lastAngleRef.current = heading;
-        setHeadingSource(source);
-        setHasOrientation(true); // Mark that we have real orientation data
-        setGotRealOrientation(true); // Mark that we got real data
-      }
-      if (heading !== null) {
-        setHasOrientation(true);
-        setGotRealOrientation(true);
+      if (e.alpha !== null && e.beta !== null && e.gamma !== null) {
+        // Calculate compass heading
+        let heading = e.alpha;
+        if (typeof e.webkitCompassHeading !== 'undefined') {
+          heading = e.webkitCompassHeading;
+        } else {
+          // Calculate heading from alpha, beta, gamma
+          const alpha = e.alpha;
+          const beta = e.beta;
+          const gamma = e.gamma;
+          
+          if (alpha !== null && beta !== null && gamma !== null) {
+            // Convert to radians
+            const alphaRad = alpha * Math.PI / 180;
+            const betaRad = beta * Math.PI / 180;
+            const gammaRad = gamma * Math.PI / 180;
+            
+            // Calculate heading
+            const headingRad = Math.atan2(
+              Math.sin(alphaRad) * Math.cos(betaRad),
+              Math.cos(alphaRad) * Math.cos(betaRad)
+            );
+            
+            heading = headingRad * 180 / Math.PI;
+            heading = (heading + 360) % 360;
+          }
+        }
+        
+        // Calculate alignment
+        const alignmentThreshold = 15; // degrees
+        const bearingDiff = Math.abs(heading - bearing);
+        const isAlignedNow = bearingDiff <= alignmentThreshold || bearingDiff >= (360 - alignmentThreshold);
+        setIsAligned(isAlignedNow);
       }
     }
 
-    // Check if device orientation is supported
-    if (!window.DeviceOrientationEvent) {
-      setIsSupported(false);
-      // Start demo mode
-      let a = lastAngleRef.current;
-      if (!isAligned) {
-        requestRef.current = setInterval(() => {
-          a = (a + 2) % 360;
-          setAngle(a);
-          lastAngleRef.current = a;
-        }, 30);
-      }
-    } else {
-      // Add event listener since permission is already granted
-      window.addEventListener('deviceorientation', handleOrientation, true);
+    if ('DeviceOrientationEvent' in window) {
+      window.addEventListener('deviceorientation', handleOrientation);
+      orientationRef.current = handleOrientation;
     }
   };
 
-  // Detect dark mode and cleanup maps on mount
-  useEffect(() => {
-    setIsDark(document.documentElement.classList.contains('dark'));
-    // Clean up any existing maps when component mounts
-    cleanupAllMaps();
-  }, []);
-
-  // Get user location and calculate Qibla
-  useEffect(() => {
-    if (!navigator.geolocation) {
-      setGeoError('Geolocation not supported.');
-      setIsSupported(false);
-      return;
-    }
-    navigator.geolocation.getCurrentPosition(
-      pos => {
-        const { latitude, longitude } = pos.coords;
-        setCoords({ latitude, longitude });
-        setQibla(getQiblaBearing(latitude, longitude));
-        setIsSupported(true);
-      },
-      err => {
-        setGeoError('Location denied or unavailable.');
-        setIsSupported(false);
-      },
-      { enableHighAccuracy: true }
-    );
-  }, []);
-
-  // Device orientation support (improved for browser compatibility)
-  useEffect(() => {
-    // Only start listening if permission is granted
-    if (!orientationPermission) {
-      return;
-    }
-
-    // Start the orientation listener
-    startOrientationListener();
-    
-    return () => {
-      window.removeEventListener('deviceorientation', startOrientationListener, true);
-      if (requestRef.current) clearInterval(requestRef.current);
-    };
-  }, [orientationPermission, isAligned]);
-
-  // Cleanup map container on unmount
+  // Cleanup
   useEffect(() => {
     return () => {
-      try {
-        // Clean up any existing map instances
-        if (mapInstanceRef.current) {
-          mapInstanceRef.current.remove();
-          mapInstanceRef.current = null;
-        }
-        setMapInitialized(false);
-        cleanupAllMaps();
-      } catch (error) {
-        console.error('Error cleaning up map:', error);
+      if (orientationRef.current) {
+        window.removeEventListener('deviceorientation', orientationRef.current);
       }
+      cleanupAllMaps();
     };
   }, []);
 
-  // Cleanup when map key changes
-  useEffect(() => {
-    if (mapKey > 0) {
-      cleanupAllMaps();
-    }
-  }, [mapKey]);
+  // Get accuracy status
+  const getAccuracyStatus = () => {
+    if (!accuracy) return 'Unknown';
+    if (accuracy <= 10) return 'Excellent';
+    if (accuracy <= 50) return 'Good';
+    if (accuracy <= 100) return 'Fair';
+    return 'Poor';
+  };
 
-  // Calculate accuracy and alignment
-  useEffect(() => {
-    const needleAngle = (qibla - angle + 360) % 360;
-    const accuracyDegrees = Math.abs(((needleAngle + 180) % 360) - 180);
-    setAccuracy(accuracyDegrees);
-    const aligned = accuracyDegrees < 10;
-    
-    // Only set aligned if we have real orientation data (not demo mode)
-    const shouldShowAligned = aligned && hasOrientation && orientationPermission;
-    setIsAligned(shouldShowAligned);
-    
-    if (shouldShowAligned && !showQuote) {
-      setShowQuote(true);
-      setCurrentQuote(QIBLA_QUOTES[Math.floor(Math.random() * QIBLA_QUOTES.length)]);
-      setTimeout(() => setShowQuote(false), 5000);
-    }
-  }, [angle, qibla, showQuote, hasOrientation, orientationPermission]);
-
-  // The needle should point to (qibla - device heading)
-  const needleAngle = (qibla - angle + 360) % 360;
-
-  // Map rendering (Leaflet)
-  let distance = null;
-  let userLatLng = null, kaabaLatLng = null;
-  if (coords) {
-    const { latitude, longitude } = coords;
-    distance = getDistanceKm(latitude, longitude, KAABA_LAT, KAABA_LON);
-    userLatLng = [latitude, longitude];
-    kaabaLatLng = [KAABA_LAT, KAABA_LON];
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[#44403c] via-[#78716c] to-[#d6d3d1] flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-4xl mb-4">🧭</div>
+          <div className="text-xl text-brass font-bold">Loading Qibla Direction...</div>
+        </div>
+      </div>
+    );
   }
 
-  // Get accuracy status and color
-  const getAccuracyStatus = () => {
-    if (accuracy < 5) return { status: 'Perfect!', color: 'text-green-500', bgColor: 'bg-green-500' };
-    if (accuracy < 10) return { status: 'Excellent', color: 'text-green-400', bgColor: 'bg-green-400' };
-    if (accuracy < 20) return { status: 'Good', color: 'text-yellow-500', bgColor: 'bg-yellow-500' };
-    if (accuracy < 45) return { status: 'Fair', color: 'text-orange-500', bgColor: 'bg-orange-500' };
-    return { status: 'Adjust', color: 'text-red-500', bgColor: 'bg-red-500' };
-  };
-  const accuracyInfo = getAccuracyStatus();
+  if (error) {
+    return (
+      <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[#44403c] via-[#78716c] to-[#d6d3d1] flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-4xl mb-4">⚠️</div>
+          <div className="text-xl text-error font-bold">{error}</div>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen w-full flex flex-col items-center justify-center bg-gradient-to-br from-mocha via-sand to-wood relative overflow-x-hidden">
-      {/* Decorative Islamic pattern overlay */}
-      <div className="pointer-events-none fixed inset-0 z-0 opacity-10" style={{backgroundImage: 'url(https://www.toptal.com/designers/subtlepatterns/uploads/islamic.png)', backgroundSize: '400px 400px', backgroundRepeat: 'repeat'}} />
+    <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[#44403c] via-[#78716c] to-[#d6d3d1]">
+      <div className="w-full max-w-7xl mx-auto flex flex-col items-center gap-8 py-8 px-4">
+        {/* Header Section */}
+        <div className="w-full text-center mb-8">
+          <div className="text-5xl font-heading text-brass font-bold drop-shadow-2xl mb-4 bg-gradient-to-r from-brass to-wood bg-clip-text text-transparent">
+            Qibla Direction
+          </div>
+          <div className="text-lg text-text dark:text-darktext opacity-90 max-w-2xl mx-auto">
+            Find the direction of the Kaaba for your prayers
+          </div>
+        </div>
 
-      {/* Main Content */}
-      <div className="w-full max-w-4xl mx-auto flex flex-col items-center gap-8 py-8 px-4 relative z-10">
-        
-        {/* Header Card */}
-        <div className="glassmorph-card w-full rounded-3xl p-6 shadow-2xl border border-brass backdrop-blur-xl">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-4">
-            <div className="flex items-center gap-3">
-              <span className="text-3xl"><span role="img" aria-label="Kaaba">🕋</span></span>
-              <h1 className="font-serif text-2xl md:text-3xl font-bold text-brass tracking-tight">Qibla Direction</h1>
+        {/* Qibla Information */}
+        <div className="w-full max-w-4xl">
+          <div className="card p-6 bg-gradient-to-r from-brass/10 to-wood/10 border border-brass/20 backdrop-blur-sm">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
+              <div className="p-4 bg-gradient-to-r from-brass/20 to-wood/20 rounded-lg border border-brass/30">
+                <div className="text-3xl text-brass font-bold">{bearing.toFixed(1)}°</div>
+                <div className="text-sm text-text dark:text-darktext">Qibla Bearing</div>
+              </div>
+              <div className="p-4 bg-gradient-to-r from-brass/20 to-wood/20 rounded-lg border border-brass/30">
+                <div className="text-3xl text-brass font-bold">{distance} km</div>
+                <div className="text-sm text-text dark:text-darktext">Distance to Kaaba</div>
+              </div>
+              <div className="p-4 bg-gradient-to-r from-brass/20 to-wood/20 rounded-lg border border-brass/30">
+                <div className="text-3xl text-brass font-bold">{getAccuracyStatus()}</div>
+                <div className="text-sm text-text dark:text-darktext">Location Accuracy</div>
+              </div>
             </div>
-            <div className="flex items-center gap-2">
-              <div className={`w-3 h-3 rounded-full ${accuracyInfo.bgColor} animate-pulse`}></div>
-              <span className={`text-base font-semibold ${accuracyInfo.color}`}>{accuracyInfo.status}</span>
-            </div>
-          </div>
-          
-          {/* Accuracy Bar & Info */}
-          <div className="w-full bg-sand/30 rounded-full h-2 overflow-hidden mb-4">
-            <div className={`h-2 rounded-full transition-all duration-500 ${accuracyInfo.bgColor}`} style={{ width: `${Math.max(0, 100 - (accuracy / 45) * 100)}%` }}></div>
-          </div>
-          
-          <div className="flex flex-wrap gap-4 text-sm font-mono text-secondary">
-            <span>Accuracy: {accuracy.toFixed(1)}°</span>
-            <span>Qibla: {qibla.toFixed(1)}°</span>
-            <span>Device: {angle.toFixed(1)}°</span>
-            <span>{headingSource}</span>
           </div>
         </div>
 
         {/* Enable Compass Button */}
-        {(!orientationPermission || (!gotRealOrientation && orientationPermission)) && (
+        {orientationPermission === 'denied' && (
           <div className="w-full flex flex-col items-center">
             <button
               onClick={requestOrientationPermission}
@@ -451,12 +411,12 @@ export default function QiblaDirectionScreen() {
             </button>
             <div className="text-secondary text-sm text-center max-w-md">
               Click this button to enable your device's compass for accurate Qibla direction detection.
-              {!window.DeviceOrientationEvent && (
+              {!('DeviceOrientationEvent' in window) && (
                 <div className="mt-2 text-red-500 font-semibold">
                   Compass is only available on supported mobile devices. Please use a phone or tablet.
                 </div>
               )}
-              {!gotRealOrientation && orientationPermission && (
+              {orientationPermission === 'denied' && (
                 <div className="mt-2 text-red-500 font-semibold">
                   No compass data received. If you are on a desktop or unsupported device, try using a mobile phone.
                 </div>
@@ -466,209 +426,118 @@ export default function QiblaDirectionScreen() {
         )}
 
         {/* Success Message */}
-        {showQuote && (
+        {isAligned && (
           <div className="w-full bg-highlight/20 border border-highlight rounded-2xl p-6 animate-fadeIn shadow-lg">
             <div className="text-center">
               <div className="text-3xl mb-3 font-bold text-green-500">🎯 Perfect Direction!</div>
-              <div className="text-brass font-arabic text-lg italic">"{currentQuote}"</div>
+              <div className="text-brass font-arabic text-lg italic">"{QIBLA_QUOTES[currentQuote]}"</div>
             </div>
           </div>
         )}
 
-        {/* Compass Section */}
-        <div className="w-full flex flex-col items-center">
-          <div className="relative flex items-center justify-center w-80 h-80 md:w-96 md:h-96 bg-white/10 rounded-full shadow-2xl border-2 border-brass mb-6">
-            {/* Compass base */}
-            <div className="absolute inset-0 flex items-center justify-center">
-              <svg width="100%" height="100%" viewBox="0 0 320 320">
-                <circle cx="160" cy="160" r="150" fill="#fff" fillOpacity="0.10" stroke="#B5A642" strokeWidth="4" />
-                {[...Array(12)].map((_, i) => (
-                  <line
-                    key={i}
-                    x1={160}
-                    y1="40"
-                    x2={160}
-                    y2="70"
-                    stroke="#B5A642"
-                    strokeWidth={i % 3 === 0 ? 4 : 2}
-                    transform={`rotate(${i * 30} 160 160)`}
-                  />
-                ))}
-                {/* Direction labels */}
-                <text x="160" y="30" textAnchor="middle" fill="#B5A642" fontSize="20" fontWeight="bold">N</text>
-                <text x="160" y="305" textAnchor="middle" fill="#B5A642" fontSize="20" fontWeight="bold">S</text>
-                <text x="30" y="165" textAnchor="middle" fill="#B5A642" fontSize="20" fontWeight="bold">W</text>
-                <text x="305" y="165" textAnchor="middle" fill="#B5A642" fontSize="20" fontWeight="bold">E</text>
-              </svg>
+        {/* Qibla Compass */}
+        <div className="w-full max-w-4xl">
+          <div className="card p-8 bg-gradient-to-r from-brass/10 to-wood/10 border border-brass/20 backdrop-blur-sm">
+            <div className="text-center mb-8">
+              <div className="text-2xl font-heading text-brass font-bold mb-4">
+                {isAligned ? '🎯 Perfect! You are facing the Qibla' : '📱 Rotate your device to align with Qibla'}
+              </div>
+              <div className="text-text dark:text-darktext">
+                {error ? error : 'Live compass (move your phone)'}
+              </div>
             </div>
-            
-            {/* Rotating needle to Qibla */}
-            <div
-              className={`absolute left-1/2 top-1/2 origin-bottom transition-transform duration-300 ${isAligned ? 'qibla-glow' : ''}`}
-              style={{
-                transform: `translate(-50%, -100%) rotate(${needleAngle}deg)`,
-                height: '140px',
-              }}
-            >
-              <svg width="20" height="140" viewBox="0 0 20 140">
-                <rect x="9" y="25" width="2" height="90" fill="#B5A642" />
-                <polygon points="10,0 20,35 0,35" fill="#B5A642" />
-                {/* Animated direction arrow */}
-                <polyline points="10,110 10,135 16,127 10,139 4,127 10,135" fill="none" stroke="#10B981" strokeWidth="2" opacity={isAligned ? 1 : 0.5} />
-                {/* Accuracy indicator */}
-                <circle 
-                  cx="10" 
-                  cy="10" 
-                  r="8" 
-                  fill={isAligned ? "#10B981" : "#B5A642"} 
-                  stroke="#fff" 
-                  strokeWidth="2"
-                />
-              </svg>
-            </div>
-            
-            {/* Floating Kaaba icon */}
-            <div className="absolute left-1/2 top-1/2" style={{ transform: 'translate(-50%, -50%)' }}>
-              <span
-                className={`text-7xl animate-float-kaaba ${isAligned ? 'animate-pulse' : ''}`}
-                style={{ filter: 'drop-shadow(0 2px 8px #0006)' }}
-                role="img"
-                aria-label="Kaaba"
+
+            {/* Compass Display */}
+            <div className="relative w-64 h-64 mx-auto mb-8">
+              <div className="absolute inset-0 rounded-full border-4 border-brass/30 bg-gradient-to-br from-card/80 to-card/60 shadow-2xl"></div>
+              
+              {/* Compass Needle */}
+              <div 
+                className={`absolute left-1/2 top-1/2 origin-bottom transition-transform duration-300 ${isAligned ? 'qibla-glow' : ''}`}
+                style={{
+                  transform: `translate(-50%, -100%) rotate(${bearing}deg)`,
+                  height: '140px',
+                }}
               >
-                🕋
-              </span>
+                <svg width="8" height="140" viewBox="0 0 8 140" fill="none">
+                  <path d="M4 0 L0 140 L8 140 Z" fill="#956D37" stroke="#DDC00F" strokeWidth="1"/>
+                  <circle cx="4" cy="130" r="3" fill="#DDC00F"/>
+                </svg>
+              </div>
+
+              {/* Center Point */}
+              <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 w-4 h-4 bg-brass rounded-full border-2 border-wood shadow-lg"></div>
+
+              {/* Direction Labels */}
+              <div className="absolute top-2 left-1/2 transform -translate-x-1/2 text-brass font-bold">N</div>
+              <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 text-brass font-bold">S</div>
+              <div className="absolute left-2 top-1/2 transform -translate-y-1/2 text-brass font-bold">W</div>
+              <div className="absolute right-2 top-1/2 transform -translate-y-1/2 text-brass font-bold">E</div>
             </div>
-            
-            {/* Accuracy ring */}
-            <div className="absolute inset-0 flex items-center justify-center">
-              <svg width="100%" height="100%" viewBox="0 0 320 320">
-                <circle 
-                  cx="160" 
-                  cy="160" 
-                  r="135" 
-                  fill="none" 
-                  stroke={isAligned ? "#10B981" : "#B5A642"} 
-                  strokeWidth="3" 
-                  strokeDasharray="5 5"
-                  opacity="0.6"
-                />
-              </svg>
-            </div>
-            
+
             {/* Demo mode label */}
-            {!gotRealOrientation && orientationPermission && (
-              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-sand/90 text-mocha px-4 py-2 rounded-full text-xs font-bold shadow border border-brass">
-                Demo Mode: Compass not supported on this device
+            {!('DeviceOrientationEvent' in window) && (
+              <div className="text-center">
+                <div className="bg-gradient-to-r from-brass/20 to-wood/20 px-4 py-2 rounded-full text-xs font-bold border border-brass/30">
+                  Demo Mode: Compass not supported on this device
+                </div>
               </div>
             )}
-          </div>
-
-          {/* Status Message */}
-          <div className="text-center mb-8">
-            <div className={`text-xl md:text-2xl font-semibold mb-2 ${accuracyInfo.color} font-sans`}> 
-              {isAligned ? '🎯 Perfect! You are facing the Qibla' : '📱 Rotate your device to align with Qibla'}
-            </div>
-            <div className="text-secondary text-base md:text-lg">
-              {geoError ? geoError : gotRealOrientation ? 'Live compass (move your phone)' : 'Demo: auto-rotating needle'}
-            </div>
           </div>
         </div>
 
         {/* Map Section */}
-        {userLatLng && kaabaLatLng && !mapError && (
-          <div className="w-full flex flex-col items-center">
-            <div className="text-sm text-secondary mb-4">Your location and the Kaaba</div>
-            <div className="w-full h-80 rounded-3xl overflow-hidden border-2 border-brass shadow-2xl relative" style={{ maxWidth: 600 }}>
-              {!mapInitialized ? (
-                <div className="w-full h-full flex flex-col items-center justify-center bg-sand/20 text-mocha p-4">
-                  <div className="text-2xl mb-2">🗺️</div>
-                  <div className="text-center">
-                    <div className="font-semibold mb-2">Loading map...</div>
-                    <div className="text-sm">Distance to Kaaba: {distance} km</div>
-                    <button 
-                      onClick={() => {
-                        setMapError(false);
-                        setMapKey(prev => prev + 1);
-                        setMapInitialized(false);
-                      }}
-                      className="mt-2 bg-brass text-mocha px-3 py-1 rounded text-sm hover:bg-wood transition"
-                    >
-                      Load Map
-                    </button>
-                  </div>
-                </div>
-              ) : (
+        {userLatLng && kaabaLatLng && (
+          <div className="w-full max-w-4xl">
+            <div className="card p-6 bg-gradient-to-r from-brass/10 to-wood/10 border border-brass/20 backdrop-blur-sm">
+              <div className="text-center mb-6">
+                <div className="text-xl font-heading text-brass font-bold">Your Location and the Kaaba</div>
+              </div>
+              <div className="w-full h-80 rounded-2xl overflow-hidden border-2 border-brass/30 shadow-2xl relative">
                 <ErrorBoundary fallback={
-                  <div className="w-full h-full flex flex-col items-center justify-center bg-sand/20 text-mocha p-4">
-                    <div className="text-2xl mb-2">🗺️</div>
+                  <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-r from-card/80 to-card/60 text-text dark:text-darktext p-4">
+                    <div className="text-4xl mb-4">🗺️</div>
                     <div className="text-center">
-                      <div className="font-semibold mb-2">Map loading error</div>
-                      <div className="text-sm">Distance to Kaaba: {distance} km</div>
+                      <div className="font-semibold mb-2">Map unavailable</div>
+                      <div className="text-sm mb-4">Distance to Kaaba: {distance} km</div>
                       <button 
                         onClick={() => {
-                          setMapError(false);
-                          setMapKey(prev => prev + 1);
-                          setMapInitialized(false);
+                          setShowMap(false);
+                          setUserLatLng(null);
+                          setBearing(0);
+                          setAccuracy(null);
+                          setDistance(null);
+                          setError(null);
+                          setIsLoading(true);
                         }}
-                        className="mt-2 bg-brass text-mocha px-3 py-1 rounded text-sm hover:bg-wood transition"
+                        className="bg-brass text-white px-4 py-2 rounded-xl text-sm hover:bg-wood transition-all duration-300"
                       >
-                        Retry Map
+                        Try Loading Map Again
                       </button>
                     </div>
                   </div>
-                                 }>
-                   <QiblaMap
-                     key={mapKey}
-                     userLatLng={userLatLng}
-                     kaabaLatLng={kaabaLatLng}
-                     isAligned={isAligned}
-                     isDark={isDark}
-                     distance={distance}
-                     onMapCreated={(map) => {
-                       mapInstanceRef.current = map;
-                       setMapInitialized(true);
-                       setMapError(false);
-                     }}
-                     onMapError={(error) => {
-                       setMapError(true);
-                       setMapInitialized(false);
-                     }}
-                   />
-                 </ErrorBoundary>
-              )}
-              {/* Distance label positioned on the map */}
-              <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-[1000]">
-                <span className="bg-brass text-mocha rounded-full px-6 py-2 text-base font-bold shadow border border-wood">
-                  Distance: {distance} km
-                </span>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Map Error State */}
-        {userLatLng && kaabaLatLng && mapError && (
-          <div className="w-full flex flex-col items-center">
-            <div className="text-sm text-secondary mb-4">Your location and the Kaaba</div>
-            <div className="w-full h-80 rounded-3xl overflow-hidden border-2 border-brass shadow-2xl relative" style={{ maxWidth: 600 }}>
-              <div className="w-full h-full flex flex-col items-center justify-center bg-sand/20 text-mocha p-4">
-                <div className="text-2xl mb-2">🗺️</div>
-                <div className="text-center">
-                  <div className="font-semibold mb-2">Map unavailable</div>
-                  <div className="text-sm mb-4">Distance to Kaaba: {distance} km</div>
-                  <div className="text-xs text-mocha/70 mb-4">
-                    Your Qibla direction: {qibla.toFixed(1)}° from North
-                  </div>
-                  <button 
-                    onClick={() => {
-                      setMapError(false);
-                      setMapKey(prev => prev + 1);
-                      setMapInitialized(false);
+                }>
+                  <QiblaMap
+                    userLatLng={userLatLng}
+                    kaabaLatLng={kaabaLatLng}
+                    isAligned={isAligned}
+                    isDark={isDark}
+                    distance={distance}
+                    onMapCreated={(map) => {
+                      mapRef.current = map;
+                      setShowMap(true);
                     }}
-                    className="bg-brass text-mocha px-4 py-2 rounded text-sm hover:bg-wood transition"
-                  >
-                    Try Loading Map Again
-                  </button>
+                    onMapError={(error) => {
+                      setError('Map unavailable.');
+                      setShowMap(false);
+                    }}
+                  />
+                </ErrorBoundary>
+                {/* Distance label positioned on the map */}
+                <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-[1000]">
+                  <span className="bg-gradient-to-r from-brass to-wood text-white rounded-full px-6 py-2 text-base font-bold shadow-lg border border-wood">
+                    Distance: {distance} km
+                  </span>
                 </div>
               </div>
             </div>
@@ -676,25 +545,38 @@ export default function QiblaDirectionScreen() {
         )}
 
         {/* Calibration Instructions */}
-        <div className="w-full flex flex-col items-center">
-          <button 
-            onClick={() => setIsCalibrating(!isCalibrating)}
-            className="bg-gradient-to-r from-brass to-wood text-mocha rounded-full px-6 py-3 font-semibold shadow-lg border border-wood hover:from-wood hover:to-brass hover:text-mocha transition-all duration-300 mb-4"
-          >
-            {isCalibrating ? 'Hide' : 'Show'} Calibration Instructions
-          </button>
-          {isCalibrating && (
-            <div className="glassmorph-card border border-brass rounded-2xl p-6 w-full max-w-md shadow-lg">
-              <h3 className="text-brass mb-3 text-lg font-bold">📱 Calibrate Your Compass</h3>
-              <ol className="list-decimal pl-5 text-secondary space-y-1">
-                <li>Hold your device flat</li>
-                <li>Move it in a figure-8 pattern</li>
-                <li>Rotate it 360° in all directions</li>
-                <li>Stay away from metal objects</li>
-                <li>Wait for the compass to stabilize</li>
-              </ol>
+        <div className="w-full max-w-4xl">
+          <div className="card p-6 bg-gradient-to-r from-brass/10 to-wood/10 border border-brass/20 backdrop-blur-sm">
+            <div className="text-center">
+              <h3 className="text-xl font-heading text-brass font-bold mb-4">📱 Calibrate Your Compass</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <span className="text-brass font-bold">1.</span>
+                    <span className="text-text dark:text-darktext">Hold your device flat</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-brass font-bold">2.</span>
+                    <span className="text-text dark:text-darktext">Move it in a figure-8 pattern</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-brass font-bold">3.</span>
+                    <span className="text-text dark:text-darktext">Rotate it 360° in all directions</span>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <span className="text-brass font-bold">4.</span>
+                    <span className="text-text dark:text-darktext">Stay away from metal objects</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-brass font-bold">5.</span>
+                    <span className="text-text dark:text-darktext">Wait for the compass to stabilize</span>
+                  </div>
+                </div>
+              </div>
             </div>
-          )}
+          </div>
         </div>
       </div>
 

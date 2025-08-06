@@ -57,15 +57,23 @@ a:hover {
 }
 
 .card {
-  @apply bg-card dark:bg-darkcard border border-border dark:border-darkborder rounded-xl shadow-card p-6 mb-6;
+  @apply bg-white/80 dark:bg-darkcard/90 border border-brass/20 dark:border-brass/30 rounded-xl shadow-card p-6 mb-6 backdrop-blur-sm;
 }
 
 button, .btn {
-  @apply rounded-full px-5 py-2 font-body font-semibold text-base shadow-button bg-brass text-white hover:bg-wood focus:outline-none focus:ring-2 focus:ring-wood transition;
+  @apply rounded-full px-5 py-2 font-body font-semibold text-base shadow-button bg-brass text-white hover:bg-wood focus:outline-none focus:ring-2 focus:ring-wood transition cursor-pointer;
+  position: relative;
+  z-index: 10;
+  pointer-events: auto;
 }
 
 input, textarea {
   @apply bg-card dark:bg-darkcard border border-border dark:border-darkborder rounded-xl px-4 py-2 text-text dark:text-darktext font-body focus:outline-none focus:ring-2 focus:ring-brass transition;
+}
+
+/* Glass morphism card utility */
+.glassmorph-card {
+  @apply bg-white/60 dark:bg-darkcard/70 backdrop-blur-lg border border-brass/30 dark:border-brass/40 rounded-2xl shadow-glassmorph;
 }
 
 nav, .footer-nav {

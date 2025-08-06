@@ -12,15 +12,16 @@ export default function DuaScreen() {
   );
 
   return (
-    <div className="w-full max-w-4xl mx-auto py-8 px-2 md:px-4 relative">
-      {/* Decorative SVG background */}
-      <div className="absolute inset-0 -z-10 opacity-10 pointer-events-none select-none">
-        <div className="w-full h-full" style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23956D37' fill-opacity='0.1'%3E%3Cpath d='M30 30c0-11.046-8.954-20-20-20s-20 8.954-20 20 8.954 20 20 20 20-8.954 20-20zm0 0c0 11.046 8.954 20 20 20s20-8.954 20-20-8.954-20-20-20-20 8.954-20 20z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-          backgroundSize: '60px 60px'
-        }} />
-      </div>
-      <h1 className="text-3xl md:text-4xl font-heading text-brass font-bold mb-8 text-center drop-shadow">Dua Categories</h1>
+    <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[#44403c] via-[#78716c] to-[#d6d3d1]">
+      <div className="w-full max-w-4xl mx-auto py-8 px-2 md:px-4 relative">
+        {/* Decorative SVG background */}
+        <div className="absolute inset-0 -z-10 opacity-10 pointer-events-none select-none">
+          <div className="w-full h-full" style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23956D37' fill-opacity='0.1'%3E%3Cpath d='M30 30c0-11.046-8.954-20-20-20s-20 8.954-20 20 8.954 20 20 20 20-8.954 20-20zm0 0c0 11.046 8.954 20 20 20s20-8.954 20-20-8.954-20-20-20-20 8.954-20 20z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+            backgroundSize: '60px 60px'
+          }} />
+        </div>
+        <h1 className="text-3xl md:text-4xl font-heading text-brass font-bold mb-8 text-center drop-shadow">Dua Categories</h1>
       <div className="mb-6 flex justify-center">
         <input
           type="text"
@@ -47,6 +48,7 @@ export default function DuaScreen() {
           ))
         )}
       </div>
+    </div>
     </div>
   );
 } 

@@ -8,12 +8,16 @@ const PROGRESS_KEYS = {
   STUDY_TIME: 'study_time',
   NOTES_COUNT: 'notes_count',
   PRAYER_TRACKER: 'prayer_tracker', // NEW: for daily prayer tracking
+  DAILY_CHALLENGES: 'daily_challenges', // NEW: for daily challenge tracking
+  POINTS: 'points', // NEW: for points system
 };
 
 export class ProgressTracker {
   constructor() {
     this.progress = this.loadProgress();
     this.prayerData = this.loadPrayerData(); // NEW
+    this.challenges = this.loadChallenges(); // NEW
+    this.points = this.loadPoints(); // NEW
   }
 
   loadProgress() {
@@ -60,6 +64,44 @@ export class ProgressTracker {
     };
   }
 
+  // NEW: Load challenges data
+  loadChallenges() {
+    try {
+      const saved = localStorage.getItem(PROGRESS_KEYS.DAILY_CHALLENGES);
+      return saved ? JSON.parse(saved) : this.getDefaultChallenges();
+    } catch (error) {
+      console.error('Error loading challenges:', error);
+      return this.getDefaultChallenges();
+    }
+  }
+
+  getDefaultChallenges() {
+    return {
+      completed: {}, // { 'YYYY-MM-DD': [challengeId1, challengeId2, ...] }
+      streak: 0,
+      lastCompletedDate: null
+    };
+  }
+
+  // NEW: Load points data
+  loadPoints() {
+    try {
+      const saved = localStorage.getItem(PROGRESS_KEYS.POINTS);
+      return saved ? JSON.parse(saved) : this.getDefaultPoints();
+    } catch (error) {
+      console.error('Error loading points:', error);
+      return this.getDefaultPoints();
+    }
+  }
+
+  getDefaultPoints() {
+    return {
+      total: 0,
+      history: [], // [{ date: 'YYYY-MM-DD', points: 10, source: 'challenge', description: 'Pray Tahajjud' }]
+      lastUpdated: null
+    };
+  }
+
   saveProgress() {
     try {
       localStorage.setItem(PROGRESS_KEYS.LEARN_PROGRESS, JSON.stringify(this.progress));
@@ -73,6 +115,24 @@ export class ProgressTracker {
       localStorage.setItem(PROGRESS_KEYS.PRAYER_TRACKER, JSON.stringify(this.prayerData));
     } catch (error) {
       console.error('Error saving prayer data:', error);
+    }
+  }
+
+  // NEW: Save challenges data
+  saveChallenges() {
+    try {
+      localStorage.setItem(PROGRESS_KEYS.DAILY_CHALLENGES, JSON.stringify(this.challenges));
+    } catch (error) {
+      console.error('Error saving challenges:', error);
+    }
+  }
+
+  // NEW: Save points data
+  savePoints() {
+    try {
+      localStorage.setItem(PROGRESS_KEYS.POINTS, JSON.stringify(this.points));
+    } catch (error) {
+      console.error('Error saving points:', error);
     }
   }
 
@@ -326,9 +386,128 @@ export class ProgressTracker {
     };
   }
 
+  // NEW: Add points to user's total
+  addPoints(points, source, description = '') {
+    this.points.total += points;
+    this.points.history.push({
+      date: new Date().toISOString().split('T')[0],
+      points: points,
+      source: source,
+      description: description
+    });
+    this.points.lastUpdated = new Date().toISOString();
+    this.savePoints();
+  }
+
+  // NEW: Get total points
+  getTotalPoints() {
+    return this.points.total;
+  }
+
+  // NEW: Get points history
+  getPointsHistory() {
+    return this.points.history;
+  }
+
+  // NEW: Complete a daily challenge
+  completeChallenge(challengeId, points, description) {
+    const today = new Date().toISOString().split('T')[0];
+    
+    // Check if already completed today
+    if (!this.challenges.completed[today]) {
+      this.challenges.completed[today] = [];
+    }
+    
+    if (!this.challenges.completed[today].includes(challengeId)) {
+      this.challenges.completed[today].push(challengeId);
+      this.addPoints(points, 'challenge', description);
+      this.updateChallengeStreak();
+      this.saveChallenges();
+      return true;
+    }
+    
+    return false; // Already completed
+  }
+
+  // NEW: Check if challenge is completed today
+  isChallengeCompletedToday(challengeId) {
+    const today = new Date().toISOString().split('T')[0];
+    return this.challenges.completed[today] && this.challenges.completed[today].includes(challengeId);
+  }
+
+  // NEW: Get completed challenges for today
+  getCompletedChallengesToday() {
+    const today = new Date().toISOString().split('T')[0];
+    return this.challenges.completed[today] || [];
+  }
+
+  // NEW: Update challenge streak
+  updateChallengeStreak() {
+    const today = new Date().toISOString().split('T')[0];
+    const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+    
+    if (this.challenges.lastCompletedDate === yesterday || this.challenges.lastCompletedDate === today) {
+      this.challenges.streak++;
+    } else if (this.challenges.lastCompletedDate !== today) {
+      this.challenges.streak = 1;
+    }
+    
+    this.challenges.lastCompletedDate = today;
+  }
+
+  // NEW: Get challenge streak
+  getChallengeStreak() {
+    return this.challenges.streak;
+  }
+
+  // NEW: Get points summary for progress screen
+  getPointsSummary() {
+    return {
+      total: this.points.total,
+      today: this.getTodayPoints(),
+      thisWeek: this.getThisWeekPoints(),
+      thisMonth: this.getThisMonthPoints()
+    };
+  }
+
+  // NEW: Get today's points
+  getTodayPoints() {
+    const today = new Date().toISOString().split('T')[0];
+    return this.points.history
+      .filter(entry => entry.date === today)
+      .reduce((sum, entry) => sum + entry.points, 0);
+  }
+
+  // NEW: Get this week's points
+  getThisWeekPoints() {
+    const today = new Date();
+    const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+    
+    return this.points.history
+      .filter(entry => {
+        const entryDate = new Date(entry.date);
+        return entryDate >= weekAgo && entryDate <= today;
+      })
+      .reduce((sum, entry) => sum + entry.points, 0);
+  }
+
+  // NEW: Get this month's points
+  getThisMonthPoints() {
+    const today = new Date();
+    const monthAgo = new Date(today.getFullYear(), today.getMonth(), 1);
+    
+    return this.points.history
+      .filter(entry => {
+        const entryDate = new Date(entry.date);
+        return entryDate >= monthAgo && entryDate <= today;
+      })
+      .reduce((sum, entry) => sum + entry.points, 0);
+  }
+
   // Overall progress summary
   getProgressSummary() {
     const prayerStats = this.getPrayerStats();
+    const pointsSummary = this.getPointsSummary();
     return {
       completionPercentage: this.getCompletionPercentage(),
       currentStep: this.getCurrentStep(),
@@ -337,8 +516,12 @@ export class ProgressTracker {
       quizStats: this.getQuizStats(),
       achievements: this.progress.achievements.length,
       notesCount: this.progress.notesCount,
-      prayerFullDays: prayerStats.fullDays, // NEW
-      prayerStreak: prayerStats.streak // NEW
+      prayerFullDays: prayerStats.fullDays,
+      prayerStreak: prayerStats.streak,
+      // NEW: Points information
+      points: pointsSummary,
+      challengeStreak: this.getChallengeStreak(),
+      completedChallengesToday: this.getCompletedChallengesToday().length
     };
   }
 

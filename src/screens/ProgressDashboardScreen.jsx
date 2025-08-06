@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { progressTracker } from '../utils/progressTracker';
+import { ToggleLeft } from '../components/ToggleLeft';
 
 function getNotesList() {
   try {
@@ -59,18 +60,21 @@ export default function ProgressDashboardScreen() {
 
   if (!progress) {
     return (
-      <div className="w-full max-w-2xl mx-auto flex flex-col items-center gap-6 py-8 px-4">
-        <div className="text-lg text-text dark:text-darktext">Loading progress...</div>
+      <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[#44403c] via-[#78716c] to-[#d6d3d1]">
+        <div className="w-full max-w-2xl mx-auto flex flex-col items-center gap-6 py-8 px-4">
+          <div className="text-lg text-text dark:text-darktext">Loading progress...</div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="w-full max-w-2xl mx-auto flex flex-col gap-6 py-8 px-4">
-      <div className="flex justify-between items-center mb-2">
-        <h1 className="text-3xl font-heading text-brass font-bold text-center">Your Progress</h1>
-        <button className="btn ml-4" onClick={loadProgress} title="Refresh Progress">🔄 Refresh</button>
-      </div>
+    <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[#44403c] via-[#78716c] to-[#d6d3d1]">
+      <div className="w-full max-w-2xl mx-auto flex flex-col gap-6 py-8 px-4">
+        <div className="flex justify-between items-center mb-2">
+          <h1 className="text-3xl font-heading text-brass font-bold text-center">Your Progress</h1>
+          <button className="btn ml-4" onClick={loadProgress} title="Refresh Progress">🔄 Refresh</button>
+        </div>
       
       {/* Achievement Notification */}
       {showAchievement && (
@@ -100,6 +104,39 @@ export default function ProgressDashboardScreen() {
           <div className="flex items-center justify-between">
             <span className="text-text dark:text-darktext font-medium">Current Step</span>
             <span className="text-brass font-bold">{progress.currentStep}/8</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Points Section */}
+      <div className="card">
+        <h2 className="text-xl font-heading text-brass font-bold mb-4">🏆 Points & Achievements</h2>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="text-center p-4 bg-gradient-to-r from-brass/10 to-wood/10 rounded-lg border border-brass/20">
+            <div className="text-3xl text-brass font-bold">{progress.points?.total || 0}</div>
+            <div className="text-sm text-text dark:text-darktext">Total Points</div>
+          </div>
+          <div className="text-center p-4 bg-gradient-to-r from-brass/10 to-wood/10 rounded-lg border border-brass/20">
+            <div className="text-3xl text-brass font-bold">{progress.points?.today || 0}</div>
+            <div className="text-sm text-text dark:text-darktext">Today's Points</div>
+          </div>
+          <div className="text-center p-4 bg-gradient-to-r from-brass/10 to-wood/10 rounded-lg border border-brass/20">
+            <div className="text-3xl text-brass font-bold">{progress.points?.thisWeek || 0}</div>
+            <div className="text-sm text-text dark:text-darktext">This Week</div>
+          </div>
+          <div className="text-center p-4 bg-gradient-to-r from-brass/10 to-wood/10 rounded-lg border border-brass/20">
+            <div className="text-3xl text-brass font-bold">{progress.challengeStreak || 0}</div>
+            <div className="text-sm text-text dark:text-darktext">Challenge Streak</div>
+          </div>
+        </div>
+        <div className="mt-4 p-3 bg-gradient-to-r from-brass/5 to-wood/5 rounded-lg border border-brass/10">
+          <div className="text-center">
+            <div className="text-sm text-text dark:text-darktext">
+              Completed {progress.completedChallengesToday || 0} challenges today
+            </div>
+            <div className="text-xs text-text dark:text-darktext opacity-80 mt-1">
+              Keep up the great work! 🌟
+            </div>
           </div>
         </div>
       </div>
@@ -163,8 +200,12 @@ export default function ProgressDashboardScreen() {
             <input type="date" value={prayerEnd} onChange={e => setPrayerEnd(e.target.value)} className="rounded border p-1" />
           </label>
           <label className="flex items-center gap-2 text-sm">
-            <input type="checkbox" checked={showFullDaysOnly} onChange={e => setShowFullDaysOnly(e.target.checked)} />
-            Show only full days
+            <ToggleLeft
+              isActive={showFullDaysOnly}
+              onChange={(active) => setShowFullDaysOnly(active)}
+              stroke="#956D37"
+            />
+            <span>Show only full days</span>
           </label>
         </div>
         <table className="min-w-full border-collapse text-sm">
@@ -350,6 +391,7 @@ export default function ProgressDashboardScreen() {
           Reset Progress
         </button>
       </div>
+    </div>
     </div>
   );
 } 

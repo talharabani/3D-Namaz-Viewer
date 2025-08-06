@@ -8,6 +8,7 @@ import PrayerTrackerScreen from './screens/PrayerTrackerScreen';
 import PrayerTimesScreen from './screens/PrayerTimesScreen';
 import SettingsScreen from './screens/SettingsScreen';
 import ProgressDashboardScreen from './screens/ProgressDashboardScreen';
+import DailyChallengeScreen from './screens/DailyChallengeScreen';
 import FooterNavTabs from './components/FooterNavTabs';
 import { useState, useEffect, useRef } from 'react';
 import reactLogo from './assets/react.svg';
@@ -15,7 +16,7 @@ import viteLogo from '/vite.svg';
 import './App.css';
 import NamazMistakesScreen from './screens/NamazMistakesScreen';
 import { offlineService } from './utils/offlineService';
-import { notificationService } from './utils/notificationService';
+import notificationService from './utils/notificationService';
 import DuaScreen from './screens/DuaScreen';
 import DuaListScreen from './screens/DuaListScreen';
 import NamazScreen from './screens/NamazScreen';
@@ -40,7 +41,7 @@ class GlobalErrorBoundary extends React.Component {
   render() {
     if (this.state.hasError) {
       return (
-        <div className="min-h-screen bg-gradient-to-br from-mocha via-sand to-wood flex items-center justify-center p-4">
+        <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[#44403c] via-[#78716c] to-[#d6d3d1] flex items-center justify-center p-4">
           <div className="max-w-md w-full bg-white/90 backdrop-blur-sm rounded-2xl p-8 shadow-2xl border-2 border-brass text-center">
             <div className="text-4xl mb-4">🕌</div>
             <h1 className="text-2xl font-bold text-brass mb-4">Something went wrong</h1>
@@ -86,8 +87,8 @@ function App() {
         // Initialize offline service
         await offlineService.init();
         
-        // Request notification permission
-        await notificationService.requestPermission();
+        // Don't automatically request notification permission
+        // It will be requested when user interacts with notification features
         
         console.log('Services initialized successfully');
       } catch (error) {
@@ -131,7 +132,7 @@ function App() {
           lang={currentLang}>
         {/* Floating language toggle button */}
         <button
-          className="fixed bottom-32 right-6 z-50 w-14 h-14 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-button flex items-center justify-center text-lg font-bold hover:from-purple-600 hover:to-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+          className="fixed bottom-32 right-6 z-50 w-14 h-14 rounded-full bg-gradient-to-r from-accent to-accent2 text-white shadow-button flex items-center justify-center text-lg font-bold hover:from-accent2 hover:to-accent focus:outline-none focus:ring-2 focus:ring-accent transition"
           onClick={() => changeLanguage(currentLang === 'en' ? 'ur' : 'en')}
           aria-label="Toggle language"
         >
@@ -145,9 +146,9 @@ function App() {
         >
           {dark ? '🌙' : '☀️'}
         </button>
-        {/* Floating children mode toggle button (optional, keep if needed) */}
+        {/* Floating children mode toggle button */}
         <button
-          className="fixed bottom-64 right-6 z-50 w-14 h-14 rounded-full bg-emerald-400 text-mocha shadow-button flex items-center justify-center text-2xl hover:bg-brass hover:text-white focus:outline-none focus:ring-2 focus:ring-brass transition"
+          className="fixed bottom-64 right-6 z-50 w-14 h-14 rounded-full bg-success text-white shadow-button flex items-center justify-center text-2xl hover:bg-brass hover:text-white focus:outline-none focus:ring-2 focus:ring-brass transition"
           onClick={() => setChildrenMode(c => !c)}
           aria-label="Toggle children mode"
         >
@@ -176,6 +177,7 @@ function App() {
             <Route path="/progress" element={<ProgressDashboardScreen />} />
             <Route path="/ai-assistant" element={<AIAssistantScreen />} />
             <Route path="/settings" element={<SettingsScreen />} />
+            <Route path="/daily-challenge" element={<DailyChallengeScreen />} />
           </Routes>
         </main>
         <FooterNavTabs />

@@ -66,117 +66,94 @@ const AIAssistantScreen = () => {
   ];
 
   return (
-    <div className="w-full max-w-4xl mx-auto py-4 sm:py-8 px-2 sm:px-4">
-      {/* Header */}
-      <div className="text-center mb-6 sm:mb-8">
-        <div className="text-4xl sm:text-6xl mb-3 sm:mb-4">🤖</div>
-        <h1 className="text-2xl sm:text-4xl font-bold text-brass mb-2">Islamic AI Assistant</h1>
-        <p className="text-sm sm:text-lg text-mocha font-medium max-w-2xl mx-auto px-2">
-          Your personal guide for Islamic knowledge, prayer guidance, and spiritual advice. 
-          Ask me anything about Islam, prayers, duas, and Islamic teachings.
-        </p>
-      </div>
+    <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[#44403c] via-[#78716c] to-[#d6d3d1]">
+      <div className="w-full max-w-7xl mx-auto flex flex-col items-center gap-8 py-8 px-4">
+        {/* Header Section */}
+        <div className="w-full text-center mb-8">
+          <div className="text-5xl font-heading text-brass font-bold drop-shadow-2xl mb-4 bg-gradient-to-r from-brass to-wood bg-clip-text text-transparent">
+            Islamic AI Assistant
+          </div>
+          <div className="text-lg text-text dark:text-darktext opacity-90 max-w-2xl mx-auto">
+            Your personal guide for Islamic knowledge, prayer guidance, and spiritual advice
+          </div>
+        </div>
 
-      {/* Quick Start Button */}
-      <div className="text-center mb-8 sm:mb-12">
-        <button
-          onClick={() => setShowChat(true)}
-          className="bg-gradient-to-r from-brass to-wood text-white px-6 sm:px-8 py-3 sm:py-4 rounded-2xl text-lg sm:text-xl font-bold shadow-lg hover:shadow-xl transform hover:scale-105 transition duration-300"
-        >
-          🚀 Start Chatting with AI Assistant
-        </button>
-      </div>
+        {/* Quick Start Button */}
+        <div className="w-full max-w-4xl text-center">
+          <button
+            onClick={() => setShowChat(true)}
+            className="bg-gradient-to-r from-brass to-wood text-white px-8 py-4 rounded-2xl text-xl font-bold shadow-2xl hover:shadow-3xl transform hover:scale-105 transition-all duration-300 border border-wood"
+          >
+            🚀 Start Chatting with AI Assistant
+          </button>
+        </div>
 
-      {/* AI Features Grid */}
-      <div className="mb-8 sm:mb-12">
-        <h2 className="text-xl sm:text-2xl font-bold text-wood mb-4 sm:mb-6 text-center">What I Can Help You With</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-          {aiFeatures.map((feature, index) => (
-            <div
-              key={index}
-              onClick={feature.action}
-              className="bg-gradient-to-br from-[#fffbe6] to-[#f7ecd7] border-2 border-brass rounded-2xl p-4 sm:p-6 cursor-pointer hover:shadow-lg hover:scale-105 transition duration-300 group"
-            >
-                             <div className="text-3xl sm:text-4xl mb-3 sm:mb-4">{feature.icon}</div>
-               <h3 className="text-lg sm:text-xl font-bold text-brass mb-2">{feature.title}</h3>
-               <p className="text-mocha text-xs sm:text-sm leading-relaxed font-medium">{feature.description}</p>
-              <div className="mt-4 text-brass font-semibold group-hover:text-wood transition">
-                Ask me about this →
+        {/* AI Features Grid */}
+        <div className="w-full max-w-6xl">
+          <div className="text-center mb-8">
+            <h2 className="text-2xl font-heading text-brass font-bold">What I Can Help You With</h2>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {aiFeatures.map((feature, index) => (
+              <div
+                key={index}
+                onClick={feature.action}
+                className="group relative card p-6 hover:shadow-2xl transition-all duration-500 hover:scale-105 bg-gradient-to-br from-card/80 to-card/60 backdrop-blur-sm border border-brass/20 overflow-hidden cursor-pointer"
+              >
+                {/* Background Pattern */}
+                <div className="absolute inset-0 opacity-5 bg-gradient-to-br from-brass to-wood pointer-events-none"></div>
+                
+                <div className="relative text-center">
+                  <div className="text-4xl mb-4 group-hover:scale-110 transition-transform duration-300">{feature.icon}</div>
+                  <h3 className="text-lg font-bold text-brass mb-2">{feature.title}</h3>
+                  <p className="text-sm text-text dark:text-darktext leading-relaxed">{feature.description}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Common Questions */}
+        <div className="w-full max-w-4xl">
+          <div className="card p-6 bg-gradient-to-r from-brass/10 to-wood/10 border border-brass/20 backdrop-blur-sm">
+            <div className="text-center mb-6">
+              <h3 className="text-xl font-heading text-brass font-bold">Common Questions</h3>
+              <p className="text-text dark:text-darktext">Click any question to start a conversation</p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {commonQuestions.map((question, index) => (
+                <button
+                  key={index}
+                  onClick={() => setShowChat(true)}
+                  className="text-left p-3 rounded-lg bg-gradient-to-r from-brass/10 to-wood/10 border border-brass/20 hover:from-brass/20 hover:to-wood/20 transition-all duration-300 hover:scale-102"
+                >
+                  <span className="text-text dark:text-darktext text-sm">{question}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* AI Chat Modal */}
+        {showChat && (
+          <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+            <div className="bg-card dark:bg-darkcard rounded-2xl shadow-2xl max-w-4xl w-full h-[80vh] border border-brass/20">
+              <div className="flex items-center justify-between p-4 border-b border-brass/20">
+                <h2 className="text-xl font-heading text-brass font-bold">Islamic AI Assistant</h2>
+                <button
+                  onClick={() => setShowChat(false)}
+                  className="text-3xl text-brass hover:text-wood transition-all duration-300 hover:scale-110"
+                >
+                  ✕
+                </button>
+              </div>
+              <div className="h-full">
+                <AIChatComponent />
               </div>
             </div>
-          ))}
-        </div>
+          </div>
+        )}
       </div>
-
-      {/* Common Questions */}
-      <div className="mb-8 sm:mb-12">
-        <h2 className="text-xl sm:text-2xl font-bold text-wood mb-4 sm:mb-6 text-center">Common Questions</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
-          {commonQuestions.map((question, index) => (
-            <button
-              key={index}
-              onClick={() => setShowChat(true)}
-              className="text-left p-3 sm:p-4 bg-gradient-to-r from-[#fffbe6] to-[#f7ecd7] border border-brass/30 rounded-xl hover:border-brass hover:shadow-md transition text-xs sm:text-sm font-medium text-mocha hover:text-brass hover:bg-gradient-to-r hover:from-brass hover:to-wood hover:text-white"
-            >
-              {question}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* How It Works */}
-      <div className="bg-gradient-to-br from-[#fffbe6] to-[#f7ecd7] border-2 border-brass rounded-2xl p-4 sm:p-8 mb-6 sm:mb-8">
-        <h2 className="text-xl sm:text-2xl font-bold text-brass mb-4 sm:mb-6 text-center">How It Works</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
-                     <div className="text-center">
-             <div className="text-2xl sm:text-3xl mb-2 sm:mb-3">💬</div>
-             <h3 className="text-base sm:text-lg font-bold text-wood mb-2">Ask Questions</h3>
-             <p className="text-mocha text-xs sm:text-sm font-medium">Type your questions about Islam, prayers, or any Islamic topic</p>
-           </div>
-           <div className="text-center">
-             <div className="text-2xl sm:text-3xl mb-2 sm:mb-3">🤖</div>
-             <h3 className="text-base sm:text-lg font-bold text-wood mb-2">AI Response</h3>
-             <p className="text-mocha text-xs sm:text-sm font-medium">Get accurate, respectful answers based on authentic Islamic sources</p>
-           </div>
-           <div className="text-center">
-             <div className="text-2xl sm:text-3xl mb-2 sm:mb-3">📚</div>
-             <h3 className="text-base sm:text-lg font-bold text-wood mb-2">Learn & Grow</h3>
-             <p className="text-mocha text-xs sm:text-sm font-medium">Deepen your understanding and strengthen your faith</p>
-           </div>
-        </div>
-      </div>
-
-      {/* Features Highlight */}
-      <div className="text-center">
-        <h2 className="text-xl sm:text-2xl font-bold text-wood mb-4 sm:mb-6">Key Features</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-                     <div className="bg-white border-2 border-brass rounded-xl p-4 sm:p-6">
-             <div className="text-xl sm:text-2xl mb-2 sm:mb-3">🎯</div>
-             <h3 className="text-base sm:text-lg font-bold text-brass mb-2">Accurate Information</h3>
-             <p className="text-mocha text-xs sm:text-sm font-medium">All responses are based on authentic Islamic sources and scholarly consensus</p>
-           </div>
-           <div className="bg-white border-2 border-brass rounded-xl p-4 sm:p-6">
-             <div className="text-xl sm:text-2xl mb-2 sm:mb-3">🤝</div>
-             <h3 className="text-base sm:text-lg font-bold text-brass mb-2">Respectful Approach</h3>
-             <p className="text-mocha text-xs sm:text-sm font-medium">Maintains Islamic etiquette and cultural sensitivity in all interactions</p>
-           </div>
-           <div className="bg-white border-2 border-brass rounded-xl p-4 sm:p-6">
-             <div className="text-xl sm:text-2xl mb-2 sm:mb-3">📱</div>
-             <h3 className="text-base sm:text-lg font-bold text-brass mb-2">Always Available</h3>
-             <p className="text-mocha text-xs sm:text-sm font-medium">Get instant answers to your questions anytime, anywhere</p>
-           </div>
-           <div className="bg-white border-2 border-brass rounded-xl p-4 sm:p-6">
-             <div className="text-xl sm:text-2xl mb-2 sm:mb-3">🌱</div>
-             <h3 className="text-base sm:text-lg font-bold text-brass mb-2">Personal Growth</h3>
-             <p className="text-mocha text-xs sm:text-sm font-medium">Tailored guidance to help you grow spiritually and religiously</p>
-           </div>
-        </div>
-      </div>
-
-      {/* AI Chat Modal */}
-      {showChat && (
-        <AIChatComponent onClose={() => setShowChat(false)} />
-      )}
     </div>
   );
 };

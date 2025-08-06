@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { ToggleLeft } from '../components/ToggleLeft';
 
 export default function SettingsScreen() {
   const [settings, setSettings] = useState({
@@ -9,34 +10,67 @@ export default function SettingsScreen() {
       maghrib: true,
       isha: true,
       sunrise: false,
-      advanceMinutes: 10
+      advanceMinutes: 10,
+      adhanSound: true,
+      reminderSound: true,
+      silentMode: false,
+      doNotDisturb: {
+        enabled: false,
+        startTime: '22:00',
+        endTime: '06:00'
+      }
     },
     location: {
       autoDetect: true,
       latitude: null,
       longitude: null,
       city: '',
-      country: ''
+      country: '',
+      timezone: ''
     },
     prayerMethod: 2, // ISNA
     fiqh: 'shafi',
     theme: 'auto', // auto, light, dark
     language: 'en',
     soundEnabled: true,
-    vibrationEnabled: true
+    vibrationEnabled: true,
+    qiblaDirection: true,
+    hijriCalendar: true,
+    showSeconds: false,
+    militaryTime: false,
+    autoRefresh: true,
+    offlineMode: true,
+    dataUsage: {
+      autoSync: true,
+      syncInterval: 30, // minutes
+      backgroundSync: true
+    },
+    accessibility: {
+      largeText: false,
+      highContrast: false,
+      reduceMotion: false,
+      screenReader: false
+    }
   });
 
   const [loading, setLoading] = useState(false);
+  const [notificationPermission, setNotificationPermission] = useState('default');
 
   useEffect(() => {
     // Load saved settings from localStorage
     const savedSettings = localStorage.getItem('namaz_settings');
     if (savedSettings) {
       try {
-        setSettings(JSON.parse(savedSettings));
+        const parsed = JSON.parse(savedSettings);
+        setSettings(prev => ({ ...prev, ...parsed }));
       } catch (error) {
         console.error('Error loading settings:', error);
       }
+    }
+
+    // Check notification permission
+    if ('Notification' in window) {
+      setNotificationPermission(Notification.permission);
     }
   }, []);
 
@@ -94,7 +128,8 @@ export default function SettingsScreen() {
             latitude,
             longitude,
             city: data.city || '',
-            country: data.countryName || ''
+            country: data.countryName || '',
+            timezone: data.timezone || ''
           }
         };
         saveSettings(newSettings);
@@ -129,6 +164,7 @@ export default function SettingsScreen() {
   const requestNotificationPermission = async () => {
     if ('Notification' in window) {
       const permission = await Notification.requestPermission();
+      setNotificationPermission(permission);
       if (permission === 'granted') {
         alert('Notifications enabled! You will receive prayer time alerts.');
       } else {
@@ -137,212 +173,210 @@ export default function SettingsScreen() {
     }
   };
 
+  const resetToDefaults = () => {
+    if (confirm('This will reset all settings to default values. Are you sure?')) {
+      const defaultSettings = {
+        notifications: {
+          fajr: true,
+          dhuhr: true,
+          asr: true,
+          maghrib: true,
+          isha: true,
+          sunrise: false,
+          advanceMinutes: 10,
+          adhanSound: true,
+          reminderSound: true,
+          silentMode: false,
+          doNotDisturb: {
+            enabled: false,
+            startTime: '22:00',
+            endTime: '06:00'
+          }
+        },
+        location: {
+          autoDetect: true,
+          latitude: null,
+          longitude: null,
+          city: '',
+          country: '',
+          timezone: ''
+        },
+        prayerMethod: 2,
+        fiqh: 'shafi',
+        theme: 'auto',
+        language: 'en',
+        soundEnabled: true,
+        vibrationEnabled: true,
+        qiblaDirection: true,
+        hijriCalendar: true,
+        showSeconds: false,
+        militaryTime: false,
+        autoRefresh: true,
+        offlineMode: true,
+        dataUsage: {
+          autoSync: true,
+          syncInterval: 30,
+          backgroundSync: true
+        },
+        accessibility: {
+          largeText: false,
+          highContrast: false,
+          reduceMotion: false,
+          screenReader: false
+        }
+      };
+      saveSettings(defaultSettings);
+      window.location.reload();
+    }
+  };
+
   return (
-    <div className="w-full max-w-2xl mx-auto flex flex-col gap-6 py-8 px-4">
-      <h1 className="text-3xl font-heading text-brass font-bold text-center mb-6">Settings</h1>
-      
-      {/* Notifications Section */}
-      <div className="card">
-        <h2 className="text-xl font-heading text-brass font-bold mb-4">Prayer Notifications</h2>
-        <div className="space-y-3">
-          {Object.entries(settings.notifications).map(([prayer, enabled]) => {
-            if (prayer === 'advanceMinutes') return null;
-            return (
-              <div key={prayer} className="flex items-center justify-between">
-                <span className="text-text dark:text-darktext font-medium capitalize">{prayer}</span>
-                <button
-                  className={`w-12 h-6 rounded-full transition-colors ${
-                    enabled ? 'bg-brass' : 'bg-border dark:bg-darkborder'
-                  }`}
-                  onClick={() => updateNotificationSetting(prayer, !enabled)}
+    <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[#44403c] via-[#78716c] to-[#d6d3d1]">
+      <div className="w-full max-w-7xl mx-auto flex flex-col items-center gap-8 py-8 px-4">
+        {/* Header Section */}
+        <div className="w-full text-center mb-8">
+          <div className="text-5xl font-heading text-brass font-bold drop-shadow-2xl mb-4 bg-gradient-to-r from-brass to-wood bg-clip-text text-transparent">
+            Settings
+          </div>
+          <div className="text-lg text-text dark:text-darktext opacity-90 max-w-2xl mx-auto">
+            Customize your prayer experience and app preferences
+          </div>
+        </div>
+
+        {/* Settings Sections */}
+        <div className="w-full max-w-4xl space-y-8">
+          {/* Notifications Section */}
+          <div className="card p-6 bg-gradient-to-r from-brass/10 to-wood/10 border border-brass/20 backdrop-blur-sm">
+            <div className="flex items-center gap-3 mb-6">
+              <span className="text-2xl">🔔</span>
+              <h2 className="text-2xl font-heading text-brass font-bold">Prayer Notifications</h2>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+              {Object.entries(settings.notifications).filter(([key]) => ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'].includes(key)).map(([prayer, enabled]) => (
+                <div key={prayer} className="flex items-center justify-between p-3 rounded-lg bg-gradient-to-r from-brass/10 to-wood/10 border border-brass/20">
+                  <span className="text-text dark:text-darktext font-semibold capitalize">{prayer}</span>
+                  <ToggleLeft
+                    isActive={enabled}
+                    onChange={(active) => updateNotificationSetting(prayer, active)}
+                    stroke="#956D37"
+                  />
+                </div>
+              ))}
+            </div>
+
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <span className="text-text dark:text-darktext">Advance Notification (minutes)</span>
+                <select
+                  value={settings.notifications.advanceMinutes}
+                  onChange={(e) => updateAdvanceMinutes(Number(e.target.value))}
+                  className="rounded-lg border border-brass px-3 py-1 bg-card dark:bg-darkcard text-text dark:text-darktext"
                 >
-                  <div className={`w-5 h-5 bg-white rounded-full transition-transform ${
-                    enabled ? 'translate-x-6' : 'translate-x-1'
-                  }`} />
+                  <option value={5}>5</option>
+                  <option value={10}>10</option>
+                  <option value={15}>15</option>
+                  <option value={20}>20</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          {/* Location Section */}
+          <div className="card p-6 bg-gradient-to-r from-brass/10 to-wood/10 border border-brass/20 backdrop-blur-sm">
+            <div className="flex items-center gap-3 mb-6">
+              <span className="text-2xl">📍</span>
+              <h2 className="text-2xl font-heading text-brass font-bold">Location Settings</h2>
+            </div>
+            
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <span className="text-text dark:text-darktext">Auto-detect location</span>
+                <button
+                  onClick={() => updateLocation()}
+                  className="bg-gradient-to-r from-brass to-wood text-white px-4 py-2 rounded-lg font-semibold hover:from-wood hover:to-brass transition-all duration-300"
+                >
+                  Update Location
                 </button>
               </div>
-            );
-          })}
-          
-          <div className="flex items-center justify-between mt-4">
-            <span className="text-text dark:text-darktext font-medium">Advance Alert (minutes)</span>
-            <select
-              value={settings.notifications.advanceMinutes}
-              onChange={(e) => updateAdvanceMinutes(parseInt(e.target.value))}
-              className="bg-card dark:bg-darkcard border border-border dark:border-darkborder rounded-lg px-3 py-1 text-text dark:text-darktext"
-            >
-              <option value={5}>5</option>
-              <option value={10}>10</option>
-              <option value={15}>15</option>
-              <option value={20}>20</option>
-            </select>
-          </div>
-          
-          <button
-            className="btn w-full mt-4"
-            onClick={requestNotificationPermission}
-          >
-            Enable Notifications
-          </button>
-        </div>
-      </div>
-
-      {/* Location Section */}
-      <div className="card">
-        <h2 className="text-xl font-heading text-brass font-bold mb-4">Location Settings</h2>
-        <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <span className="text-text dark:text-darktext font-medium">Auto-detect Location</span>
-            <button
-              className={`w-12 h-6 rounded-full transition-colors ${
-                settings.location.autoDetect ? 'bg-brass' : 'bg-border dark:bg-darkborder'
-              }`}
-              onClick={() => {
-                const newSettings = {
-                  ...settings,
-                  location: { ...settings.location, autoDetect: !settings.location.autoDetect }
-                };
-                saveSettings(newSettings);
-              }}
-            >
-              <div className={`w-5 h-5 bg-white rounded-full transition-transform ${
-                settings.location.autoDetect ? 'translate-x-6' : 'translate-x-1'
-              }`} />
-            </button>
-          </div>
-          
-          {settings.location.city && (
-            <div className="text-sm text-text dark:text-darktext">
-              Current: {settings.location.city}, {settings.location.country}
             </div>
-          )}
-          
-          <button
-            className="btn w-full"
-            onClick={updateLocation}
-            disabled={loading}
-          >
-            {loading ? 'Updating...' : 'Update Location'}
-          </button>
-        </div>
-      </div>
+          </div>
 
-      {/* Prayer Calculation Method */}
-      <div className="card">
-        <h2 className="text-xl font-heading text-brass font-bold mb-4">Prayer Calculation</h2>
-        <div className="space-y-3">
-          <div>
-            <label className="block text-text dark:text-darktext font-medium mb-2">Calculation Method</label>
-            <select
-              value={settings.prayerMethod}
-              onChange={(e) => saveSettings({ ...settings, prayerMethod: parseInt(e.target.value) })}
-              className="w-full bg-card dark:bg-darkcard border border-border dark:border-darkborder rounded-lg px-3 py-2 text-text dark:text-darktext"
-            >
-              <option value={2}>ISNA</option>
-              <option value={3}>MWL</option>
-              <option value={4}>Umm Al-Qura</option>
-              <option value={5}>Egyptian</option>
-              <option value={12}>Dubai</option>
-              <option value={1}>University of Islamic Sciences, Karachi</option>
-            </select>
+          {/* Prayer Method Section */}
+          <div className="card p-6 bg-gradient-to-r from-brass/10 to-wood/10 border border-brass/20 backdrop-blur-sm">
+            <div className="flex items-center gap-3 mb-6">
+              <span className="text-2xl">🕌</span>
+              <h2 className="text-2xl font-heading text-brass font-bold">Prayer Method</h2>
+            </div>
+            
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <span className="text-text dark:text-darktext">Calculation Method</span>
+                <select
+                  value={settings.prayerMethod}
+                  onChange={(e) => saveSettings({ ...settings, prayerMethod: Number(e.target.value) })}
+                  className="rounded-lg border border-brass px-3 py-1 bg-card dark:bg-darkcard text-text dark:text-darktext"
+                >
+                  <option value={2}>ISNA</option>
+                  <option value={3}>MWL</option>
+                  <option value={4}>Umm Al-Qura</option>
+                  <option value={5}>Egyptian</option>
+                  <option value={12}>Dubai</option>
+                </select>
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <span className="text-text dark:text-darktext">Fiqh</span>
+                <select
+                  value={settings.fiqh}
+                  onChange={(e) => saveSettings({ ...settings, fiqh: e.target.value })}
+                  className="rounded-lg border border-brass px-3 py-1 bg-card dark:bg-darkcard text-text dark:text-darktext"
+                >
+                  <option value="shafi">Shafi</option>
+                  <option value="hanafi">Hanafi</option>
+                  <option value="ahl-e-hadith">Ahl-e-Hadith</option>
+                </select>
+              </div>
+            </div>
           </div>
-          
-          <div>
-            <label className="block text-text dark:text-darktext font-medium mb-2">Fiqh</label>
-            <select
-              value={settings.fiqh}
-              onChange={(e) => saveSettings({ ...settings, fiqh: e.target.value })}
-              className="w-full bg-card dark:bg-darkcard border border-border dark:border-darkborder rounded-lg px-3 py-2 text-text dark:text-darktext"
-            >
-              <option value="shafi">Shafi</option>
-              <option value="hanafi">Hanafi</option>
-            </select>
-          </div>
-        </div>
-      </div>
 
-      {/* Appearance */}
-      <div className="card">
-        <h2 className="text-xl font-heading text-brass font-bold mb-4">Appearance</h2>
-        <div className="space-y-3">
-          <div>
-            <label className="block text-text dark:text-darktext font-medium mb-2">Theme</label>
-            <select
-              value={settings.theme}
-              onChange={(e) => updateTheme(e.target.value)}
-              className="w-full bg-card dark:bg-darkcard border border-border dark:border-darkborder rounded-lg px-3 py-2 text-text dark:text-darktext"
-            >
-              <option value="auto">Auto (System)</option>
-              <option value="light">Light</option>
-              <option value="dark">Dark</option>
-            </select>
+          {/* Theme Section */}
+          <div className="card p-6 bg-gradient-to-r from-brass/10 to-wood/10 border border-brass/20 backdrop-blur-sm">
+            <div className="flex items-center gap-3 mb-6">
+              <span className="text-2xl">🎨</span>
+              <h2 className="text-2xl font-heading text-brass font-bold">Appearance</h2>
+            </div>
+            
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <span className="text-text dark:text-darktext">Theme</span>
+                <select
+                  value={settings.theme}
+                  onChange={(e) => updateTheme(e.target.value)}
+                  className="rounded-lg border border-brass px-3 py-1 bg-card dark:bg-darkcard text-text dark:text-darktext"
+                >
+                  <option value="auto">Auto</option>
+                  <option value="light">Light</option>
+                  <option value="dark">Dark</option>
+                </select>
+              </div>
+            </div>
           </div>
-          
-          <div className="flex items-center justify-between">
-            <span className="text-text dark:text-darktext font-medium">Sound Effects</span>
+
+          {/* Reset Section */}
+          <div className="card p-6 bg-gradient-to-r from-brass/10 to-wood/10 border border-brass/20 backdrop-blur-sm">
+            <div className="flex items-center gap-3 mb-6">
+              <span className="text-2xl">🔄</span>
+              <h2 className="text-2xl font-heading text-brass font-bold">Reset Settings</h2>
+            </div>
+            
             <button
-              className={`w-12 h-6 rounded-full transition-colors ${
-                settings.soundEnabled ? 'bg-brass' : 'bg-border dark:bg-darkborder'
-              }`}
-              onClick={() => saveSettings({ ...settings, soundEnabled: !settings.soundEnabled })}
+              onClick={resetToDefaults}
+              className="bg-gradient-to-r from-red-500 to-red-600 text-white px-6 py-3 rounded-lg font-semibold hover:from-red-600 hover:to-red-700 transition-all duration-300"
             >
-              <div className={`w-5 h-5 bg-white rounded-full transition-transform ${
-                settings.soundEnabled ? 'translate-x-6' : 'translate-x-1'
-              }`} />
+              Reset to Defaults
             </button>
           </div>
-          
-          <div className="flex items-center justify-between">
-            <span className="text-text dark:text-darktext font-medium">Vibration</span>
-            <button
-              className={`w-12 h-6 rounded-full transition-colors ${
-                settings.vibrationEnabled ? 'bg-brass' : 'bg-border dark:bg-darkborder'
-              }`}
-              onClick={() => saveSettings({ ...settings, vibrationEnabled: !settings.vibrationEnabled })}
-            >
-              <div className={`w-5 h-5 bg-white rounded-full transition-transform ${
-                settings.vibrationEnabled ? 'translate-x-6' : 'translate-x-1'
-              }`} />
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Data Management */}
-      <div className="card">
-        <h2 className="text-xl font-heading text-brass font-bold mb-4">Data Management</h2>
-        <div className="space-y-3">
-          <button
-            className="btn w-full"
-            onClick={() => {
-              if (confirm('This will clear all your saved data. Are you sure?')) {
-                localStorage.clear();
-                window.location.reload();
-              }
-            }}
-          >
-            Clear All Data
-          </button>
-          
-          <button
-            className="btn w-full"
-            onClick={() => {
-              const data = {
-                settings: localStorage.getItem('namaz_settings'),
-                notes: localStorage.getItem('learn_notes'),
-                progress: localStorage.getItem('learn_progress')
-              };
-              const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-              const url = URL.createObjectURL(blob);
-              const a = document.createElement('a');
-              a.href = url;
-              a.download = 'namaz-app-data.json';
-              a.click();
-              URL.revokeObjectURL(url);
-            }}
-          >
-            Export Data
-          </button>
         </div>
       </div>
     </div>

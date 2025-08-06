@@ -1,0 +1,88 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Hadiths collection - public read access, admin-only write access
+    match /hadiths/{document} {
+      // Allow public read access to all hadiths
+      allow read: if true;
+      
+      // Disallow all client-side writes
+      allow write: if false;
+      
+      // Note: Admin writes should be done through Firebase Admin SDK
+      // with proper authentication and authorization
+    }
+    
+    // Books collection - public read access, admin-only write access
+    match /books/{document} {
+      // Allow public read access to book metadata
+      allow read: if true;
+      
+      // Disallow all client-side writes
+      allow write: if false;
+    }
+    
+    // Users collection - users can only access their own data
+    match /users/{userId} {
+      // Users can read and write their own documents
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // User favorites collection - users can manage their own favorites
+    match /users/{userId}/favorites/{favoriteId} {
+      // Users can read and write their own favorites
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // User reading history collection - users can manage their own history
+    match /users/{userId}/history/{historyId} {
+      // Users can read and write their own reading history
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Deny access to all other collections by default
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
+
+/*
+ * ADMIN ACCESS NOTES:
+ * 
+ * For admin operations (importing hadiths, updating data), use Firebase Admin SDK:
+ * 
+ * 1. Set up service account key:
+ *    - Go to Firebase Console > Project Settings > Service Accounts
+ *    - Generate new private key
+ *    - Download JSON file
+ * 
+ * 2. Use in Node.js scripts:
+ *    const admin = require('firebase-admin');
+ *    const serviceAccount = require('./path/to/serviceAccountKey.json');
+ *    
+ *    admin.initializeApp({
+ *      credential: admin.credential.cert(serviceAccount)
+ *    });
+ * 
+ * 3. Admin SDK bypasses security rules completely
+ * 
+ * SECURITY BEST PRACTICES:
+ * 
+ * 1. Never expose service account keys in client-side code
+ * 2. Use environment variables for sensitive configuration
+ * 3. Regularly rotate service account keys
+ * 4. Monitor Firestore usage and costs
+ * 5. Set up proper backup and disaster recovery
+ * 6. Consider implementing rate limiting for read operations
+ * 7. Use Firebase App Check for additional security
+ * 
+ * DEPLOYMENT:
+ * 
+ * Deploy these rules using Firebase CLI:
+ * firebase deploy --only firestore:rules
+ * 
+ * Or manually in Firebase Console:
+ * Firestore Database > Rules tab
+ */ 

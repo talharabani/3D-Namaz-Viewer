@@ -1,4 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
+import audioService from '../utils/audioService';
+import notificationService from '../utils/notificationService';
+import { ToggleLeft } from '../components/ToggleLeft';
 
 const PRAYERS = ['Fajr', 'Sunrise', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
 const AZAN_AUDIO = 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav';
@@ -13,6 +16,7 @@ const METHODS = [
 const FIQHS = [
   { id: 'shafi', name: 'Shafi' },
   { id: 'hanafi', name: 'Hanafi' },
+  { id: 'ahl-e-hadith', name: 'Ahl-e-Hadith' },
 ];
 
 function getTimeDiff(target) {
@@ -25,6 +29,50 @@ function getTimeDiff(target) {
   return { h, m, s, total: diff };
 }
 
+// Function to adjust prayer times according to Ahl-e-Hadith fiqh
+function adjustPrayerTimesForAhlEHadith(timings) {
+  if (!timings) return timings;
+  
+  const adjusted = { ...timings };
+  
+  // Ahl-e-Hadith specific adjustments based on authentic hadith:
+  
+  // 1. Fajr: When true dawn appears (Subh Sadiq)
+  // - API already provides this correctly
+  
+  // 2. Dhuhr: When sun passes zenith (Zawal)
+  // - API already provides this correctly
+  
+  // 3. Asr: When shadow of an object equals its height (Shadow = 1)
+  // - This is already handled by API with school=0 (Shafi method)
+  
+  // 4. Maghrib: Immediately after sunset (Ghurub)
+  // - Ensure Maghrib is set to sunset time
+  if (adjusted.Sunset) {
+    adjusted.Maghrib = adjusted.Sunset;
+  }
+  
+  // 5. Isha: When twilight disappears (Shafaq)
+  // - Ahl-e-Hadith prays Isha earlier than Hanafi
+  // - API with school=0 provides this correctly
+  
+  // 6. Additional Ahl-e-Hadith considerations:
+  // - They follow the authentic hadith more strictly
+  // - Avoid delaying prayers unnecessarily
+  // - Pray in congregation when possible
+  
+  return adjusted;
+}
+
+// Prayer notification messages
+const PRAYER_MESSAGES = {
+  'Fajr': 'Allahu Akbar! Time for Fajr prayer. Come to Allah, He is calling you.',
+  'Dhuhr': 'Allahu Akbar! Time for Dhuhr prayer. Come to Allah, He is calling you.',
+  'Asr': 'Allahu Akbar! Time for Asr prayer. Come to Allah, He is calling you.',
+  'Maghrib': 'Allahu Akbar! Time for Maghrib prayer. Come to Allah, He is calling you.',
+  'Isha': 'Allahu Akbar! Time for Isha prayer. Come to Allah, He is calling you.',
+};
+
 export default function PrayerTimesScreen() {
   const [times, setTimes] = useState(null);
   const [hijri, setHijri] = useState('');
@@ -34,8 +82,44 @@ export default function PrayerTimesScreen() {
   const [countdown, setCountdown] = useState({ h: 0, m: 0, s: 0, total: 0 });
   const [method, setMethod] = useState(2);
   const [fiqh, setFiqh] = useState('shafi');
+  const [notificationsEnabled, setNotificationsEnabled] = useState(false);
+  const [showNotificationAlert, setShowNotificationAlert] = useState(false);
+  const [currentPrayerAlert, setCurrentPrayerAlert] = useState(null);
+  
   const azanRef = useRef();
   const [coords, setCoords] = useState(null);
+
+  // Check notification permission status (without requesting)
+  useEffect(() => {
+    const checkNotificationStatus = () => {
+      const enabled = notificationService.isEnabled();
+      setNotificationsEnabled(enabled);
+    };
+    checkNotificationStatus();
+  }, []);
+
+  // Show prayer notification
+  const showPrayerNotification = (prayerName) => {
+    const enhancedMessage = `🕌 Allahu Akbar! Allah is calling you for ${prayerName} prayer at ${times[prayerName]}`;
+    
+    // Show browser notification with enhanced features
+    notificationService.showPrayerNotification(prayerName, times[prayerName]);
+
+    // Show in-app alert with enhanced message
+    setCurrentPrayerAlert({
+      prayer: prayerName,
+      message: enhancedMessage,
+      timestamp: Date.now()
+    });
+
+    // Play Allahu Akbar sound once with vibration
+    audioService.playNotificationWithVibration();
+
+    // Auto-hide alert after 30 seconds
+    setTimeout(() => {
+      setCurrentPrayerAlert(null);
+    }, 30000);
+  };
 
   // Get user location and fetch prayer times
   useEffect(() => {
@@ -49,7 +133,16 @@ export default function PrayerTimesScreen() {
       const { latitude, longitude } = pos.coords;
       setCoords({ latitude, longitude });
       try {
-        const res = await fetch(`https://api.aladhan.com/v1/timings?latitude=${latitude}&longitude=${longitude}&method=${method}&school=${fiqh === 'hanafi' ? 1 : 0}`, {
+        // Handle different fiqh calculations
+        let school = 0; // Default Shafi
+        if (fiqh === 'hanafi') {
+          school = 1;
+        } else if (fiqh === 'ahl-e-hadith') {
+          // Ahl-e-Hadith uses different calculation method
+          school = 0; // Similar to Shafi but with specific adjustments
+        }
+        
+        const res = await fetch(`https://api.aladhan.com/v1/timings?latitude=${latitude}&longitude=${longitude}&method=${method}&school=${school}`, {
           timeout: 10000 // 10 second timeout
         });
         if (!res.ok) {
@@ -57,8 +150,18 @@ export default function PrayerTimesScreen() {
         }
         const data = await res.json();
         if (data.code === 200 && data.data && data.data.timings) {
-          setTimes(data.data.timings);
+          let prayerTimes = data.data.timings;
+          
+          // Apply Ahl-e-Hadith specific adjustments if selected
+          if (fiqh === 'ahl-e-hadith') {
+            prayerTimes = adjustPrayerTimesForAhlEHadith(prayerTimes);
+          }
+          
+          setTimes(prayerTimes);
           setHijri(`${data.data.date.hijri.day} ${data.data.date.hijri.month.en} ${data.data.date.hijri.year} AH`);
+          
+          // Schedule notifications for all prayer times
+          notificationService.schedulePrayerNotifications(prayerTimes);
         } else {
           throw new Error('Invalid prayer times data');
         }
@@ -84,105 +187,246 @@ export default function PrayerTimesScreen() {
       t.setHours(h, m, 0, 0);
       return t;
     });
-    let idx = prayerTimes.findIndex((t, i) => t > now && p !== 'Sunrise');
+    let idx = prayerTimes.findIndex((t, i) => t > now && PRAYERS[i] !== 'Sunrise');
     if (idx === -1) idx = 0; // next day
     setNextIdx(idx);
     const diff = getTimeDiff(prayerTimes[idx]);
     setCountdown(diff);
+    
+    // Check if it's prayer time (within 1 minute)
+    if (diff.total < 60 && diff.total > 0) {
+      const prayerName = PRAYERS[idx];
+      if (prayerName !== 'Sunrise') {
+        showPrayerNotification(prayerName);
+      }
+    }
+    
     // Azan sound when time is up
     if (diff.total < 1 && azanRef.current) {
       azanRef.current.currentTime = 0;
       azanRef.current.play();
     }
+    
     const interval = setInterval(() => {
       const now2 = new Date();
       const diff2 = getTimeDiff(prayerTimes[idx]);
       setCountdown(diff2);
+      
+      // Check for prayer time again
+      if (diff2.total < 60 && diff2.total > 0) {
+        const prayerName = PRAYERS[idx];
+        if (prayerName !== 'Sunrise') {
+          showPrayerNotification(prayerName);
+        }
+      }
     }, 1000);
     return () => clearInterval(interval);
   }, [times]);
 
-  if (loading) return <div className="text-center py-12">Loading prayer times...</div>;
-  if (error) return <div className="text-center text-red-600 py-12">{error}</div>;
+  // Enable notifications
+  const enableNotifications = async () => {
+    const enabled = await notificationService.requestPermission();
+    setNotificationsEnabled(enabled);
+    if (enabled) {
+      setShowNotificationAlert(false);
+    }
+  };
+
+  if (loading) return (
+    <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[#44403c] via-[#78716c] to-[#d6d3d1] flex items-center justify-center">
+      <div className="text-center">
+        <div className="text-4xl mb-4">🕋</div>
+        <div className="text-xl text-brass font-bold">Loading prayer times...</div>
+      </div>
+    </div>
+  );
+  
+  if (error) return (
+    <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[#44403c] via-[#78716c] to-[#d6d3d1] flex items-center justify-center">
+      <div className="text-center">
+        <div className="text-4xl mb-4">⚠️</div>
+        <div className="text-xl text-error font-bold">{error}</div>
+      </div>
+    </div>
+  );
+  
   if (!times) return null;
 
   return (
-    <div className="w-full max-w-2xl mx-auto flex flex-col items-center gap-8 py-8">
-      <div className="w-full flex flex-col md:flex-row justify-between items-center mb-4 gap-2">
-        <div className="text-3xl font-heading text-brass font-bold drop-shadow-lg">Prayer Times</div>
-        <div className="flex gap-2">
-          <select
-            className="rounded-xl border-2 border-brass px-3 py-1 bg-glass text-mocha font-bold focus:ring-2 focus:ring-accent2"
-            value={method}
-            onChange={e => setMethod(Number(e.target.value))}
-          >
-            {METHODS.map(m => (
-              <option key={m.id} value={m.id}>{m.name}</option>
-            ))}
-          </select>
-          <select
-            className="rounded-xl border-2 border-brass px-3 py-1 bg-glass text-mocha font-bold focus:ring-2 focus:ring-accent2"
-            value={fiqh}
-            onChange={e => setFiqh(e.target.value)}
-          >
-            {FIQHS.map(f => (
-              <option key={f.id} value={f.id}>{f.name} Fiqh</option>
-            ))}
-          </select>
-        </div>
-      </div>
-      <div className="w-full text-right text-brass font-bold mb-2 font-body">{hijri}</div>
-      <div className="w-full flex flex-col gap-6">
-        {PRAYERS.map((p, i) => (
-          <div
-            key={p}
-            className={`relative flex items-center justify-between glassmorph-card animate-fadeIn ${i === nextIdx ? 'border-4 border-accent2 shadow-vibrant' : 'border border-brass/20'}`}
-            style={{ animationDelay: `${i * 0.1 + 0.1}s` }}
-          >
-            <div className="flex flex-col">
-              <span className="text-xl font-heading text-brass font-bold">{p}</span>
-              <span className="text-lg text-ivory font-body">{times[p]}</span>
-            </div>
-            {i === nextIdx && p !== 'Sunrise' ? (
-              <div className="flex items-center gap-3">
-                {/* Countdown ring */}
-                <svg width="48" height="48" viewBox="0 0 48 48">
-                  <circle cx="24" cy="24" r="20" fill="none" stroke="#B5A64222" strokeWidth="6" />
-                  <circle
-                    cx="24" cy="24" r="20"
-                    fill="none"
-                    stroke="#00C9A7"
-                    strokeWidth="6"
-                    strokeDasharray={2 * Math.PI * 20}
-                    strokeDashoffset={(2 * Math.PI * 20) * (1 - countdown.total / (60 * 60))}
-                    style={{ transition: 'stroke-dashoffset 1s linear' }}
-                  />
-                  <text x="24" y="28" textAnchor="middle" fontSize="14" fill="#00C9A7">{`${countdown.h}:${String(countdown.m).padStart(2, '0')}`}</text>
-                </svg>
-                {/* Azan icon pulse */}
-                <span className={`text-3xl text-accent2 ${countdown.total < 60 ? 'animate-azan-pulse' : ''}`}>🔊</span>
-              </div>
-            ) : null}
+    <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[#44403c] via-[#78716c] to-[#d6d3d1]">
+      <div className="w-full max-w-7xl mx-auto flex flex-col items-center gap-8 py-8 px-4">
+        {/* Header Section */}
+        <div className="w-full text-center mb-8">
+          <div className="text-5xl font-heading text-brass font-bold drop-shadow-2xl mb-4 bg-gradient-to-r from-brass to-wood bg-clip-text text-transparent">
+            Prayer Times
           </div>
-        ))}
+          <div className="text-lg text-text dark:text-darktext opacity-90 max-w-2xl mx-auto">
+            Check prayer timings and get notified when it's time to pray
+          </div>
+        </div>
+
+        {/* Prayer Time Alert Modal */}
+        {currentPrayerAlert && (
+          <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+            <div className="bg-card dark:bg-darkcard rounded-2xl shadow-2xl max-w-md w-full p-8 text-center border border-brass/20">
+              <div className="text-6xl mb-6">🕌</div>
+              <h2 className="text-3xl font-heading text-brass font-bold mb-4">
+                {currentPrayerAlert.prayer} Prayer Time
+              </h2>
+              <p className="text-text dark:text-darktext text-lg mb-8 leading-relaxed">
+                {currentPrayerAlert.message}
+              </p>
+              <div className="flex gap-4">
+                <button
+                  onClick={() => setCurrentPrayerAlert(null)}
+                  className="flex-1 py-4 rounded-xl bg-gradient-to-r from-brass to-wood text-white font-bold hover:from-wood hover:to-brass transition-all duration-300 shadow-lg"
+                >
+                  Dismiss
+                </button>
+                <button
+                  onClick={() => {
+                    setCurrentPrayerAlert(null);
+                    // Navigate to prayer guide or tracker
+                  }}
+                  className="flex-1 py-4 rounded-xl bg-gradient-to-r from-accent to-accent2 text-white font-bold hover:from-accent2 hover:to-accent transition-all duration-300 shadow-lg"
+                >
+                  Start Prayer
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Notification Permission Alert */}
+        {showNotificationAlert && (
+          <div className="w-full max-w-4xl">
+            <div className="card p-6 bg-gradient-to-r from-warning/10 to-warning/5 border border-warning/30 backdrop-blur-sm">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-brass font-bold text-lg mb-2">Enable Prayer Notifications</h3>
+                  <p className="text-text dark:text-darktext">Get notified when it's time for prayer</p>
+                </div>
+                <button
+                  onClick={enableNotifications}
+                  className="px-6 py-3 bg-warning text-white rounded-xl font-bold hover:bg-warning/80 transition-all duration-300 shadow-lg"
+                >
+                  Enable
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Settings Section */}
+        <div className="w-full max-w-4xl">
+          <div className="card p-6 bg-gradient-to-r from-brass/10 to-wood/10 border border-brass/20 backdrop-blur-sm">
+            <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+              <div className="text-2xl font-heading text-brass font-bold">Settings</div>
+              <div className="flex gap-4">
+                <select
+                  className="rounded-xl border-2 border-brass px-4 py-2 bg-card dark:bg-darkcard text-text dark:text-darktext font-bold focus:ring-2 focus:ring-brass transition-all duration-300"
+                  value={method}
+                  onChange={e => setMethod(Number(e.target.value))}
+                >
+                  {METHODS.map(m => (
+                    <option key={m.id} value={m.id}>{m.name}</option>
+                  ))}
+                </select>
+                <select
+                  className="rounded-xl border-2 border-brass px-4 py-2 bg-card dark:bg-darkcard text-text dark:text-darktext font-bold focus:ring-2 focus:ring-brass transition-all duration-300"
+                  value={fiqh}
+                  onChange={e => setFiqh(e.target.value)}
+                >
+                  {FIQHS.map(f => (
+                    <option key={f.id} value={f.id}>{f.name}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Prayer Times Display */}
+        <div className="w-full max-w-4xl">
+          <div className="card p-6 bg-gradient-to-r from-brass/10 to-wood/10 border border-brass/20 backdrop-blur-sm">
+            <div className="flex justify-between items-center mb-6">
+              <div className="text-sm text-text dark:text-darktext font-body">
+                <span className="text-brass font-bold">Fiqh:</span> {FIQHS.find(f => f.id === fiqh)?.name}
+                {fiqh === 'ahl-e-hadith' && (
+                  <span className="ml-2 text-xs text-accent4">
+                    (Asr: Shadow=1, Maghrib: After sunset, Isha: Earlier)
+                  </span>
+                )}
+              </div>
+              <div className="text-right text-brass font-bold font-body">{hijri}</div>
+            </div>
+            
+            <div className="space-y-4">
+              {PRAYERS.map((p, i) => (
+                <div
+                  key={p}
+                  className={`relative flex items-center justify-between p-4 rounded-xl transition-all duration-300 ${
+                    i === nextIdx 
+                      ? 'bg-gradient-to-r from-accent/20 to-accent2/20 border-2 border-accent2 shadow-vibrant' 
+                      : 'bg-gradient-to-r from-card/80 to-card/60 border border-brass/20'
+                  }`}
+                  style={{ animationDelay: `${i * 0.1 + 0.1}s` }}
+                >
+                  <div className="flex flex-col">
+                    <span className="text-xl font-heading text-brass font-bold">{p}</span>
+                    <span className="text-lg text-text dark:text-darktext font-body">{times[p]}</span>
+                  </div>
+                  {i === nextIdx && p !== 'Sunrise' ? (
+                    <div className="flex items-center gap-3">
+                      {/* Countdown ring */}
+                      <svg width="48" height="48" viewBox="0 0 48 48">
+                        <circle cx="24" cy="24" r="20" fill="none" stroke="rgba(181, 166, 66, 0.2)" strokeWidth="6" />
+                        <circle
+                          cx="24" cy="24" r="20"
+                          fill="none"
+                          stroke="currentColor"
+                          className="text-accent"
+                          strokeWidth="6"
+                          strokeDasharray={2 * Math.PI * 20}
+                          strokeDashoffset={(2 * Math.PI * 20) * (1 - countdown.total / (60 * 60))}
+                          style={{ transition: 'stroke-dashoffset 1s linear' }}
+                        />
+                        <text x="24" y="28" textAnchor="middle" fontSize="14" className="text-accent" fill="currentColor">{`${countdown.h}:${String(countdown.m).padStart(2, '0')}`}</text>
+                      </svg>
+                      {/* Azan icon pulse */}
+                      <span className={`text-3xl text-accent2 ${countdown.total < 60 ? 'animate-azan-pulse' : ''}`}>🔊</span>
+                    </div>
+                  ) : null}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+        
+        {/* Notification Status */}
+        <div className="w-full max-w-4xl">
+          <div className="card p-6 bg-gradient-to-r from-brass/10 to-wood/10 border border-brass/20 backdrop-blur-sm">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-brass font-bold text-lg mb-2">Prayer Notifications</h3>
+                <p className="text-text dark:text-darktext">
+                  {notificationsEnabled 
+                    ? '✅ Notifications enabled - You will be notified at prayer times'
+                    : '❌ Notifications disabled - Click to enable'
+                  }
+                </p>
+              </div>
+              <ToggleLeft
+                isActive={notificationsEnabled}
+                onChange={enableNotifications}
+                stroke="#956D37"
+              />
+            </div>
+          </div>
+        </div>
+        
+        <audio ref={azanRef} src={AZAN_AUDIO} preload="auto" />
       </div>
-      <audio ref={azanRef} src={AZAN_AUDIO} preload="auto" />
-      <style>{`
-        @keyframes fadeUp {
-          0% { opacity: 0; transform: translateY(40px); }
-          100% { opacity: 1; transform: none; }
-        }
-        .animate-fadeUp {
-          animation: fadeUp 0.7s cubic-bezier(.4,2,.6,1) both;
-        }
-        @keyframes azan-pulse {
-          0%, 100% { transform: scale(1); filter: drop-shadow(0 0 0 #B5A642); }
-          50% { transform: scale(1.2); filter: drop-shadow(0 0 12px #B5A642); }
-        }
-        .animate-azan-pulse {
-          animation: azan-pulse 1s infinite;
-        }
-      `}</style>
     </div>
   );
 } 

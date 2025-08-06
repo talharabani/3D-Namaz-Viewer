@@ -1,7 +1,18 @@
 import React from 'react';
 import { useEffect, useState } from 'react';
-import axios from 'axios';
 import { useTranslation } from '../utils/translations';
+import { 
+  searchHadiths, 
+  getCategories, 
+  getRandomHadith, 
+  getHadithsByBook, 
+  getHadithsByNarrator,
+  getNarrators,
+  getHadithStats,
+  isDatabaseEmpty as checkDatabaseEmpty,
+  HADITH_BOOKS
+} from '../utils/hadithService';
+import { runCompleteImport, resetAndReimport } from '../utils/importHadithData';
 
 // Error Boundary Component
 class ErrorBoundary extends React.Component {
@@ -36,690 +47,959 @@ class ErrorBoundary extends React.Component {
   }
 }
 
-const API_KEY = '$2y$10$KwWKqh9ky2wvjKPLtRgXJOKlVm5Sn1HbvBZp87kSVpZexB7xZhyO';
-const API_URL = 'https://hadithapi.com/api/hadiths';
-
-// Comprehensive fallback hadith data with titles
-const FALLBACK_HADITHS = [
-  {
-    id: 1,
-    title: "The Most Beloved Places to Allah",
-    text: "The Prophet Muhammad ﷺ said: 'The most beloved places to Allah are the mosques, and the most disliked places to Allah are the markets.'",
-    narrator: "Abu Huraira",
-    book: "Sahih Muslim",
-    category: "Mosque"
-  },
-  {
-    id: 2,
-    title: "Actions Are by Intentions",
-    text: "The Prophet Muhammad ﷺ said: 'Actions are by intentions, and every person will have what they intended.'",
-    narrator: "Umar ibn Al-Khattab",
-    book: "Sahih Bukhari",
-    category: "Intentions"
-  },
-  {
-    id: 3,
-    title: "The Five Pillars of Islam",
-    text: "The Prophet Muhammad ﷺ said: 'Islam is built upon five: testifying that there is no god but Allah and that Muhammad is the Messenger of Allah, establishing prayer, paying zakat, fasting Ramadan, and performing Hajj.'",
-    narrator: "Abdullah ibn Umar",
-    book: "Sahih Bukhari",
-    category: "Pillars"
-  },
-  {
-    id: 4,
-    title: "Kindness to Parents",
-    text: "The Prophet Muhammad ﷺ said: 'Paradise lies at the feet of your mother.'",
-    narrator: "Anas ibn Malik",
-    book: "Sunan An-Nasai",
-    category: "Family"
-  },
-  {
-    id: 5,
-    title: "The Best of Deeds",
-    text: "The Prophet Muhammad ﷺ said: 'The best of deeds is to believe in Allah and His Messenger, then jihad in the way of Allah.'",
-    narrator: "Abu Huraira",
-    book: "Sahih Bukhari",
-    category: "Faith"
-  },
-  {
-    id: 6,
-    title: "Seeking Knowledge",
-    text: "The Prophet Muhammad ﷺ said: 'Seeking knowledge is obligatory upon every Muslim.'",
-    narrator: "Anas ibn Malik",
-    book: "Sunan Ibn Majah",
-    category: "Knowledge"
-  },
-  {
-    id: 7,
-    title: "Good Character",
-    text: "The Prophet Muhammad ﷺ said: 'The most complete of believers in faith is the one with the best character.'",
-    narrator: "Abu Huraira",
-    book: "Sunan Abu Dawud",
-    category: "Character"
-  },
-  {
-    id: 8,
-    title: "Helping Others",
-    text: "The Prophet Muhammad ﷺ said: 'Whoever helps ease a difficulty in this world, Allah will help ease a difficulty for them in the Hereafter.'",
-    narrator: "Abu Huraira",
-    book: "Sahih Muslim",
-    category: "Charity"
-  },
-  {
-    id: 9,
-    title: "Prayer on Time",
-    text: "The Prophet Muhammad ﷺ said: 'The most beloved of deeds to Allah is prayer at its proper time, then being good to parents, then jihad in the way of Allah.'",
-    narrator: "Abdullah ibn Mas'ud",
-    book: "Sahih Bukhari",
-    category: "Prayer"
-  },
-  {
-    id: 10,
-    title: "Truthfulness",
-    text: "The Prophet Muhammad ﷺ said: 'Truthfulness leads to righteousness, and righteousness leads to Paradise. A man continues to be truthful until he becomes a truthful person.'",
-    narrator: "Abdullah ibn Mas'ud",
-    book: "Sahih Bukhari",
-    category: "Character"
-  },
-  {
-    id: 11,
-    title: "Neighbor's Rights",
-    text: "The Prophet Muhammad ﷺ said: 'Whoever believes in Allah and the Last Day, let him be good to his neighbor.'",
-    narrator: "Abu Huraira",
-    book: "Sahih Muslim",
-    category: "Social"
-  },
-  {
-    id: 12,
-    title: "Smiling is Charity",
-    text: "The Prophet Muhammad ﷺ said: 'Your smiling at your brother is charity, commanding good and forbidding evil is charity, giving directions to a man lost in the land is charity, and removing harmful things from the road is charity.'",
-    narrator: "Abu Dharr",
-    book: "Sunan At-Tirmidhi",
-    category: "Charity"
-  }
-];
-
-const CALLIGRAPHY = (
-  <svg className="absolute left-1/2 top-1/2 -z-10 opacity-10 pointer-events-none select-none fade-in-out" style={{ transform: 'translate(-50%, -50%)', width: '60%', height: '60%' }} viewBox="0 0 200 80" fill="none">
-    <text x="50%" y="50%" textAnchor="middle" dominantBaseline="middle" fontSize="48" fontFamily="serif" fill="#B5A642">﷽</text>
-  </svg>
-);
-
 function getSaved(type) {
   try {
-    return JSON.parse(localStorage.getItem('fav_' + type)) || [];
-  } catch { return []; }
+    const saved = localStorage.getItem(`namaz_${type}`);
+    return saved ? JSON.parse(saved) : [];
+  } catch (error) {
+    console.error(`Error loading ${type}:`, error);
+    return [];
+  }
 }
 
 export default function HadithScreen() {
   const { t } = useTranslation();
   const [hadiths, setHadiths] = useState([]);
-  const [filteredHadiths, setFilteredHadiths] = useState([]);
   const [selectedHadith, setSelectedHadith] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
   const [searching, setSearching] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [apiStatus, setApiStatus] = useState('loading'); // 'loading', 'online', 'offline'
-  const [searchTerm, setSearchTerm] = useState('');
+  const [favorites, setFavorites] = useState(getSaved('favorites'));
+  const [showModal, setShowModal] = useState(false);
+  const [selectedBook, setSelectedBook] = useState('all');
   const [selectedCategory, setSelectedCategory] = useState('all');
-  const [favorites, setFavorites] = useState({ hadith: getSaved('hadith') });
-  const [showFavs, setShowFavs] = useState(false);
+  const [selectedNarrator, setSelectedNarrator] = useState('all');
   const [viewMode, setViewMode] = useState('grid'); // 'grid' or 'list'
+  const [sortBy, setSortBy] = useState('relevance'); // 'relevance', 'book', 'narrator', 'category'
+  const [showFilters, setShowFilters] = useState(false);
+  const [categories, setCategories] = useState([]);
+  const [narrators, setNarrators] = useState([]);
+  const [stats, setStats] = useState(null);
+  const [lastDoc, setLastDoc] = useState(null);
+  const [hasMore, setHasMore] = useState(true);
+  const [isDatabaseEmpty, setIsDatabaseEmpty] = useState(false);
+  const [searchSuggestions, setSearchSuggestions] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(-1);
+  const [suggestionsLoading, setSuggestionsLoading] = useState(false);
 
-  // Get unique categories
-  const categories = ['all', ...new Set(FALLBACK_HADITHS.map(h => h.category))];
-
+  // Load initial hadiths and metadata
   useEffect(() => {
-    async function fetchData() {
-      setLoading(true);
-      setError(null);
-      try {
-                 // Try to fetch hadith with API key using proper query parameters
-         try {
-           // Try different API endpoints to find the correct one
-           let hadithData = null;
-           
-           // First try: Basic API call
-           try {
-             const hadithRes = await axios.get(`${API_URL}?apiKey=${API_KEY}&limit=50`, {
-               timeout: 10000
-             });
-             if (hadithRes.data.success && hadithRes.data.data && hadithRes.data.data.length > 0) {
-               hadithData = hadithRes.data;
-             }
-           } catch (error) {
-             console.log('Basic API call failed, trying alternative endpoints');
-           }
-
-           // Second try: Try with different parameters
-           if (!hadithData) {
-             try {
-               const hadithRes2 = await axios.get(`${API_URL}?apiKey=${API_KEY}&book=sahih-bukhari&limit=20`, {
-                 timeout: 10000
-               });
-               if (hadithRes2.data.success && hadithRes2.data.data && hadithRes2.data.data.length > 0) {
-                 hadithData = hadithRes2.data;
-               }
-             } catch (error) {
-               console.log('Book-specific API call failed');
-             }
-           }
-
-           if (hadithData && hadithData.data && hadithData.data.length > 0) {
-             // Transform API data to match our format
-             const transformedHadiths = hadithData.data.map((h, index) => ({
-               id: h.id || index + 1,
-               title: h.hadithEnglish ? h.hadithEnglish.substring(0, 100) + '...' : `Hadith ${index + 1}`,
-               text: h.hadithEnglish || h.text || h.hadith || h.content,
-               arabicText: h.hadithArabic || '',
-               narrator: h.narrator || h.narratedBy || 'Unknown',
-               book: h.book || h.collection || 'Unknown',
-               category: h.chapter || h.category || 'General',
-               hadithNumber: h.hadithNumber || '',
-               grade: h.grade || ''
-             }));
-             setHadiths(transformedHadiths);
-             setApiStatus('online');
-           } else {
-             throw new Error('No hadith data available');
-           }
-         } catch (hadithError) {
-           console.warn('Hadith API failed, using fallback:', hadithError);
-           setHadiths(FALLBACK_HADITHS);
-           setApiStatus('offline');
-         }
-      } catch (error) {
-        console.error('Error in fetchData:', error);
-        setError('Unable to fetch content. Please try again later.');
-        setHadiths(FALLBACK_HADITHS);
+    loadInitialData();
+    
+    // Add debug functions to window for console access
+    window.debugHadith = {
+      clearCache: async () => {
+        const { clearHadithCache } = await import('../utils/hadithService');
+        clearHadithCache();
+        console.log('Cache cleared');
+      },
+      reloadData: async () => {
+        await loadInitialData();
+        console.log('Data reloaded');
+      },
+      searchTest: async (query) => {
+        const result = await searchHadiths(query);
+        console.log(`Search for "${query}":`, result);
+        return result;
+      },
+      getStats: async () => {
+        const stats = await getHadithStats();
+        console.log('Stats:', stats);
+        return stats;
       }
-      setLoading(false);
-    }
-    fetchData();
+    };
+
+    // Expose search functions globally for testing
+    window.searchHadiths = searchHadiths;
+    window.clearHadithCache = async () => {
+      const { clearHadithCache } = await import('../utils/hadithService');
+      clearHadithCache();
+    };
   }, []);
 
-  // Filter hadiths based on search and category
-  useEffect(() => {
-    let filtered = hadiths;
-    
-    // Filter by category
-    if (selectedCategory !== 'all') {
-      filtered = filtered.filter(h => h.category.toLowerCase() === selectedCategory.toLowerCase());
-    }
-    
-    // Filter by search term
-    if (searchTerm) {
-      filtered = filtered.filter(h => 
-        h.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        h.text.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        h.narrator.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        h.book.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-    
-    setFilteredHadiths(filtered);
-  }, [hadiths, searchTerm, selectedCategory]);
-
-  const isFav = selectedHadith ? favorites.hadith.some(h => h.id === selectedHadith.id) : false;
-
-  function handleShare() {
-    if (selectedHadith && navigator.clipboard) {
-      const textToShare = `${selectedHadith.title}\n\n${selectedHadith.text}\n\n- Narrated by ${selectedHadith.narrator} (${selectedHadith.book})`;
-      navigator.clipboard.writeText(textToShare);
-      alert('Copied to clipboard!');
-    }
-  }
-
-  function handleFavorite() {
-    if (!selectedHadith) return;
-    let updated = [...favorites.hadith];
-    if (isFav) {
-      updated = updated.filter(h => h.id !== selectedHadith.id);
-    } else {
-      updated.push(selectedHadith);
-    }
-    setFavorites(favs => ({ ...favs, hadith: updated }));
-    localStorage.setItem('fav_hadith', JSON.stringify(updated));
-  }
-
-  function handleRandom() {
-    if (filteredHadiths.length > 0) {
-      const randomIndex = Math.floor(Math.random() * filteredHadiths.length);
-      setSelectedHadith(filteredHadiths[randomIndex]);
-    }
-  }
-
-  // Enhanced search function using API with correct parameters
-  async function handleSearch(searchQuery) {
-    if (!searchQuery.trim()) {
-      // If search is empty, fetch all hadiths
-      try {
-        const response = await axios.get(`${API_URL}?apiKey=${API_KEY}&limit=50`);
-        if (response.data.success && response.data.data) {
-          const transformedHadiths = response.data.data.map((h, index) => ({
-            id: h.id || index + 1,
-            title: h.hadithEnglish ? h.hadithEnglish.substring(0, 100) + '...' : `Hadith ${index + 1}`,
-            text: h.hadithEnglish || h.text || h.hadith || h.content,
-            arabicText: h.hadithArabic || '',
-            narrator: h.narrator || h.narratedBy || 'Unknown',
-            book: h.book || h.collection || 'Unknown',
-            category: h.chapter || h.category || 'General',
-            hadithNumber: h.hadithNumber || '',
-            grade: h.grade || ''
-          }));
-          setHadiths(transformedHadiths);
-        }
-      } catch (error) {
-        console.warn('Failed to fetch all hadiths, using fallback:', error);
-        setHadiths(FALLBACK_HADITHS);
+  const loadInitialData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      // Check if database is empty first
+      const isEmpty = await checkDatabaseEmpty();
+      setIsDatabaseEmpty(isEmpty);
+      
+      if (isEmpty) {
+        console.log('📭 Database is empty. Please import data first.');
+        setLoading(false);
+        return;
       }
+      
+      // Load categories and narrators in parallel
+      const [categoriesData, narratorsData, statsData] = await Promise.all([
+        getCategories(),
+        getNarrators(),
+        getHadithStats()
+      ]);
+      
+      setCategories(categoriesData);
+      setNarrators(narratorsData);
+      setStats(statsData);
+      
+      // Load initial hadiths
+      await loadHadiths();
+      
+    } catch (err) {
+      console.error('Error loading initial data:', err);
+      setError('Failed to load hadith data. Please check your Firebase configuration.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Load hadiths with current filters
+  const loadHadiths = async (reset = true) => {
+    try {
+      setSearching(true);
+      setError(null);
+      
+      const filters = {
+        book: selectedBook,
+        category: selectedCategory,
+        narrator: selectedNarrator,
+        sortBy: sortBy
+      };
+      
+      const result = await searchHadiths(searchQuery, filters, 20, reset ? null : lastDoc);
+      
+      if (reset) {
+        setHadiths(result.hadiths);
+        setLastDoc(result.lastDoc);
+      } else {
+        setHadiths(prev => [...prev, ...result.hadiths]);
+        setLastDoc(result.lastDoc);
+      }
+      
+      setHasMore(result.hasMore);
+      
+      // Update stats with total database count
+      if (result.totalDatabaseCount !== undefined) {
+        setStats(prev => ({
+          ...prev,
+          totalHadiths: result.totalDatabaseCount
+        }));
+      }
+    } catch (error) {
+      console.error('Error loading hadiths:', error);
+      setError('Failed to load hadiths. Please try again.');
+    } finally {
+      setSearching(false);
+    }
+  };
+
+  // Enhanced search function with filters
+  const handleSearch = async (query = searchQuery) => {
+    console.log('🔍 Starting search with query:', query);
+    console.log('🔍 Current filters:', {
+      book: selectedBook,
+      category: selectedCategory,
+      narrator: selectedNarrator,
+      sortBy: sortBy
+    });
+    await loadHadiths(true);
+  };
+
+  // Handle search input change
+  const handleSearchChange = (e) => {
+    const query = e.target.value;
+    setSearchQuery(query);
+    
+    // Generate suggestions
+    generateSuggestions(query);
+    
+    // Debounce search
+    clearTimeout(searchTimeout.current);
+    searchTimeout.current = setTimeout(() => {
+      handleSearch(query);
+    }, 300);
+  };
+
+  // Search timeout ref
+  const searchTimeout = React.useRef(null);
+
+  // Generate search suggestions
+  const generateSuggestions = (query) => {
+    if (!query.trim() || query.length < 2) {
+      setSearchSuggestions([]);
+      setShowSuggestions(false);
+      setSuggestionsLoading(false);
       return;
     }
 
-    setSearching(true);
-    try {
-      // Try different search parameters based on the API documentation
-      let searchResults = null;
-      
-      // First try: Search by English text
-      try {
-        const response = await axios.get(`${API_URL}?apiKey=${API_KEY}&hadithEnglish=${encodeURIComponent(searchQuery)}&limit=20`);
-        if (response.data.success && response.data.data && response.data.data.length > 0) {
-          searchResults = response.data.data;
-        }
-      } catch (error) {
-        console.log('English search failed, trying alternative parameters');
-      }
+    setSuggestionsLoading(true);
 
-      // Second try: Search by Arabic text if English failed
-      if (!searchResults) {
-        try {
-          const arabicResponse = await axios.get(`${API_URL}?apiKey=${API_KEY}&hadithArabic=${encodeURIComponent(searchQuery)}&limit=20`);
-          if (arabicResponse.data.success && arabicResponse.data.data && arabicResponse.data.data.length > 0) {
-            searchResults = arabicResponse.data.data;
-          }
-        } catch (error) {
-          console.log('Arabic search failed, trying book search');
-        }
-      }
+    const suggestions = [];
+    const queryLower = query.toLowerCase();
 
-      // Third try: Search by book name
-      if (!searchResults) {
-        try {
-          const bookResponse = await axios.get(`${API_URL}?apiKey=${API_KEY}&book=${encodeURIComponent(searchQuery)}&limit=20`);
-          if (bookResponse.data.success && bookResponse.data.data && bookResponse.data.data.length > 0) {
-            searchResults = bookResponse.data.data;
-          }
-        } catch (error) {
-          console.log('Book search failed, using fallback');
-        }
-      }
+    // Add common Islamic terms
+    const commonTerms = [
+      'donation', 'charity', 'sadaqah', 'zakat', 'prayer', 'namaz', 'salah',
+      'intention', 'niyyah', 'faith', 'iman', 'patience', 'sabr', 'gratitude', 'shukr',
+      'forgiveness', 'istighfar', 'remembrance', 'dhikr', 'supplication', 'dua',
+      'fasting', 'sawm', 'pilgrimage', 'hajj', 'umrah', 'mosque', 'masjid',
+      'quran', 'hadith', 'sunna', 'halal', 'haram', 'jannah', 'paradise',
+      'akhirah', 'hereafter', 'dunya', 'world', 'akhlaq', 'character', 'adab', 'manners'
+    ];
 
-      // Fourth try: Search by narrator
-      if (!searchResults) {
-        try {
-          const narratorResponse = await axios.get(`${API_URL}?apiKey=${API_KEY}&narrator=${encodeURIComponent(searchQuery)}&limit=20`);
-          if (narratorResponse.data.success && narratorResponse.data.data && narratorResponse.data.data.length > 0) {
-            searchResults = narratorResponse.data.data;
-          }
-        } catch (error) {
-          console.log('Narrator search failed, using fallback');
-        }
-      }
+    // Add narrator names
+    const narratorNames = [
+      'umar', 'ali', 'abu bakr', 'aisha', 'fatima', 'khadija', 'abu huraira',
+      'ibn umar', 'ibn abbas', 'an-nu\'man ibn bashir', 'jabir ibn abdullah',
+      'abdullah ibn mas\'ud', 'abu musa al-ash\'ari', 'mu\'adh ibn jabal'
+    ];
 
-             if (searchResults) {
-         const transformedHadiths = searchResults.map((h, index) => ({
-           id: h.id || index + 1,
-           title: h.hadithEnglish ? h.hadithEnglish.substring(0, 100) + '...' : `Hadith ${index + 1}`,
-           text: h.hadithEnglish || h.text || h.hadith || h.content,
-           arabicText: h.hadithArabic || '',
-           narrator: h.narrator || h.narratedBy || 'Unknown',
-           book: h.book || h.collection || 'Unknown',
-           category: h.chapter || h.category || 'General',
-           hadithNumber: h.hadithNumber || '',
-           grade: h.grade || ''
-         }));
-         setHadiths(transformedHadiths);
-         setApiStatus('online');
-       } else {
-        // If all searches fail, use fallback and filter by search term
-        const filteredFallback = FALLBACK_HADITHS.filter(h => 
-          h.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          h.text.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          h.narrator.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          h.book.toLowerCase().includes(searchQuery.toLowerCase())
+    // Add book names
+    const bookNames = [
+      'bukhari', 'muslim', 'abu dawud', 'tirmidhi', 'nasai', 'ibn majah',
+      'sahih', 'sunan', 'jami', 'musnad'
+    ];
+
+    // Filter and add suggestions
+    [...commonTerms, ...narratorNames, ...bookNames].forEach(term => {
+      if (term.toLowerCase().includes(queryLower) && !suggestions.includes(term)) {
+        suggestions.push(term);
+      }
+    });
+
+    // Add category-based suggestions if available
+    if (categories.length > 0) {
+      categories.forEach(category => {
+        if (category.toLowerCase().includes(queryLower) && !suggestions.includes(category)) {
+          suggestions.push(category);
+        }
+      });
+    }
+
+    // Add narrator-based suggestions if available
+    if (narrators.length > 0) {
+      narrators.slice(0, 10).forEach(narrator => {
+        if (narrator.toLowerCase().includes(queryLower) && !suggestions.includes(narrator)) {
+          suggestions.push(narrator);
+        }
+      });
+    }
+
+    // Limit suggestions to 8 items
+    const limitedSuggestions = suggestions.slice(0, 8);
+    setSearchSuggestions(limitedSuggestions);
+    setShowSuggestions(limitedSuggestions.length > 0);
+    setSelectedSuggestionIndex(-1); // Reset selection when new suggestions are generated
+    setSuggestionsLoading(false);
+  };
+
+  // Handle suggestion selection
+  const handleSuggestionClick = (suggestion) => {
+    setSearchQuery(suggestion);
+    setShowSuggestions(false);
+    setSelectedSuggestionIndex(-1);
+    handleSearch(suggestion);
+  };
+
+  // Handle keyboard navigation
+  const handleKeyDown = (e) => {
+    if (!showSuggestions || searchSuggestions.length === 0) return;
+
+    switch (e.key) {
+      case 'ArrowDown':
+        e.preventDefault();
+        setSelectedSuggestionIndex(prev => 
+          prev < searchSuggestions.length - 1 ? prev + 1 : 0
         );
-                 setHadiths(filteredFallback.length > 0 ? filteredFallback : FALLBACK_HADITHS);
-         setApiStatus('offline');
-       }
-     } catch (error) {
-      console.error('Search error:', error);
-      // Use fallback with local filtering
-      const filteredFallback = FALLBACK_HADITHS.filter(h => 
-        h.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        h.text.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        h.narrator.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        h.book.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-             setHadiths(filteredFallback.length > 0 ? filteredFallback : FALLBACK_HADITHS);
-       setApiStatus('offline');
-     }
-     setSearching(false);
-  }
+        break;
+      case 'ArrowUp':
+        e.preventDefault();
+        setSelectedSuggestionIndex(prev => 
+          prev > 0 ? prev - 1 : searchSuggestions.length - 1
+        );
+        break;
+      case 'Enter':
+        e.preventDefault();
+        if (selectedSuggestionIndex >= 0 && selectedSuggestionIndex < searchSuggestions.length) {
+          handleSuggestionClick(searchSuggestions[selectedSuggestionIndex]);
+        }
+        break;
+      case 'Escape':
+        setShowSuggestions(false);
+        setSelectedSuggestionIndex(-1);
+        break;
+    }
+  };
 
-  if (loading) {
-    return (
-      <div className="w-full max-w-4xl mx-auto flex flex-col items-center gap-8 py-12">
-        <div className="w-full relative glassmorph-card min-h-[400px] flex flex-col items-center justify-center">
-          <div className="text-center">
-            <div className="text-4xl mb-4 animate-spin">📖</div>
-            <div className="text-brass font-bold text-xl">{t('loadingHadiths')}</div>
-            <div className="text-mocha">{t('pleaseWait')}</div>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  // Handle filter changes
+  const handleFilterChange = (filterType, value) => {
+    if (filterType === 'book') {
+      setSelectedBook(value);
+    } else if (filterType === 'category') {
+      setSelectedCategory(value);
+    } else if (filterType === 'narrator') {
+      setSelectedNarrator(value);
+    }
+    
+    // Re-search with new filters
+    handleSearch();
+  };
+
+  // Clear all filters
+  const clearAllFilters = () => {
+    setSelectedBook('all');
+    setSelectedCategory('all');
+    setSelectedNarrator('all');
+    setSearchQuery('');
+    setSortBy('relevance');
+    handleSearch('');
+  };
+
+  // Handle random hadith
+  const handleRandom = async () => {
+    try {
+      const randomHadith = await getRandomHadith();
+      if (randomHadith) {
+        setSelectedHadith(randomHadith);
+        setShowModal(true);
+      }
+    } catch (error) {
+      console.error('Error getting random hadith:', error);
+      setError('Failed to get random hadith. Please try again.');
+    }
+  };
+
+  // Handle book selection
+  const handleBookSelect = async (bookId) => {
+    setSelectedBook(bookId);
+    await loadHadiths(true);
+  };
+
+  // Handle narrator search
+  const handleNarratorSearch = async (narrator) => {
+    setSelectedNarrator(narrator);
+    setSearchQuery(narrator);
+    await loadHadiths(true);
+  };
+
+  // Handle favorite toggle
+  const handleFavorite = (hadith) => {
+    const newFavorites = favorites.includes(hadith.id)
+      ? favorites.filter(id => id !== hadith.id)
+      : [...favorites, hadith.id];
+    
+    setFavorites(newFavorites);
+    localStorage.setItem('namaz_favorites', JSON.stringify(newFavorites));
+  };
+
+  // Handle share
+  const handleShare = (hadith) => {
+    const text = `Hadith #${hadith.hadith_number} - Book ${hadith.book_number}\n\n${hadith.translation_en}\n\nNarrated by: ${hadith.narrator}\nCollection: ${hadith.collection} (${hadith.hadith_number})`;
+    
+    if (navigator.share) {
+      navigator.share({
+        title: hadith.title,
+        text: text
+      });
+    } else {
+      navigator.clipboard.writeText(text);
+      // Show toast or alert
+      alert('Hadith copied to clipboard!');
+    }
+  };
+
+  // Handle data import
+  const handleImportData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const result = await runCompleteImport();
+      
+      // Clear the hadith cache to force fresh data fetch
+      const { clearHadithCache } = await import('../utils/hadithService');
+      clearHadithCache();
+      
+      // Reload data after import
+      await loadInitialData();
+      
+      alert(`Import completed!\n📚 Books: ${result.books.successCount}/${result.books.total}\n📖 Hadiths: ${result.hadiths.successCount}/${result.hadiths.total}`);
+      
+    } catch (error) {
+      console.error('Import failed:', error);
+      setError('Failed to import data. Please check your Firebase configuration.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleResetAndReimport = async () => {
+    try {
+      if (!confirm('This will delete all existing hadiths and reimport them. Are you sure?')) {
+        return;
+      }
+      
+      setLoading(true);
+      setError(null);
+      
+      const result = await resetAndReimport();
+      
+      // Reload data after import
+      await loadInitialData();
+      
+      alert(`Reset and reimport completed!\n📚 Books: ${result.books.successCount}/${result.books.total}\n📖 Hadiths: ${result.hadiths.successCount}/${result.hadiths.total}`);
+      
+    } catch (error) {
+      console.error('Reset and reimport failed:', error);
+      setError('Failed to reset and reimport data. Please check your Firebase configuration.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <ErrorBoundary>
-      <div className="w-full max-w-4xl mx-auto flex flex-col items-center gap-6 py-8 px-4">
-        {/* Header */}
-        <div className="w-full relative glassmorph-card p-6">
-          {CALLIGRAPHY}
-                     <div className="text-center mb-6">
-             <h1 className="text-3xl font-heading text-brass font-bold mb-2">{t('hadithCollection')}</h1>
-             <p className="text-mocha">{t('discoverWisdom')}</p>
-             <div className="mt-2 flex items-center justify-center gap-2">
-               <div className={`w-2 h-2 rounded-full ${apiStatus === 'online' ? 'bg-green-500' : apiStatus === 'offline' ? 'bg-red-500' : 'bg-yellow-500'}`}></div>
-               <span className="text-xs text-mocha">
-                 {apiStatus === 'online' ? '🟢 Live API Connected' : apiStatus === 'offline' ? '🔴 Using Local Data' : '🟡 Connecting...'}
-               </span>
-             </div>
-             {apiStatus === 'offline' && (
-               <div className="mt-2 p-2 bg-yellow-100 border border-yellow-300 rounded-lg">
-                 <p className="text-xs text-yellow-800">
-                   💡 <strong>Offline Mode:</strong> Using local hadith collection. Search will work with local data.
-                 </p>
-               </div>
-             )}
-           </div>
+      <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[#44403c] via-[#78716c] to-[#d6d3d1]">
+        <div className="w-full max-w-4xl mx-auto flex flex-col items-center gap-8 py-8">
+          {/* Header */}
+          <div className="w-full text-center">
+            <h1 className="text-3xl font-heading text-brass font-bold mb-2 drop-shadow-lg">
+              📖 Hadith Collection
+            </h1>
+            <p className="text-mocha font-body mb-4">
+              Search through Sahih Bukhari, Sahih Muslim, and other authentic hadith collections
+            </p>
           
-          {/* Search and Filters */}
-          <div className="flex flex-col sm:flex-row gap-4 mb-6">
-            <div className="flex-1">
-                             <div className="flex-1 relative">
-                 <input
-                   type="text"
-                   placeholder={t('searchHadiths')}
-                   value={searchTerm}
-                   onChange={(e) => setSearchTerm(e.target.value)}
-                   onKeyPress={(e) => e.key === 'Enter' && handleSearch(searchTerm)}
-                   className="w-full px-4 py-3 pr-12 rounded-xl border-2 border-brass/30 bg-white/80 text-mocha placeholder-mocha/60 focus:border-brass focus:outline-none focus:ring-2 focus:ring-brass/20"
-                 />
-                                    <button
-                     onClick={() => handleSearch(searchTerm)}
-                     disabled={searching}
-                     className="absolute right-2 top-1/2 transform -translate-y-1/2 w-8 h-8 bg-brass text-white rounded-lg flex items-center justify-center hover:bg-wood transition-colors disabled:opacity-50"
-                   >
-                     {searching ? '⏳' : '🔍'}
-                   </button>
-               </div>
+          {/* Import Data Button - Only show if no hadiths are loaded and database is not empty */}
+          {!loading && !error && hadiths.length === 0 && !isDatabaseEmpty && (
+            <div className="mb-4">
+              <button
+                onClick={handleImportData}
+                className="px-6 py-3 rounded-xl bg-accent text-white font-bold hover:bg-accent2 transition shadow-lg"
+              >
+                📥 Import Hadith Data to Firestore
+              </button>
+              <p className="text-sm text-accent4 mt-2">
+                Click to import hadiths from JSON files to your Firestore database
+              </p>
             </div>
-            <select
-              value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
-              className="px-4 py-3 rounded-xl border-2 border-brass/30 bg-white/80 text-mocha focus:border-brass focus:outline-none focus:ring-2 focus:ring-brass/20"
-            >
-              {categories.map(cat => (
-                <option key={cat} value={cat}>
-                  {cat === 'all' ? t('allCategories') : cat.charAt(0).toUpperCase() + cat.slice(1)}
-                </option>
-              ))}
-            </select>
+          )}
+          
+          {/* Debug buttons for development */}
+          {process.env.NODE_ENV === 'development' && (
+            <div className="mb-4 flex gap-2 justify-center">
+              <button
+                onClick={async () => {
+                  const { clearHadithCache } = await import('../utils/hadithService');
+                  clearHadithCache();
+                  await loadInitialData();
+                  alert('Cache cleared and data reloaded!');
+                }}
+                className="px-4 py-2 rounded-lg bg-glass text-mocha font-bold hover:bg-brass hover:text-white transition"
+              >
+                🗑️ Clear Cache & Reload
+              </button>
+              <button
+                onClick={handleImportData}
+                className="px-4 py-2 rounded-lg bg-glass text-mocha font-bold hover:bg-brass hover:text-white transition"
+              >
+                📥 Re-import Data
+              </button>
+              <button
+                onClick={handleResetAndReimport}
+                className="px-4 py-2 rounded-lg bg-red-500 text-white font-bold hover:bg-red-600 transition"
+              >
+                🔄 Reset & Reimport
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Search and Filters */}
+        <div className="w-full glassmorph-card p-6">
+          {/* Search Bar */}
+          <div className="flex gap-3 mb-4">
+            <div className="flex-1 relative">
+              <input
+                type="text"
+                placeholder="Search hadiths by title, content, narrator, or book..."
+                value={searchQuery}
+                onChange={handleSearchChange}
+                onKeyDown={handleKeyDown}
+                onFocus={() => {
+                  if (searchQuery.length >= 2) {
+                    setShowSuggestions(searchSuggestions.length > 0);
+                  }
+                }}
+                onBlur={() => {
+                  // Delay hiding suggestions to allow clicking on them
+                  setTimeout(() => setShowSuggestions(false), 200);
+                }}
+                className="w-full px-4 py-3 rounded-xl border-2 border-brass bg-glass text-mocha font-body focus:ring-2 focus:ring-accent2 focus:border-transparent"
+              />
+              {searching && (
+                <div className="absolute right-3 top-3">
+                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-brass"></div>
+                </div>
+              )}
+              {searchQuery && !searching && (
+                <button
+                  onClick={() => {
+                    setSearchQuery('');
+                    handleSearch('');
+                    setShowSuggestions(false);
+                  }}
+                  className="absolute right-3 top-3 text-mocha hover:text-brass transition"
+                >
+                  ✕
+                </button>
+              )}
+              
+              {/* Search Suggestions Dropdown */}
+              {showSuggestions && (
+                <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-darkcard border-2 border-brass rounded-xl shadow-lg z-50 max-h-64 overflow-y-auto">
+                  {suggestionsLoading ? (
+                    <div className="px-4 py-3 text-center text-mocha">
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-brass mx-auto"></div>
+                      <span className="ml-2 text-sm">Loading suggestions...</span>
+                    </div>
+                  ) : searchSuggestions.length > 0 ? (
+                    searchSuggestions.map((suggestion, index) => (
+                      <button
+                        key={index}
+                        onClick={() => handleSuggestionClick(suggestion)}
+                        className={`w-full px-4 py-3 text-left transition-colors first:rounded-t-xl last:rounded-b-xl focus:outline-none ${
+                          index === selectedSuggestionIndex
+                            ? 'bg-brass text-white'
+                            : 'text-mocha hover:bg-brass hover:text-white'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2">
+                          <span className={index === selectedSuggestionIndex ? 'text-white' : 'text-accent4'}>🔍</span>
+                          <span className="font-medium">{suggestion}</span>
+                        </div>
+                      </button>
+                    ))
+                  ) : searchQuery.length >= 2 ? (
+                    <div className="px-4 py-3 text-center text-mocha text-sm">
+                      No suggestions found
+                    </div>
+                  ) : null}
+                </div>
+              )}
+            </div>
             <button
-              onClick={() => setViewMode(viewMode === 'grid' ? 'list' : 'grid')}
-              className="px-4 py-3 rounded-xl border-2 border-brass/30 bg-white/80 text-mocha hover:border-brass transition-colors"
+              onClick={() => setShowFilters(!showFilters)}
+              className="px-4 py-3 rounded-xl bg-brass text-white font-bold hover:bg-wood transition"
             >
-              {viewMode === 'grid' ? '📋' : '🔲'}
+              {showFilters ? 'Hide' : 'Show'} Filters
+            </button>
+            <button
+              onClick={handleRandom}
+              className="px-4 py-3 rounded-xl bg-accent text-white font-bold hover:bg-accent2 transition"
+            >
+              Random
             </button>
           </div>
 
-                     {/* Quick Search Buttons */}
-           <div className="mb-4">
-             <p className="text-sm text-mocha mb-2">Quick Search:</p>
-             <div className="flex flex-wrap gap-2">
-               <button
-                 onClick={() => handleSearch('prayer')}
-                 className="px-3 py-1 rounded-lg bg-gradient-to-r from-blue-500 to-blue-600 text-white text-xs font-bold hover:from-blue-600 hover:to-blue-700 transition-all"
-               >
-                 🕌 Prayer
-               </button>
-               <button
-                 onClick={() => handleSearch('charity')}
-                 className="px-3 py-1 rounded-lg bg-gradient-to-r from-green-500 to-green-600 text-white text-xs font-bold hover:from-green-600 hover:to-green-700 transition-all"
-               >
-                 💝 Charity
-               </button>
-               <button
-                 onClick={() => handleSearch('knowledge')}
-                 className="px-3 py-1 rounded-lg bg-gradient-to-r from-purple-500 to-purple-600 text-white text-xs font-bold hover:from-purple-600 hover:to-purple-700 transition-all"
-               >
-                 📚 Knowledge
-               </button>
-               <button
-                 onClick={() => handleSearch('patience')}
-                 className="px-3 py-1 rounded-lg bg-gradient-to-r from-orange-500 to-orange-600 text-white text-xs font-bold hover:from-orange-600 hover:to-orange-700 transition-all"
-               >
-                 ⏳ Patience
-               </button>
-               <button
-                 onClick={() => handleSearch('forgiveness')}
-                 className="px-3 py-1 rounded-lg bg-gradient-to-r from-red-500 to-red-600 text-white text-xs font-bold hover:from-red-600 hover:to-red-700 transition-all"
-               >
-                 🤝 Forgiveness
-               </button>
-             </div>
-           </div>
+          {/* Filters */}
+          {showFilters && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+              {/* Book Filter */}
+              <div>
+                <label className="block text-brass font-bold mb-2">Book</label>
+                <select
+                  value={selectedBook}
+                  onChange={(e) => handleFilterChange('book', e.target.value)}
+                  className="w-full px-3 py-2 rounded-lg border border-brass bg-glass text-mocha focus:ring-2 focus:ring-accent2"
+                >
+                  <option value="all">All Books</option>
+                  {Object.entries(HADITH_BOOKS).map(([id, book]) => (
+                    <option key={id} value={id}>{book.name}</option>
+                  ))}
+                </select>
+              </div>
 
-           {/* Stats */}
-           <div className="flex justify-between items-center text-sm text-mocha">
-             <span>{filteredHadiths.length} {t('hadithsFound')}</span>
-             <div className="flex gap-2">
-               <button
-                 onClick={handleRandom}
-                 className="px-3 py-1 rounded-lg bg-gradient-to-r from-brass to-wood text-white text-sm font-bold hover:from-wood hover:to-brass transition-all"
-               >
-                 🎲 {t('random')}
-               </button>
-               <button
-                 onClick={() => setShowFavs(true)}
-                 className="px-3 py-1 rounded-lg bg-gradient-to-r from-emerald-500 to-emerald-600 text-white text-sm font-bold hover:from-emerald-600 hover:to-emerald-700 transition-all"
-               >
-                 ❤️ {t('favorites')} ({favorites.hadith.length})
-               </button>
-             </div>
-           </div>
-        </div>
+              {/* Category Filter */}
+              <div>
+                <label className="block text-brass font-bold mb-2">Category</label>
+                <select
+                  value={selectedCategory}
+                  onChange={(e) => handleFilterChange('category', e.target.value)}
+                  className="w-full px-3 py-2 rounded-lg border border-brass bg-glass text-mocha focus:ring-2 focus:ring-accent2"
+                >
+                  <option value="all">All Categories</option>
+                  {categories.map(category => (
+                    <option key={category} value={category}>{category}</option>
+                  ))}
+                </select>
+              </div>
 
-        {/* Hadith Grid/List */}
-        <div className={`w-full grid gap-4 ${viewMode === 'grid' ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3' : 'grid-cols-1'}`}>
-          {filteredHadiths.map((hadith) => (
-            <div
-              key={hadith.id}
-              onClick={() => setSelectedHadith(hadith)}
-              className={`glassmorph-card p-4 cursor-pointer hover:shadow-lg transition-all duration-300 border-2 ${
-                selectedHadith?.id === hadith.id ? 'border-brass shadow-lg' : 'border-brass/20'
+              {/* Narrator Filter */}
+              <div>
+                <label className="block text-brass font-bold mb-2">Narrator</label>
+                <select
+                  value={selectedNarrator}
+                  onChange={(e) => handleFilterChange('narrator', e.target.value)}
+                  className="w-full px-3 py-2 rounded-lg border border-brass bg-glass text-mocha focus:ring-2 focus:ring-accent2"
+                >
+                  <option value="all">All Narrators</option>
+                  {narrators.map(narrator => (
+                    <option key={narrator} value={narrator}>{narrator}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Sort By */}
+              <div>
+                <label className="block text-brass font-bold mb-2">Sort By</label>
+                <select
+                  value={sortBy}
+                  onChange={(e) => {
+                    setSortBy(e.target.value);
+                    handleSearch();
+                  }}
+                  className="w-full px-3 py-2 rounded-lg border border-brass bg-glass text-mocha focus:ring-2 focus:ring-accent2"
+                >
+                  <option value="relevance">Relevance</option>
+                  <option value="book">Book</option>
+                  <option value="narrator">Narrator</option>
+                  <option value="category">Category</option>
+                  <option value="hadithNumber">Hadith Number</option>
+                </select>
+              </div>
+            </div>
+          )}
+          
+          {/* Clear Filters Button */}
+          <div className="flex justify-center mt-4">
+            <button
+              onClick={clearAllFilters}
+              className="px-4 py-2 rounded-lg bg-glass text-mocha font-bold hover:bg-brass hover:text-white transition"
+            >
+              🗑️ Clear All Filters
+            </button>
+          </div>
+
+          {/* Quick Book Selection */}
+          <div className="flex flex-wrap gap-2">
+            <button
+              onClick={() => handleBookSelect('all')}
+              className={`px-3 py-1 rounded-lg text-sm font-bold transition ${
+                selectedBook === 'all'
+                  ? 'bg-brass text-white'
+                  : 'bg-glass text-mocha hover:bg-brass hover:text-white'
               }`}
             >
-              <div className="mb-3">
-                <h3 className="text-lg font-bold text-brass mb-2 line-clamp-2">{hadith.title}</h3>
-                <div className="text-xs text-mocha/70 mb-2">
-                  <span className="bg-brass/20 px-2 py-1 rounded-full">{hadith.category}</span>
-                </div>
+              All Books
+            </button>
+            {Object.entries(HADITH_BOOKS).map(([id, book]) => (
+              <button
+                key={id}
+                onClick={() => handleBookSelect(id)}
+                className={`px-3 py-1 rounded-lg text-sm font-bold transition ${
+                  selectedBook === id
+                    ? 'bg-brass text-white'
+                    : 'bg-glass text-mocha hover:bg-brass hover:text-white'
+                }`}
+                style={{ borderColor: book.color }}
+              >
+                {book.name}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Loading State */}
+        {loading && (
+          <div className="w-full text-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brass mx-auto mb-4"></div>
+            <p className="text-mocha font-body">Loading hadith collection...</p>
+          </div>
+        )}
+
+        {/* Empty Database State */}
+        {!loading && isDatabaseEmpty && (
+          <div className="w-full text-center py-12">
+            <div className="text-6xl mb-4">📭</div>
+            <h3 className="text-xl font-bold text-brass mb-2">Database is Empty</h3>
+            <p className="text-mocha mb-4">No hadiths found in the database. Please import data first.</p>
+            <button
+              onClick={handleImportData}
+              className="px-6 py-3 rounded-xl bg-accent text-white font-bold hover:bg-accent2 transition shadow-lg"
+            >
+              📥 Import Hadith Data
+            </button>
+          </div>
+        )}
+
+        {/* Error State */}
+        {error && (
+          <div className="w-full glassmorph-card p-6 text-center">
+            <div className="text-2xl mb-4">⚠️</div>
+            <h3 className="text-xl font-bold text-error mb-2">Error Loading Hadiths</h3>
+            <p className="text-mocha mb-4">{error}</p>
+            <button
+              onClick={loadInitialData}
+              className="px-4 py-2 rounded-lg bg-brass text-white font-bold hover:bg-wood transition"
+            >
+              Try Again
+            </button>
+          </div>
+        )}
+
+        {/* Results Count */}
+        {!loading && !error && !isDatabaseEmpty && (
+          <div className="w-full text-center">
+            <p className="text-mocha font-body">
+              Found {hadiths.length} hadith{hadiths.length !== 1 ? 's' : ''}
+              {searchQuery && ` for "${searchQuery}"`}
+              {selectedBook !== 'all' && ` in ${HADITH_BOOKS[selectedBook]?.name || selectedBook}`}
+              {stats && (
+                <span className="text-accent4 ml-2">
+                  (Total in database: {stats.totalHadiths})
+                </span>
+              )}
+            </p>
+            {/* Debug Info */}
+            {process.env.NODE_ENV === 'development' && (
+              <p className="text-xs text-accent4 mt-2">
+                Debug: Book={selectedBook}, Category={selectedCategory}, Narrator={selectedNarrator}
+              </p>
+            )}
+          </div>
+        )}
+
+        {/* View Mode Toggle */}
+        {!loading && !error && !isDatabaseEmpty && (
+          <div className="w-full flex justify-center gap-2">
+          <button
+            onClick={() => setViewMode('grid')}
+            className={`px-4 py-2 rounded-lg font-bold transition ${
+              viewMode === 'grid'
+                ? 'bg-brass text-white'
+                : 'bg-glass text-mocha hover:bg-brass hover:text-white'
+            }`}
+          >
+            Grid View
+          </button>
+                      <button
+              onClick={() => setViewMode('list')}
+              className={`px-4 py-2 rounded-lg font-bold transition ${
+                viewMode === 'list'
+                  ? 'bg-brass text-white'
+                  : 'bg-glass text-mocha hover:bg-brass hover:text-white'
+              }`}
+            >
+              List View
+            </button>
+          </div>
+        )}
+
+        {/* Hadith Grid/List */}
+        {!loading && !error && !isDatabaseEmpty && (
+          <div className={`w-full ${viewMode === 'grid' ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6' : 'flex flex-col gap-4'}`}>
+            {hadiths.map((hadith) => (
+            <div
+              key={hadith.id}
+              className="glassmorph-card p-6 hover:shadow-lg transition-all cursor-pointer animate-fadeIn"
+              onClick={() => {
+                setSelectedHadith(hadith);
+                setShowModal(true);
+              }}
+            >
+              {/* Book Badge */}
+              <div className="flex items-center justify-between mb-3">
+                <span className="px-2 py-1 rounded text-xs font-bold text-white"
+                      style={{ backgroundColor: '#8B4513' }}>
+                  {hadith.collection}
+                </span>
+                <span className="text-xs text-accent4">#{hadith.hadith_number}</span>
               </div>
-                             <p className="text-mocha text-sm line-clamp-3 mb-3">{hadith.text}</p>
-               {hadith.arabicText && (
-                 <div className="mb-3">
-                   <p className="text-right text-sm text-brass font-arabic leading-relaxed line-clamp-2">
-                     {hadith.arabicText}
-                   </p>
-                 </div>
-               )}
-               <div className="text-xs text-mocha/60">
-                 <div>📖 {hadith.narrator}</div>
-                 <div>📚 {hadith.book}</div>
-                 {hadith.hadithNumber && <div>🔢 #{hadith.hadithNumber}</div>}
-                 {hadith.grade && <div>⭐ {hadith.grade}</div>}
-               </div>
+
+              {/* Title */}
+              <h3 className="text-lg font-bold text-brass mb-2 line-clamp-2">
+                {hadith.book_name ? `${hadith.book_name} - Book ${hadith.book_number}` : `Hadith #${hadith.hadith_number} - Book ${hadith.book_number}`}
+              </h3>
+
+              {/* Chapter Name */}
+              {hadith.chapter_name && (
+                <p className="text-sm text-accent4 mb-2 italic">
+                  {hadith.chapter_name}
+                </p>
+              )}
+
+              {/* Preview Text */}
+              <p className="text-mocha text-sm mb-3 line-clamp-3">
+                {hadith.translation_en && hadith.translation_en.length > 0 
+                  ? hadith.translation_en.substring(0, 150) + '...' 
+                  : hadith.text_arabic && hadith.text_arabic.length > 0
+                    ? hadith.text_arabic.substring(0, 100) + '...'
+                    : `Hadith #${hadith.hadith_number} from ${hadith.collection} narrated by ${hadith.narrator}`
+                }
+              </p>
+
+              {/* Meta Info */}
+              <div className="flex items-center justify-between text-xs text-accent4 mb-2">
+                <span>By: {hadith.narrator}</span>
+                <span>Grade: {hadith.grade}</span>
+              </div>
+
+              {/* Tags */}
+              {hadith.tags && hadith.tags.length > 0 && (
+                <div className="flex flex-wrap gap-1 mb-3">
+                  {hadith.tags.slice(0, 3).map((tag, index) => (
+                    <span
+                      key={index}
+                      className="px-2 py-1 rounded text-xs bg-glass text-mocha"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                  {hadith.tags.length > 3 && (
+                    <span className="px-2 py-1 rounded text-xs bg-glass text-accent4">
+                      +{hadith.tags.length - 3}
+                    </span>
+                  )}
+                </div>
+              )}
+
+              {/* Action Buttons */}
+              <div className="flex gap-2 mt-3">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleFavorite(hadith);
+                  }}
+                  className={`p-2 rounded-lg transition ${
+                    favorites.includes(hadith.id)
+                      ? 'bg-warning text-white'
+                      : 'bg-glass text-mocha hover:bg-brass hover:text-white'
+                  }`}
+                >
+                  {favorites.includes(hadith.id) ? '❤️' : '🤍'}
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleShare(hadith);
+                  }}
+                  className="p-2 rounded-lg bg-glass text-mocha hover:bg-brass hover:text-white transition"
+                >
+                  📤
+                </button>
+              </div>
             </div>
           ))}
         </div>
+        )}
 
-        {/* Selected Hadith Modal */}
-        {selectedHadith && (
+        {/* No Results */}
+        {!loading && !error && !isDatabaseEmpty && hadiths.length === 0 && !searching && (
+          <div className="w-full text-center py-12">
+            <div className="text-6xl mb-4">📖</div>
+            <h3 className="text-xl font-bold text-brass mb-2">No Hadiths Found</h3>
+            <p className="text-mocha">Try adjusting your search terms or filters.</p>
+          </div>
+        )}
+
+        {/* Hadith Modal */}
+        {showModal && selectedHadith && (
           <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-            <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="bg-white dark:bg-darkcard rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
               <div className="p-6">
-                <div className="flex justify-between items-start mb-4">
-                  <h2 className="text-2xl font-bold text-brass">{selectedHadith.title}</h2>
+                {/* Header */}
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <span className="px-3 py-1 rounded text-sm font-bold text-white"
+                          style={{ backgroundColor: '#8B4513' }}>
+                      {selectedHadith.collection}
+                    </span>
+                    <span className="text-sm text-accent4">#{selectedHadith.hadith_number}</span>
+                  </div>
                   <button
-                    onClick={() => setSelectedHadith(null)}
-                    className="text-2xl text-mocha hover:text-brass transition-colors"
+                    onClick={() => setShowModal(false)}
+                    className="text-2xl text-mocha hover:text-brass transition"
                   >
-                    ✕
+                    ×
                   </button>
                 </div>
-                
-                <div className="mb-4">
-                  <span className="bg-brass/20 px-3 py-1 rounded-full text-sm text-brass font-medium">
-                    {selectedHadith.category}
-                  </span>
+
+                {/* Title */}
+                <h2 className="text-2xl font-bold text-brass mb-4">
+                  Hadith #{selectedHadith.hadith_number} - Book {selectedHadith.book_number}
+                </h2>
+
+                {/* Arabic Text */}
+                {selectedHadith.text_arabic && (
+                  <div className="mb-4 p-4 bg-glass rounded-lg">
+                    <p className="text-right text-lg leading-relaxed" dir="rtl">
+                      {selectedHadith.text_arabic}
+                    </p>
+                  </div>
+                )}
+
+                {/* English Text */}
+                <div className="mb-6">
+                  <p className="text-mocha text-lg leading-relaxed">
+                    {selectedHadith.translation_en}
+                  </p>
                 </div>
-                
-                                 <div className="text-mocha text-lg leading-relaxed mb-6 font-serif">
-                   {selectedHadith.text}
-                 </div>
-                 
-                 {selectedHadith.arabicText && (
-                   <div className="mb-6">
-                     <h3 className="text-brass font-bold mb-3">Arabic Text:</h3>
-                     <div className="bg-sand/20 p-4 rounded-xl">
-                       <p className="text-right text-lg text-brass font-arabic leading-relaxed">
-                         {selectedHadith.arabicText}
-                       </p>
-                     </div>
-                   </div>
-                 )}
-                
-                <div className="bg-sand/30 p-4 rounded-xl mb-6">
-                                     <div className="text-sm text-mocha/80">
-                     <div><strong>Narrated by:</strong> {selectedHadith.narrator}</div>
-                     <div><strong>Source:</strong> {selectedHadith.book}</div>
-                     {selectedHadith.hadithNumber && <div><strong>Hadith Number:</strong> #{selectedHadith.hadithNumber}</div>}
-                     {selectedHadith.grade && <div><strong>Grade:</strong> {selectedHadith.grade}</div>}
-                     {selectedHadith.category && <div><strong>Chapter:</strong> {selectedHadith.category}</div>}
-                   </div>
+
+                {/* Meta Information */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 p-4 bg-glass rounded-lg">
+                  <div>
+                    <span className="font-bold text-brass">Narrator:</span>
+                    <span className="text-mocha ml-2">{selectedHadith.narrator}</span>
+                  </div>
+                  <div>
+                    <span className="font-bold text-brass">Collection:</span>
+                    <span className="text-mocha ml-2">{selectedHadith.collection}</span>
+                  </div>
+                  <div>
+                    <span className="font-bold text-brass">Book Number:</span>
+                    <span className="text-mocha ml-2">{selectedHadith.book_number}</span>
+                  </div>
+                  <div>
+                    <span className="font-bold text-brass">Grade:</span>
+                    <span className="text-mocha ml-2">{selectedHadith.grade}</span>
+                  </div>
                 </div>
-                
+
+                {/* Action Buttons */}
                 <div className="flex gap-3">
                   <button
-                    onClick={handleFavorite}
-                    className={`flex-1 py-3 rounded-xl font-bold transition-all ${
-                      isFav 
-                        ? 'bg-red-500 text-white hover:bg-red-600' 
+                    onClick={() => handleFavorite(selectedHadith)}
+                    className={`px-4 py-2 rounded-lg font-bold transition ${
+                      favorites.includes(selectedHadith.id)
+                        ? 'bg-warning text-white'
                         : 'bg-brass text-white hover:bg-wood'
                     }`}
                   >
-                    {isFav ? '❤️ Remove from Favorites' : '🤍 Add to Favorites'}
+                    {favorites.includes(selectedHadith.id) ? '❤️ Favorited' : '🤍 Add to Favorites'}
                   </button>
                   <button
-                    onClick={handleShare}
-                    className="flex-1 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 text-white font-bold hover:from-emerald-600 hover:to-emerald-700 transition-all"
+                    onClick={() => handleShare(selectedHadith)}
+                    className="px-4 py-2 rounded-lg bg-accent text-white font-bold hover:bg-accent2 transition"
                   >
                     📤 Share
                   </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Favorites Modal */}
-        {showFavs && (
-          <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-            <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-              <div className="p-6">
-                <div className="flex justify-between items-center mb-6">
-                  <h2 className="text-2xl font-bold text-brass">Your Favorite Hadiths</h2>
                   <button
-                    onClick={() => setShowFavs(false)}
-                    className="text-2xl text-mocha hover:text-brass transition-colors"
+                    onClick={() => setShowModal(false)}
+                    className="px-4 py-2 rounded-lg bg-glass text-mocha font-bold hover:bg-brass hover:text-white transition"
                   >
-                    ✕
+                    Close
                   </button>
                 </div>
-                
-                {favorites.hadith.length === 0 ? (
-                  <div className="text-center py-12">
-                    <div className="text-4xl mb-4">💔</div>
-                    <div className="text-mocha text-lg">No favorite hadiths yet.</div>
-                    <div className="text-mocha/60">Click the heart icon on any hadith to add it to your favorites.</div>
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    {favorites.hadith.map((hadith) => (
-                      <div
-                        key={hadith.id}
-                        className="p-4 border border-brass/20 rounded-xl hover:border-brass transition-colors cursor-pointer"
-                        onClick={() => {
-                          setSelectedHadith(hadith);
-                          setShowFavs(false);
-                        }}
-                      >
-                        <h3 className="font-bold text-brass mb-2">{hadith.title}</h3>
-                        <p className="text-mocha text-sm line-clamp-2 mb-2">{hadith.text}</p>
-                        <div className="text-xs text-mocha/60">
-                          {hadith.narrator} • {hadith.book}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
               </div>
             </div>
           </div>
         )}
-
-        <style>{`
-          @keyframes fadeInOut {
-            0%, 100% { opacity: 0.1; }
-            50% { opacity: 0.25; }
-          }
-          .fade-in-out {
-            animation: fadeInOut 6s ease-in-out infinite;
-          }
-          .line-clamp-2 {
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-          }
-          .line-clamp-3 {
-            display: -webkit-box;
-            -webkit-line-clamp: 3;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-          }
-          .glassmorph-card {
-            background: rgba(255,255,255,0.35);
-            box-shadow: 0 8px 32px 0 rgba(31,38,135,0.15);
-            backdrop-filter: blur(8px);
-            border-radius: 1.5rem;
-            border: 1.5px solid rgba(181,166,66,0.2);
-          }
-        `}</style>
       </div>
+    </div>
     </ErrorBoundary>
   );
 } 

@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generate Prayer Audio Files</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        button {
+            background: #956D37;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #7a5a2e;
+        }
+        .audio-item {
+            margin: 10px 0;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .progress {
+            width: 100%;
+            height: 20px;
+            background: #f0f0f0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        .progress-bar {
+            height: 100%;
+            background: #956D37;
+            width: 0%;
+            transition: width 0.3s;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Generate Prayer Audio Files</h1>
+        <p>This tool generates audio files for each prayer step. Click the buttons below to generate and download the audio files.</p>
+        
+        <div id="audioControls">
+            <button onclick="generateAllAudio()">Generate All Audio Files</button>
+            <button onclick="downloadAllAudio()">Download All Audio Files</button>
+        </div>
+        
+        <div class="progress">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+        
+        <div id="audioList">
+            <div class="audio-item">
+                <strong>Niyyah (Bismillah)</strong> - 3 seconds
+                <button onclick="generateAudio('niyyah', 440, 3)">Generate</button>
+                <button onclick="playAudio('niyyah')">Play</button>
+            </div>
+            <div class="audio-item">
+                <strong>Takbir (Allahu Akbar)</strong> - 2 seconds
+                <button onclick="generateAudio('takbir', 523, 2)">Generate</button>
+                <button onclick="playAudio('takbir')">Play</button>
+            </div>
+            <div class="audio-item">
+                <strong>Qiyam (Surah Al-Fatiha)</strong> - 45 seconds
+                <button onclick="generateAudio('qiyam', 587, 45)">Generate</button>
+                <button onclick="playAudio('qiyam')">Play</button>
+            </div>
+            <div class="audio-item">
+                <strong>Rukoo (Subhana Rabbiyal Adheem)</strong> - 4 seconds
+                <button onclick="generateAudio('rukoo', 659, 4)">Generate</button>
+                <button onclick="playAudio('rukoo')">Play</button>
+            </div>
+            <div class="audio-item">
+                <strong>Sajda (Subhana Rabbiyal A'la)</strong> - 4 seconds
+                <button onclick="generateAudio('sajda', 698, 4)">Generate</button>
+                <button onclick="playAudio('sajda')">Play</button>
+            </div>
+            <div class="audio-item">
+                <strong>Jalsa (Sitting)</strong> - 2 seconds
+                <button onclick="generateAudio('jalsa', 784, 2)">Generate</button>
+                <button onclick="playAudio('jalsa')">Play</button>
+            </div>
+            <div class="audio-item">
+                <strong>Tashahhud (Testification)</strong> - 15 seconds
+                <button onclick="generateAudio('tashahhud', 880, 15)">Generate</button>
+                <button onclick="playAudio('tashahhud')">Play</button>
+            </div>
+            <div class="audio-item">
+                <strong>Salam (Ending)</strong> - 3 seconds
+                <button onclick="generateAudio('salam', 988, 3)">Generate</button>
+                <button onclick="playAudio('salam')">Play</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const audioFiles = {};
+
+        function generateTone(frequency, duration) {
+            const sampleRate = 44100;
+            const samples = Math.floor(sampleRate * duration);
+            const audioBuffer = audioContext.createBuffer(1, samples, sampleRate);
+            const channelData = audioBuffer.getChannelData(0);
+            
+            for (let i = 0; i < samples; i++) {
+                channelData[i] = Math.sin(2 * Math.PI * frequency * i / sampleRate) * 0.3;
+            }
+            
+            return audioBuffer;
+        }
+
+        function audioBufferToWav(audioBuffer) {
+            const numChannels = audioBuffer.numberOfChannels;
+            const sampleRate = audioBuffer.sampleRate;
+            const length = audioBuffer.length;
+            const buffer = new ArrayBuffer(44 + length * numChannels * 2);
+            const view = new DataView(buffer);
+            
+            // WAV header
+            const writeString = (offset, string) => {
+                for (let i = 0; i < string.length; i++) {
+                    view.setUint8(offset + i, string.charCodeAt(i));
+                }
+            };
+            
+            writeString(0, 'RIFF');
+            view.setUint32(4, 36 + length * numChannels * 2, true);
+            writeString(8, 'WAVE');
+            writeString(12, 'fmt ');
+            view.setUint32(16, 16, true);
+            view.setUint16(20, 1, true);
+            view.setUint16(22, numChannels, true);
+            view.setUint32(24, sampleRate, true);
+            view.setUint32(28, sampleRate * numChannels * 2, true);
+            view.setUint16(32, numChannels * 2, true);
+            view.setUint16(34, 16, true);
+            writeString(36, 'data');
+            view.setUint32(40, length * numChannels * 2, true);
+            
+            // Audio data
+            let offset = 44;
+            for (let i = 0; i < length; i++) {
+                for (let channel = 0; channel < numChannels; channel++) {
+                    const sample = Math.max(-1, Math.min(1, audioBuffer.getChannelData(channel)[i]));
+                    view.setInt16(offset, sample * 0x7FFF, true);
+                    offset += 2;
+                }
+            }
+            
+            return buffer;
+        }
+
+        function generateAudio(name, frequency, duration) {
+            const audioBuffer = generateTone(frequency, duration);
+            const wavBuffer = audioBufferToWav(audioBuffer);
+            const blob = new Blob([wavBuffer], { type: 'audio/wav' });
+            audioFiles[name] = blob;
+            
+            console.log(`Generated audio for ${name}`);
+            alert(`Generated audio for ${name}`);
+        }
+
+        function playAudio(name) {
+            if (audioFiles[name]) {
+                const url = URL.createObjectURL(audioFiles[name]);
+                const audio = new Audio(url);
+                audio.play();
+            } else {
+                alert(`Audio for ${name} not generated yet. Please generate it first.`);
+            }
+        }
+
+        function downloadAudio(name) {
+            if (audioFiles[name]) {
+                const url = URL.createObjectURL(audioFiles[name]);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${name}.wav`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }
+        }
+
+        function generateAllAudio() {
+            const steps = [
+                { name: 'niyyah', frequency: 440, duration: 3 },
+                { name: 'takbir', frequency: 523, duration: 2 },
+                { name: 'qiyam', frequency: 587, duration: 45 },
+                { name: 'rukoo', frequency: 659, duration: 4 },
+                { name: 'sajda', frequency: 698, duration: 4 },
+                { name: 'jalsa', frequency: 784, duration: 2 },
+                { name: 'tashahhud', frequency: 880, duration: 15 },
+                { name: 'salam', frequency: 988, duration: 3 }
+            ];
+            
+            let completed = 0;
+            const progressBar = document.getElementById('progressBar');
+            
+            steps.forEach((step, index) => {
+                setTimeout(() => {
+                    generateAudio(step.name, step.frequency, step.duration);
+                    completed++;
+                    progressBar.style.width = `${(completed / steps.length) * 100}%`;
+                    
+                    if (completed === steps.length) {
+                        alert('All audio files generated successfully!');
+                    }
+                }, index * 500);
+            });
+        }
+
+        function downloadAllAudio() {
+            const steps = ['niyyah', 'takbir', 'qiyam', 'rukoo', 'sajda', 'jalsa', 'tashahhud', 'salam'];
+            let downloaded = 0;
+            
+            steps.forEach((name, index) => {
+                setTimeout(() => {
+                    downloadAudio(name);
+                    downloaded++;
+                    if (downloaded === steps.length) {
+                        alert('All audio files downloaded!');
+                    }
+                }, index * 100);
+            });
+        }
+    </script>
+</body>
+</html> 
