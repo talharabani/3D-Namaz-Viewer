@@ -21,7 +21,9 @@ import DuaScreen from './screens/DuaScreen';
 import DuaListScreen from './screens/DuaListScreen';
 import NamazScreen from './screens/NamazScreen';
 import AIAssistantScreen from './screens/AIAssistantScreen';
+import QuizScreen from './screens/QuizScreen';
 import { useTranslation, setLanguage, getCurrentLanguage } from './utils/translations';
+import { SettingsProvider } from './contexts/SettingsContext';
 
 // Global Error Boundary Component
 class GlobalErrorBoundary extends React.Component {
@@ -64,18 +66,11 @@ class GlobalErrorBoundary extends React.Component {
 
 function App() {
   const { t, currentLang, setLanguage: changeLanguage } = useTranslation();
-  const [dark, setDark] = useState(() => {
-    const saved = localStorage.getItem('darkMode');
-    return saved ? JSON.parse(saved) : window.matchMedia('(prefers-color-scheme: dark)').matches;
-  });
   const [childrenMode, setChildrenMode] = useState(() => {
     const saved = localStorage.getItem('childrenMode');
     return saved ? JSON.parse(saved) : false;
   });
 
-  useEffect(() => {
-    localStorage.setItem('darkMode', JSON.stringify(dark));
-  }, [dark]);
   useEffect(() => {
     localStorage.setItem('childrenMode', JSON.stringify(childrenMode));
   }, [childrenMode]);
@@ -101,76 +96,96 @@ function App() {
 
   const recognitionRef = useRef(null);
 
-  function handleVoiceSearch() {
-    if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
-      alert('Voice recognition not supported in this browser.');
-      return;
-    }
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const handleVoiceSearch = () => {
     if (!recognitionRef.current) {
-      recognitionRef.current = new SpeechRecognition();
-      recognitionRef.current.lang = 'en-US';
-      recognitionRef.current.interimResults = false;
-      recognitionRef.current.maxAlternatives = 1;
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (SpeechRecognition) {
+        recognitionRef.current = new SpeechRecognition();
+        recognitionRef.current.continuous = false;
+        recognitionRef.current.interimResults = false;
+        recognitionRef.current.lang = 'en-US';
+      }
     }
-    recognitionRef.current.onresult = (event) => {
-      const transcript = event.results[0][0].transcript;
-      alert('Voice search: ' + transcript);
-      // TODO: Route to relevant screen or show answer
-    };
-    recognitionRef.current.onerror = (event) => {
-      alert('Voice search error: ' + event.error);
-    };
-    recognitionRef.current.start();
-  }
+
+    if (recognitionRef.current) {
+      recognitionRef.current.start();
+      recognitionRef.current.onresult = (event) => {
+        const transcript = event.results[0][0].transcript.toLowerCase();
+        console.log('Voice input:', transcript);
+        
+        // Handle voice commands
+        if (transcript.includes('prayer') || transcript.includes('namaz')) {
+          window.location.href = '/namaz';
+        } else if (transcript.includes('qibla') || transcript.includes('direction')) {
+          window.location.href = '/qibla';
+        } else if (transcript.includes('hadith') || transcript.includes('hadees')) {
+          window.location.href = '/hadith';
+        } else if (transcript.includes('dua') || transcript.includes('duas')) {
+          window.location.href = '/duas';
+        } else if (transcript.includes('learn') || transcript.includes('learning')) {
+          window.location.href = '/learn';
+        } else if (transcript.includes('quiz') || transcript.includes('test')) {
+          window.location.href = '/quiz';
+        } else if (transcript.includes('tracker') || transcript.includes('track')) {
+          window.location.href = '/tracker';
+        } else if (transcript.includes('time') || transcript.includes('prayer time')) {
+          window.location.href = '/prayer-times';
+        } else if (transcript.includes('settings') || transcript.includes('setting')) {
+          window.location.href = '/settings';
+        } else if (transcript.includes('home') || transcript.includes('main')) {
+          window.location.href = '/';
+        }
+      };
+      
+      recognitionRef.current.onerror = (event) => {
+        console.error('Speech recognition error:', event.error);
+      };
+    } else {
+      alert('Speech recognition is not supported in your browser.');
+    }
+  };
 
   return (
     <GlobalErrorBoundary>
-      <Router>
-        <div className={`min-h-screen font-body text-text flex flex-col${dark ? ' dark' : ''}${childrenMode ? ' children' : ''}`}
-          style={{ transition: 'background 0.5s, color 0.5s' }}
-          lang={currentLang}>
-        {/* Floating language toggle button */}
-        <button
-          className="fixed bottom-32 right-6 z-50 w-14 h-14 rounded-full bg-gradient-to-r from-accent to-accent2 text-white shadow-button flex items-center justify-center text-lg font-bold hover:from-accent2 hover:to-accent focus:outline-none focus:ring-2 focus:ring-accent transition"
-          onClick={() => changeLanguage(currentLang === 'en' ? 'ur' : 'en')}
-          aria-label="Toggle language"
-        >
-          {currentLang === 'en' ? 'اردو' : 'EN'}
-        </button>
-        {/* Floating dark mode toggle button */}
-        <button
-          className="fixed bottom-48 right-6 z-50 w-14 h-14 rounded-full bg-brass text-white shadow-button flex items-center justify-center text-2xl hover:bg-wood focus:outline-none focus:ring-2 focus:ring-wood transition"
-          onClick={() => setDark(d => !d)}
-          aria-label="Toggle dark mode"
-        >
-          {dark ? '🌙' : '☀️'}
-        </button>
-        {/* Floating children mode toggle button */}
-        <button
-          className="fixed bottom-64 right-6 z-50 w-14 h-14 rounded-full bg-success text-white shadow-button flex items-center justify-center text-2xl hover:bg-brass hover:text-white focus:outline-none focus:ring-2 focus:ring-brass transition"
-          onClick={() => setChildrenMode(c => !c)}
-          aria-label="Toggle children mode"
-        >
-          {childrenMode ? '🧒' : '👦'}
-        </button>
-        {/* Floating voice search button */}
-        <button
-          className="fixed bottom-8 right-6 z-50 w-14 h-14 rounded-full bg-wood text-white shadow-button flex items-center justify-center text-2xl hover:bg-brass focus:outline-none focus:ring-2 focus:ring-brass transition"
-          onClick={handleVoiceSearch}
-          aria-label="Voice search"
-        >
-          <span role="img" aria-label="microphone">🎤</span>
-        </button>
-        <main className="flex-1 flex flex-col items-center justify-center px-4 py-8">
-          <Routes>
-            <Route path="/" element={<HomeScreen />} />
-            <Route path="/namaz" element={<NamazScreen />} />
-            <Route path="/hadith" element={<HadithScreen />} />
-            <Route path="/duas" element={<DuaScreen />} />
+      <SettingsProvider>
+        <Router>
+          <div className={`min-h-screen font-body text-text flex flex-col${childrenMode ? ' children' : ''}`}
+            style={{ transition: 'background 0.5s, color 0.5s' }}
+            lang={currentLang}>
+          {/* Floating language toggle button */}
+          <button
+            className="fixed bottom-32 right-6 z-50 w-14 h-14 rounded-full bg-gradient-to-r from-accent to-accent2 text-white shadow-button flex items-center justify-center text-lg font-bold hover:from-accent2 hover:to-accent focus:outline-none focus:ring-2 focus:ring-accent transition"
+            onClick={() => changeLanguage(currentLang === 'en' ? 'ur' : 'en')}
+            aria-label="Toggle language"
+          >
+            {currentLang === 'en' ? 'اردو' : 'EN'}
+          </button>
+          {/* Floating children mode toggle button */}
+          <button
+            className="fixed bottom-48 right-6 z-50 w-14 h-14 rounded-full bg-success text-white shadow-button flex items-center justify-center text-2xl hover:bg-brass hover:text-white focus:outline-none focus:ring-2 focus:ring-brass transition"
+            onClick={() => setChildrenMode(c => !c)}
+            aria-label="Toggle children mode"
+          >
+            {childrenMode ? '🧒' : '👦'}
+          </button>
+          {/* Floating voice search button */}
+          <button
+            className="fixed bottom-8 right-6 z-50 w-14 h-14 rounded-full bg-wood text-white shadow-button flex items-center justify-center text-2xl hover:bg-brass focus:outline-none focus:ring-2 focus:ring-brass transition"
+            onClick={handleVoiceSearch}
+            aria-label="Voice search"
+          >
+            <span role="img" aria-label="microphone">🎤</span>
+          </button>
+          <main className="flex-1 flex flex-col items-center justify-center px-4 py-8">
+            <Routes>
+              <Route path="/" element={<HomeScreen />} />
+              <Route path="/namaz" element={<NamazScreen />} />
+              <Route path="/hadith" element={<HadithScreen />} />
+                          <Route path="/duas" element={<DuaScreen />} />
             <Route path="/duas/:category" element={<DuaListScreen />} />
             <Route path="/qibla" element={<QiblaDirectionScreen />} />
             <Route path="/learn" element={<LearnScreen />} />
+            <Route path="/quiz" element={<QuizScreen />} />
             <Route path="/tracker" element={<PrayerTrackerScreen />} />
             <Route path="/prayer-times" element={<PrayerTimesScreen />} />
             <Route path="/mistakes" element={<NamazMistakesScreen />} />
@@ -178,11 +193,12 @@ function App() {
             <Route path="/ai-assistant" element={<AIAssistantScreen />} />
             <Route path="/settings" element={<SettingsScreen />} />
             <Route path="/daily-challenge" element={<DailyChallengeScreen />} />
-          </Routes>
-        </main>
-        <FooterNavTabs />
-        </div>
-      </Router>
+            </Routes>
+          </main>
+          <FooterNavTabs />
+          </div>
+        </Router>
+      </SettingsProvider>
     </GlobalErrorBoundary>
   );
 }

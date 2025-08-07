@@ -1,13 +1,10 @@
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Merriweather:wght@400;700&family=Inter:wght@400;700&family=Poppins:wght@400;700&family=Roboto:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-/* Urdu font support */
-@import url('https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400;500;600;700&display=swap');
-
-/* Arabic font support */
-@import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap');
 
 /* Custom styles for Urdu text */
 .urdu-text {
@@ -88,6 +85,161 @@ nav .active, .footer-nav .active {
   @apply w-8 h-8;
 }
 
+/* Line clamp utility for text truncation */
+.line-clamp-1 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+}
+
+.line-clamp-2 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.line-clamp-3 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+/* Toast notification styles */
+.toast {
+  @apply fixed top-4 right-4 px-4 py-2 rounded-lg z-50 text-white shadow-lg;
+  animation: slideIn 0.3s ease-out;
+}
+
+.toast.success {
+  @apply bg-green-500;
+}
+
+.toast.error {
+  @apply bg-red-500;
+}
+
+.toast.info {
+  @apply bg-blue-500;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.animate-slideIn {
+  animation: slideIn 0.3s ease-out;
+}
+
+/* Modal overlay styles */
+.modal-overlay {
+  @apply fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.modal-content {
+  @apply bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto;
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Enhanced button styles for dua actions */
+.btn-dua {
+  @apply px-3 py-1 rounded-lg text-sm transition-colors font-medium;
+}
+
+.btn-dua.primary {
+  @apply bg-brass text-white hover:bg-brass/80;
+}
+
+.btn-dua.secondary {
+  @apply bg-wood text-white hover:bg-wood/80;
+}
+
+.btn-dua.success {
+  @apply bg-green-600 text-white hover:bg-green-700;
+}
+
+.btn-dua.warning {
+  @apply bg-yellow-500 text-white hover:bg-yellow-600;
+}
+
+.btn-dua.info {
+  @apply bg-purple-600 text-white hover:bg-purple-700;
+}
+
+.btn-dua.outline {
+  @apply bg-gray-300 text-gray-700 hover:bg-gray-400;
+}
+
+/* Hover effects for cards */
+.card-hover {
+  @apply transition-all duration-300 hover:scale-105 hover:shadow-2xl;
+}
+
+/* Arabic text enhancement */
+.arabic-text {
+  @apply font-arabic leading-loose;
+  font-size: 1.25rem;
+  line-height: 2.5;
+  color: #92400e; /* amber-800 */
+}
+
+.dark .arabic-text {
+  color: #fde68a; /* amber-200 */
+}
+
+.arabic-text-large {
+  @apply font-arabic leading-loose;
+  font-size: 1.5rem;
+  line-height: 2.5;
+  color: #92400e; /* amber-800 */
+}
+
+.dark .arabic-text-large {
+  color: #fde68a; /* amber-200 */
+}
+
+.arabic-text-xl {
+  @apply font-arabic leading-loose;
+  font-size: 2rem;
+  line-height: 2.5;
+  color: #92400e; /* amber-800 */
+}
+
+.dark .arabic-text-xl {
+  color: #fde68a; /* amber-200 */
+}
+
+/* Scrollbar styles */
 ::-webkit-scrollbar {
   width: 10px;
   background: #f5f5f5;
@@ -97,11 +249,160 @@ nav .active, .footer-nav .active {
   border-radius: 8px;
 }
 
+/* Responsive adjustments */
 @media (max-width: 600px) {
   .card, section, main, .main-container {
     @apply p-4;
   }
-  nav, .footer-nav {
-    @apply px-1 py-2;
+  
+  .arabic-text {
+    font-size: 1.1rem;
+  }
+  
+  .arabic-text-large {
+    font-size: 1.25rem;
+  }
+  
+  .arabic-text-xl {
+    font-size: 1.5rem;
+  }
+  
+  .btn-dua {
+    @apply px-2 py-1 text-xs;
+  }
+}
+
+/* Print styles */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  
+  .card {
+    @apply bg-white border border-gray-300 shadow-none;
+  }
+}
+
+/* CSS Custom Properties for Accessibility */
+:root {
+  --text-scale: 1;
+  --contrast-scale: 1;
+  --motion-scale: 1;
+}
+
+/* Large Text Support */
+.large-text {
+  font-size: calc(1rem * var(--text-scale)) !important;
+}
+
+.large-text h1, .large-text .text-3xl, .large-text .text-4xl {
+  font-size: calc(1.875rem * var(--text-scale)) !important;
+}
+
+.large-text h2, .large-text .text-2xl {
+  font-size: calc(1.5rem * var(--text-scale)) !important;
+}
+
+.large-text h3, .large-text .text-xl {
+  font-size: calc(1.25rem * var(--text-scale)) !important;
+}
+
+.large-text p, .large-text .text-base {
+  font-size: calc(1rem * var(--text-scale)) !important;
+}
+
+.large-text .text-sm {
+  font-size: calc(0.875rem * var(--text-scale)) !important;
+}
+
+.large-text .text-lg {
+  font-size: calc(1.125rem * var(--text-scale)) !important;
+}
+
+/* High Contrast Support */
+.high-contrast {
+  --contrast-scale: 1.5;
+}
+
+.high-contrast * {
+  border-color: #000 !important;
+}
+
+.high-contrast .bg-white {
+  background-color: #ffffff !important;
+}
+
+.high-contrast .bg-gray-800 {
+  background-color: #1f2937 !important;
+}
+
+.high-contrast .text-gray-700 {
+  color: #000000 !important;
+}
+
+.high-contrast .text-gray-300 {
+  color: #ffffff !important;
+}
+
+.high-contrast .text-gray-500 {
+  color: #000000 !important;
+}
+
+.high-contrast .text-gray-400 {
+  color: #ffffff !important;
+}
+
+/* Reduced Motion Support */
+.reduce-motion * {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+}
+
+.reduce-motion .animate-slideIn {
+  animation: none !important;
+}
+
+.reduce-motion .animate-fadeIn {
+  animation: none !important;
+}
+
+/* Screen Reader Support */
+.screen-reader .sr-only {
+  position: static !important;
+  width: auto !important;
+  height: auto !important;
+  padding: inherit !important;
+  margin: inherit !important;
+  overflow: visible !important;
+  clip: auto !important;
+  white-space: normal !important;
+}
+
+/* Theme Support */
+.light {
+  color-scheme: light;
+}
+
+.dark {
+  color-scheme: dark;
+}
+
+/* Responsive adjustments for large text */
+@media (max-width: 768px) {
+  .large-text {
+    font-size: calc(0.9rem * var(--text-scale)) !important;
+  }
+  
+  .large-text h1, .large-text .text-3xl, .large-text .text-4xl {
+    font-size: calc(1.5rem * var(--text-scale)) !important;
+  }
+  
+  .large-text h2, .large-text .text-2xl {
+    font-size: calc(1.25rem * var(--text-scale)) !important;
+  }
+  
+  .large-text h3, .large-text .text-xl {
+    font-size: calc(1.125rem * var(--text-scale)) !important;
   }
 }

@@ -1,246 +1,269 @@
-import { useEffect, useState } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useSettings } from '../contexts/SettingsContext';
 
 export default function HomeScreen() {
   const navigate = useNavigate();
-  const [currentTime, setCurrentTime] = useState(new Date());
-  const [greeting, setGreeting] = useState('');
+  const { settings } = useSettings();
 
-  useEffect(() => {
+  const formatTime = (date) => {
+    if (settings.militaryTime) {
+      return date.toLocaleTimeString('en-US', { 
+        hour12: false, 
+        hour: '2-digit', 
+        minute: '2-digit',
+        second: settings.showSeconds ? '2-digit' : undefined
+      });
+    } else {
+      return date.toLocaleTimeString('en-US', { 
+        hour12: true, 
+        hour: '2-digit', 
+        minute: '2-digit',
+        second: settings.showSeconds ? '2-digit' : undefined
+      });
+    }
+  };
+
+  const [currentTime, setCurrentTime] = React.useState(new Date());
+
+  React.useEffect(() => {
     const timer = setInterval(() => {
       setCurrentTime(new Date());
     }, 1000);
-
-    // Set greeting based on time
-    const hour = currentTime.getHours();
-    if (hour >= 5 && hour < 12) {
-      setGreeting('Assalamu Alaikum - Good Morning');
-    } else if (hour >= 12 && hour < 17) {
-      setGreeting('Assalamu Alaikum - Good Afternoon');
-    } else if (hour >= 17 && hour < 21) {
-      setGreeting('Assalamu Alaikum - Good Evening');
-    } else {
-      setGreeting('Assalamu Alaikum - Good Night');
-    }
-
     return () => clearInterval(timer);
-  }, [currentTime]);
-
-  const islamicQuotes = [
-    "Indeed, prayer prohibits immorality and wrongdoing. (Quran 29:45)",
-    "The closest a servant comes to his Lord is when he is prostrating. (Prophet Muhammad ﷺ)",
-    "Successful indeed are the believers, those who humble themselves in prayer. (Quran 23:1-2)",
-    "Establish prayer for My remembrance. (Quran 20:14)",
-    "The key to Paradise is prayer. (Prophet Muhammad ﷺ)"
-  ];
-
-  const [quoteIndex, setQuoteIndex] = useState(0);
-
-  useEffect(() => {
-    const quoteTimer = setInterval(() => {
-      setQuoteIndex((prev) => (prev + 1) % islamicQuotes.length);
-    }, 8000);
-    return () => clearInterval(quoteTimer);
   }, []);
 
+  const menuItems = [
+    {
+      title: 'Prayer Times',
+      description: 'View daily prayer times',
+      icon: '🕐',
+      path: '/prayer-times',
+      color: 'from-blue-500 to-blue-600'
+    },
+    {
+      title: 'Prayer Tracker',
+      description: 'Track your daily prayers',
+      icon: '📊',
+      path: '/tracker',
+      color: 'from-green-500 to-green-600'
+    },
+    {
+      title: 'Learn Namaz',
+      description: 'Step-by-step prayer guide',
+      icon: '📚',
+      path: '/learn',
+      color: 'from-purple-500 to-purple-600'
+    },
+    {
+      title: 'Prayer Quiz',
+      description: 'Test your knowledge of Salah',
+      icon: '🏆',
+      path: '/quiz',
+      color: 'from-yellow-500 to-yellow-600'
+    },
+    {
+      title: 'Qibla Direction',
+      description: 'Find prayer direction',
+      icon: '🕌',
+      path: '/qibla',
+      color: 'from-orange-500 to-orange-600'
+    },
+    {
+      title: 'Duas',
+      description: 'Collection of Islamic duas',
+      icon: '🤲',
+      path: '/duas',
+      color: 'from-teal-500 to-teal-600'
+    },
+    {
+      title: 'Hadith',
+      description: 'Islamic traditions and sayings',
+      icon: '📖',
+      path: '/hadith',
+      color: 'from-indigo-500 to-indigo-600'
+    },
+    {
+      title: 'Namaz Mistakes',
+      description: 'Common prayer mistakes to avoid',
+      icon: '⚠️',
+      path: '/mistakes',
+      color: 'from-red-500 to-red-600'
+    },
+    {
+      title: 'AI Assistant',
+      description: 'Get help with Islamic questions',
+      icon: '🤖',
+      path: '/ai-assistant',
+      color: 'from-pink-500 to-pink-600'
+    }
+  ];
+
   return (
-    <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[#44403c] via-[#78716c] to-[#d6d3d1]">
-      <div className="w-full max-w-7xl mx-auto flex flex-col items-center gap-4 md:gap-6 lg:gap-8 py-4 md:py-6 lg:py-8 px-2 md:px-4">
-        {/* Header Section */}
-        <div className="w-full text-center mb-6 md:mb-8">
-          <div className="card p-6 md:p-8 bg-gradient-to-r from-brass/15 to-wood/15 border border-brass/30 backdrop-blur-sm relative overflow-hidden shadow-lg">
-            {/* Main Calligraphy - Centered */}
-            <div className="text-center relative z-10 flex flex-col items-center justify-center">
-              <div className="text-6xl md:text-8xl lg:text-9xl font-arabic text-brass/70 leading-none mb-6 drop-shadow-lg" style={{ fontFamily: 'Amiri, serif' }}>
-                ﷽
-              </div>
-              <div className="text-2xl md:text-3xl lg:text-4xl font-arabic text-brass/90 mb-4 font-bold" style={{ fontFamily: 'Amiri, serif' }}>
-                بسم الله الرحمن الرحيم
-              </div>
-              <div className="text-lg md:text-xl text-text dark:text-darktext opacity-80 font-medium mb-6">
-                In the name of Allah, the Most Gracious, the Most Merciful
-              </div>
-              <div className="text-2xl md:text-3xl lg:text-4xl font-heading text-brass font-bold bg-gradient-to-r from-brass to-wood bg-clip-text text-transparent">
-                Islamic Companion
-              </div>
-              <div className="text-base md:text-lg text-text dark:text-darktext opacity-90 mt-2">
-                Your daily companion for prayer, learning, and spiritual growth
-              </div>
+    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+      <div className="w-full max-w-7xl mx-auto py-8 px-4">
+        {/* Beautiful Calligraphy Header */}
+        <div className="text-center mb-12">
+          {/* Arabic Calligraphy */}
+          <div className="mb-6">
+            <div className="text-6xl md:text-8xl font-arabic text-brass mb-4 leading-none drop-shadow-2xl">
+              بسم الله الرحمن الرحيم
+            </div>
+            <div className="text-sm md:text-base text-text dark:text-darktext opacity-80 italic">
+              In the name of Allah, the Most Gracious, the Most Merciful
+            </div>
+          </div>
+
+          {/* Main Title with Calligraphy */}
+          <div className="relative mb-8">
+            {/* Decorative elements */}
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="w-32 h-1 bg-gradient-to-r from-transparent via-brass to-transparent opacity-30"></div>
             </div>
             
-            {/* Decorative Islamic Patterns */}
-            <div className="absolute top-4 left-4 w-16 h-16 opacity-20">
-              <svg viewBox="0 0 100 100" fill="none" className="w-full h-full">
-                <path d="M50 5 L95 50 L50 95 L5 50 Z" stroke="#956D37" strokeWidth="2" fill="none"/>
-                <circle cx="50" cy="50" r="20" stroke="#956D37" strokeWidth="1" fill="none"/>
-                <circle cx="50" cy="50" r="8" stroke="#956D37" strokeWidth="1" fill="none"/>
-              </svg>
-            </div>
-            <div className="absolute top-4 right-4 w-16 h-16 opacity-20">
-              <svg viewBox="0 0 100 100" fill="none" className="w-full h-full">
-                <path d="M50 5 L95 50 L50 95 L5 50 Z" stroke="#956D37" strokeWidth="2" fill="none"/>
-                <circle cx="50" cy="50" r="20" stroke="#956D37" strokeWidth="1" fill="none"/>
-                <circle cx="50" cy="50" r="8" stroke="#956D37" strokeWidth="1" fill="none"/>
-              </svg>
-            </div>
-            <div className="absolute bottom-4 left-4 w-16 h-16 opacity-20">
-              <svg viewBox="0 0 100 100" fill="none" className="w-full h-full">
-                <path d="M50 5 L95 50 L50 95 L5 50 Z" stroke="#956D37" strokeWidth="2" fill="none"/>
-                <circle cx="50" cy="50" r="20" stroke="#956D37" strokeWidth="1" fill="none"/>
-                <circle cx="50" cy="50" r="8" stroke="#956D37" strokeWidth="1" fill="none"/>
-              </svg>
-            </div>
-            <div className="absolute bottom-4 right-4 w-16 h-16 opacity-20">
-              <svg viewBox="0 0 100 100" fill="none" className="w-full h-full">
-                <path d="M50 5 L95 50 L50 95 L5 50 Z" stroke="#956D37" strokeWidth="2" fill="none"/>
-                <circle cx="50" cy="50" r="20" stroke="#956D37" strokeWidth="1" fill="none"/>
-                <circle cx="50" cy="50" r="8" stroke="#956D37" strokeWidth="1" fill="none"/>
-              </svg>
-            </div>
+            <h1 className="text-4xl md:text-6xl font-heading text-amber-800 dark:text-amber-200 font-bold mb-4 drop-shadow-2xl relative z-10">
+              🕌 Namaz App
+            </h1>
             
-            {/* Additional decorative elements */}
-            <div className="absolute top-1/2 left-8 w-8 h-8 opacity-15">
-              <svg viewBox="0 0 100 100" fill="none" className="w-full h-full">
-                <path d="M20 50 L80 50 M50 20 L50 80" stroke="#956D37" strokeWidth="1" fill="none"/>
-              </svg>
+            {/* Subtitle with Islamic styling */}
+            <div className="mb-6">
+              <div className="text-2xl md:text-3xl font-arabic text-brass mb-2 leading-relaxed">
+                تطبيق الصلاة
+              </div>
+              <p className="text-lg text-gray-700 dark:text-gray-300 max-w-2xl mx-auto">
+                Your comprehensive Islamic prayer companion
+              </p>
             </div>
-            <div className="absolute top-1/2 right-8 w-8 h-8 opacity-15">
-              <svg viewBox="0 0 100 100" fill="none" className="w-full h-full">
-                <path d="M20 50 L80 50 M50 20 L50 80" stroke="#956D37" strokeWidth="1" fill="none"/>
-              </svg>
-            </div>
-          </div>
-        </div>
 
-        {/* Greeting Section */}
-        <div className="w-full max-w-4xl px-4">
-          <div className="card p-4 md:p-6 bg-gradient-to-r from-brass/10 to-wood/10 border border-brass/20 backdrop-blur-sm">
-            <div className="text-center">
-              <div className="text-2xl md:text-3xl lg:text-4xl font-heading text-brass font-bold mb-2 bg-gradient-to-r from-brass to-wood bg-clip-text text-transparent">
-                {greeting}
+            {/* Islamic quote */}
+            <div className="bg-gradient-to-r from-brass/10 to-wood/10 rounded-2xl p-6 border border-brass/20 backdrop-blur-sm max-w-3xl mx-auto">
+              <div className="text-xl md:text-2xl font-arabic text-brass mb-2 leading-relaxed">
+                "إِنَّ الصَّلَاةَ كَانَتْ عَلَى الْمُؤْمِنِينَ كِتَابًا مَّوْقُوتًا"
               </div>
-              <div className="text-xl md:text-2xl text-text dark:text-darktext font-semibold mb-2">
-                {currentTime.toLocaleTimeString('en-US', { 
-                  hour: '2-digit', 
-                  minute: '2-digit', 
-                  second: '2-digit',
-                  hour12: true 
-                })}
+              <div className="text-sm md:text-base text-text dark:text-darktext opacity-90 italic">
+                "Indeed, prayer has been decreed upon the believers a decree of specified times."
               </div>
-              <div className="text-base md:text-lg text-text dark:text-darktext opacity-75">
-                {currentTime.toLocaleDateString('en-US', { 
-                  weekday: 'long', 
-                  year: 'numeric', 
-                  month: 'long', 
-                  day: 'numeric' 
-                })}
+              <div className="text-xs text-text dark:text-darktext opacity-70 mt-2">
+                — Quran 4:103
               </div>
             </div>
           </div>
         </div>
-
-        {/* Islamic Quote */}
-        <div className="w-full max-w-4xl px-4">
-          <div className="card p-4 md:p-6 bg-gradient-to-r from-brass/10 to-wood/10 border border-brass/20 backdrop-blur-sm">
-            <div className="text-center">
-              <div className="text-3xl md:text-4xl mb-3 md:mb-4">🕌</div>
-              <div className="text-lg md:text-xl text-text dark:text-darktext italic mb-3 md:mb-4 leading-relaxed px-2">
-                "{islamicQuotes[quoteIndex]}"
-              </div>
-              <div className="text-brass font-bold text-base md:text-lg">
-                Daily Reminder
-              </div>
+          
+        {/* Current Time Display with Islamic styling */}
+        <div className="bg-gradient-to-br from-white/90 to-white/70 dark:from-gray-800/90 dark:to-gray-800/70 rounded-2xl p-6 border border-brass/20 shadow-xl max-w-md mx-auto mb-8 backdrop-blur-sm">
+          <div className="text-center">
+            <div className="text-lg font-arabic text-brass mb-2">الوقت الحالي</div>
+            <h2 className="text-xl font-bold text-gray-800 dark:text-gray-200 mb-2">Current Time</h2>
+            <div className="text-4xl font-mono text-amber-600 dark:text-amber-400 mb-2">
+              {formatTime(currentTime)}
+            </div>
+            <div className="text-sm text-gray-600 dark:text-gray-400">
+              {settings.militaryTime ? '24-hour format' : '12-hour format'}
+              {settings.showSeconds && ' • Showing seconds'}
             </div>
           </div>
         </div>
 
-        {/* Quick Actions Grid */}
-        <div className="w-full max-w-6xl px-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-            <div 
-              className="group relative card p-4 md:p-6 hover:shadow-2xl transition-all duration-500 hover:scale-105 bg-gradient-to-br from-card/80 to-card/60 backdrop-blur-sm border border-brass/20 overflow-hidden cursor-pointer"
-              onClick={() => navigate('/prayer-times')}
-            >
-              {/* Background Pattern */}
-              <div className="absolute inset-0 opacity-5 bg-gradient-to-br from-brass to-wood pointer-events-none"></div>
-              
-              <div className="relative text-center">
-                <div className="text-3xl md:text-4xl mb-2 md:mb-3 group-hover:scale-110 transition-transform duration-300">🕋</div>
-                <div className="text-base md:text-lg font-bold text-brass">Prayer Times</div>
-                <div className="text-xs md:text-sm text-text dark:text-darktext mt-1 md:mt-2">
-                  Check prayer timings
-                </div>
+        {/* Settings Demo with enhanced styling */}
+        <div className="bg-gradient-to-br from-white/90 to-white/70 dark:from-gray-800/90 dark:to-gray-800/70 rounded-2xl p-6 border border-brass/20 shadow-xl max-w-2xl mx-auto mb-8 backdrop-blur-sm">
+          <div className="text-center mb-4">
+            <div className="text-lg font-arabic text-brass mb-2">الإعدادات الحالية</div>
+            <h2 className="text-xl font-bold text-gray-800 dark:text-gray-200">Current Settings</h2>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+            <div className="space-y-2">
+              <div className="flex justify-between">
+                <span className="text-gray-600 dark:text-gray-400">Theme:</span>
+                <span className="font-semibold text-gray-800 dark:text-gray-200 capitalize">{settings.theme}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600 dark:text-gray-400">Large Text:</span>
+                <span className="font-semibold text-gray-800 dark:text-gray-200">{settings.accessibility.largeText ? '✅ Enabled' : '❌ Disabled'}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600 dark:text-gray-400">High Contrast:</span>
+                <span className="font-semibold text-gray-800 dark:text-gray-200">{settings.accessibility.highContrast ? '✅ Enabled' : '❌ Disabled'}</span>
               </div>
             </div>
-
-            <div 
-              className="group relative card p-4 md:p-6 hover:shadow-2xl transition-all duration-500 hover:scale-105 bg-gradient-to-br from-card/80 to-card/60 backdrop-blur-sm border border-brass/20 overflow-hidden cursor-pointer"
-              onClick={() => navigate('/learn')}
-            >
-              {/* Background Pattern */}
-              <div className="absolute inset-0 opacity-5 bg-gradient-to-br from-brass to-wood pointer-events-none"></div>
-              
-              <div className="relative text-center">
-                <div className="text-3xl md:text-4xl mb-2 md:mb-3 group-hover:scale-110 transition-transform duration-300">📖</div>
-                <div className="text-base md:text-lg font-bold text-brass">Learn Namaz</div>
-                <div className="text-xs md:text-sm text-text dark:text-darktext mt-1 md:mt-2">
-                  Master prayer steps
-                </div>
+            <div className="space-y-2">
+              <div className="flex justify-between">
+                <span className="text-gray-600 dark:text-gray-400">Military Time:</span>
+                <span className="font-semibold text-gray-800 dark:text-gray-200">{settings.militaryTime ? '✅ Enabled' : '❌ Disabled'}</span>
               </div>
-            </div>
-
-            <div 
-              className="group relative card p-4 md:p-6 hover:shadow-2xl transition-all duration-500 hover:scale-105 bg-gradient-to-br from-card/80 to-card/60 backdrop-blur-sm border border-brass/20 overflow-hidden cursor-pointer"
-              onClick={() => navigate('/qibla')}
-            >
-              {/* Background Pattern */}
-              <div className="absolute inset-0 opacity-5 bg-gradient-to-br from-brass to-wood pointer-events-none"></div>
-              
-              <div className="relative text-center">
-                <div className="text-3xl md:text-4xl mb-2 md:mb-3 group-hover:scale-110 transition-transform duration-300">🧭</div>
-                <div className="text-base md:text-lg font-bold text-brass">Qibla Direction</div>
-                <div className="text-xs md:text-sm text-text dark:text-darktext mt-1 md:mt-2">
-                  Find prayer direction
-                </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600 dark:text-gray-400">Show Seconds:</span>
+                <span className="font-semibold text-gray-800 dark:text-gray-200">{settings.showSeconds ? '✅ Enabled' : '❌ Disabled'}</span>
               </div>
-            </div>
-
-            <div 
-              className="group relative card p-4 md:p-6 hover:shadow-2xl transition-all duration-500 hover:scale-105 bg-gradient-to-br from-card/80 to-card/60 backdrop-blur-sm border border-brass/20 overflow-hidden cursor-pointer"
-              onClick={() => navigate('/ai-assistant')}
-            >
-              {/* Background Pattern */}
-              <div className="absolute inset-0 opacity-5 bg-gradient-to-br from-brass to-wood pointer-events-none"></div>
-              
-              <div className="relative text-center">
-                <div className="text-3xl md:text-4xl mb-2 md:mb-3 group-hover:scale-110 transition-transform duration-300">🤖</div>
-                <div className="text-base md:text-lg font-bold text-brass">AI Assistant</div>
-                <div className="text-xs md:text-sm text-text dark:text-darktext mt-1 md:mt-2">
-                  Get Islamic guidance
-                </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600 dark:text-gray-400">Reduce Motion:</span>
+                <span className="font-semibold text-gray-800 dark:text-gray-200">{settings.accessibility.reduceMotion ? '✅ Enabled' : '❌ Disabled'}</span>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Daily Prayer Reminder */}
-        <div className="w-full max-w-4xl px-4">
-          <div className="card p-4 md:p-6 bg-gradient-to-r from-brass/10 to-wood/10 border border-brass/20 backdrop-blur-sm">
-            <div className="text-center">
-              <div className="text-3xl md:text-4xl mb-3 md:mb-4">🕌</div>
-              <div className="text-lg md:text-xl font-heading text-brass font-bold mb-3 md:mb-4">
-                Remember Your Prayers
+        {/* Menu Grid with enhanced styling */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {menuItems.map((item, index) => (
+            <div
+              key={item.path}
+              onClick={() => navigate(item.path)}
+              className="group relative bg-gradient-to-br from-white/90 to-white/70 dark:from-gray-800/90 dark:to-gray-800/70 rounded-2xl p-6 border border-brass/20 shadow-lg hover:shadow-2xl transition-all duration-300 cursor-pointer backdrop-blur-sm hover:scale-105"
+              style={{
+                animationDelay: `${index * 100}ms`,
+                animation: 'fadeInUp 0.6s ease-out forwards'
+              }}
+            >
+              {/* Decorative corner elements */}
+              <div className="absolute top-0 left-0 w-8 h-8 border-l-2 border-t-2 border-brass/30 rounded-tl-lg"></div>
+              <div className="absolute top-0 right-0 w-8 h-8 border-r-2 border-t-2 border-brass/30 rounded-tr-lg"></div>
+              <div className="absolute bottom-0 left-0 w-8 h-8 border-l-2 border-b-2 border-brass/30 rounded-bl-lg"></div>
+              <div className="absolute bottom-0 right-0 w-8 h-8 border-r-2 border-b-2 border-brass/30 rounded-br-lg"></div>
+
+              <div className="text-center">
+                <div className="text-4xl mb-4 group-hover:scale-110 transition-transform duration-300">
+                  {item.icon}
+                </div>
+                <h3 className="text-xl font-bold text-gray-800 dark:text-gray-200 mb-2 group-hover:text-brass transition-colors duration-300">
+                  {item.title}
+                </h3>
+                <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">
+                  {item.description}
+                </p>
               </div>
-              <div className="text-base md:text-lg text-text dark:text-darktext mb-4 md:mb-6 leading-relaxed px-2">
-                "The first thing that will be judged among a person's deeds on the Day of Resurrection is the prayer. If it is sound, then the rest of his deeds will be sound. And if it is defective, then the rest of his deeds will be defective."
-              </div>
-              <div className="text-brass font-bold text-base md:text-lg">
-                - Prophet Muhammad ﷺ
-              </div>
+
+              {/* Hover effect overlay */}
+              <div className="absolute inset-0 bg-gradient-to-br from-brass/5 to-wood/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            </div>
+          ))}
+        </div>
+
+        {/* Footer with Islamic quote */}
+        <div className="text-center mt-12">
+          <div className="bg-gradient-to-r from-brass/10 to-wood/10 rounded-2xl p-6 border border-brass/20 backdrop-blur-sm max-w-2xl mx-auto">
+            <div className="text-lg font-arabic text-brass mb-2 leading-relaxed">
+              "اللَّهُمَّ أَعِنِّي عَلَى ذِكْرِكَ وَشُكْرِكَ وَحُسْنِ عِبَادَتِكَ"
+            </div>
+            <div className="text-sm text-text dark:text-darktext opacity-90 italic">
+              "O Allah, help me to remember You, thank You, and worship You in the best way."
             </div>
           </div>
         </div>
       </div>
+
+      <style jsx>{`
+        @keyframes fadeInUp {
+          from {
+            opacity: 0;
+            transform: translateY(30px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+      `}</style>
     </div>
   );
 } 

@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from 'react';
 import audioService from '../utils/audioService';
 import notificationService from '../utils/notificationService';
 import { ToggleLeft } from '../components/ToggleLeft';
+import { useSettings } from '../contexts/SettingsContext';
 
 const PRAYERS = ['Fajr', 'Sunrise', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
 const AZAN_AUDIO = 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav';
@@ -74,20 +75,61 @@ const PRAYER_MESSAGES = {
 };
 
 export default function PrayerTimesScreen() {
+  const { settings } = useSettings();
   const [times, setTimes] = useState(null);
   const [hijri, setHijri] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [nextIdx, setNextIdx] = useState(0);
   const [countdown, setCountdown] = useState({ h: 0, m: 0, s: 0, total: 0 });
-  const [method, setMethod] = useState(2);
-  const [fiqh, setFiqh] = useState('shafi');
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
   const [showNotificationAlert, setShowNotificationAlert] = useState(false);
   const [currentPrayerAlert, setCurrentPrayerAlert] = useState(null);
   
   const azanRef = useRef();
   const [coords, setCoords] = useState(null);
+
+  // Format time based on settings
+  const formatTime = (timeString) => {
+    if (!timeString) return '';
+    
+    const [hours, minutes] = timeString.split(':');
+    const date = new Date();
+    date.setHours(parseInt(hours), parseInt(minutes), 0);
+    
+    const options = {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: !settings.militaryTime
+    };
+    
+    if (settings.showSeconds) {
+      options.second = '2-digit';
+    }
+    
+    return date.toLocaleTimeString('en-US', options);
+  };
+
+  // Format countdown time based on settings
+  const formatCountdown = (countdown) => {
+    const { h, m, s } = countdown;
+    
+    if (settings.militaryTime) {
+      return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}${settings.showSeconds ? `:${s.toString().padStart(2, '0')}` : ''}`;
+    } else {
+      const totalMinutes = h * 60 + m;
+      const hours = Math.floor(totalMinutes / 60);
+      const minutes = totalMinutes % 60;
+      const ampm = hours >= 12 ? 'PM' : 'AM';
+      const displayHours = hours % 12 || 12;
+      
+      let result = `${displayHours}:${minutes.toString().padStart(2, '0')} ${ampm}`;
+      if (settings.showSeconds) {
+        result += `:${s.toString().padStart(2, '0')}`;
+      }
+      return result;
+    }
+  };
 
   // Check notification permission status (without requesting)
   useEffect(() => {
@@ -133,16 +175,16 @@ export default function PrayerTimesScreen() {
       const { latitude, longitude } = pos.coords;
       setCoords({ latitude, longitude });
       try {
-        // Handle different fiqh calculations
+        // Handle different fiqh calculations using settings
         let school = 0; // Default Shafi
-        if (fiqh === 'hanafi') {
+        if (settings.fiqh === 'hanafi') {
           school = 1;
-        } else if (fiqh === 'ahl-e-hadith') {
+        } else if (settings.fiqh === 'ahl-e-hadith') {
           // Ahl-e-Hadith uses different calculation method
           school = 0; // Similar to Shafi but with specific adjustments
         }
         
-        const res = await fetch(`https://api.aladhan.com/v1/timings?latitude=${latitude}&longitude=${longitude}&method=${method}&school=${school}`, {
+        const res = await fetch(`https://api.aladhan.com/v1/timings?latitude=${latitude}&longitude=${longitude}&method=${settings.prayerMethod}&school=${school}`, {
           timeout: 10000 // 10 second timeout
         });
         if (!res.ok) {
@@ -153,7 +195,7 @@ export default function PrayerTimesScreen() {
           let prayerTimes = data.data.timings;
           
           // Apply Ahl-e-Hadith specific adjustments if selected
-          if (fiqh === 'ahl-e-hadith') {
+          if (settings.fiqh === 'ahl-e-hadith') {
             prayerTimes = adjustPrayerTimesForAhlEHadith(prayerTimes);
           }
           
@@ -174,7 +216,7 @@ export default function PrayerTimesScreen() {
       setError('Location denied or unavailable.');
       setLoading(false);
     });
-  }, [method, fiqh]);
+  }, [settings.prayerMethod, settings.fiqh]);
 
   // Find next prayer and update countdown
   useEffect(() => {
@@ -317,30 +359,21 @@ export default function PrayerTimesScreen() {
           </div>
         )}
 
-        {/* Settings Section */}
+        {/* Settings Info Section */}
         <div className="w-full max-w-4xl">
           <div className="card p-6 bg-gradient-to-r from-brass/10 to-wood/10 border border-brass/20 backdrop-blur-sm">
             <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-              <div className="text-2xl font-heading text-brass font-bold">Settings</div>
-              <div className="flex gap-4">
-                <select
-                  className="rounded-xl border-2 border-brass px-4 py-2 bg-card dark:bg-darkcard text-text dark:text-darktext font-bold focus:ring-2 focus:ring-brass transition-all duration-300"
-                  value={method}
-                  onChange={e => setMethod(Number(e.target.value))}
-                >
-                  {METHODS.map(m => (
-                    <option key={m.id} value={m.id}>{m.name}</option>
-                  ))}
-                </select>
-                <select
-                  className="rounded-xl border-2 border-brass px-4 py-2 bg-card dark:bg-darkcard text-text dark:text-darktext font-bold focus:ring-2 focus:ring-brass transition-all duration-300"
-                  value={fiqh}
-                  onChange={e => setFiqh(e.target.value)}
-                >
-                  {FIQHS.map(f => (
-                    <option key={f.id} value={f.id}>{f.name}</option>
-                  ))}
-                </select>
+              <div className="text-2xl font-heading text-brass font-bold">Current Settings</div>
+              <div className="flex gap-4 text-sm">
+                <div className="text-text dark:text-darktext">
+                  <span className="text-brass font-bold">Method:</span> {METHODS.find(m => m.id === settings.prayerMethod)?.name}
+                </div>
+                <div className="text-text dark:text-darktext">
+                  <span className="text-brass font-bold">Fiqh:</span> {FIQHS.find(f => f.id === settings.fiqh)?.name}
+                </div>
+                <div className="text-text dark:text-darktext">
+                  <span className="text-brass font-bold">Time Format:</span> {settings.militaryTime ? '24h' : '12h'}
+                </div>
               </div>
             </div>
           </div>
@@ -351,8 +384,8 @@ export default function PrayerTimesScreen() {
           <div className="card p-6 bg-gradient-to-r from-brass/10 to-wood/10 border border-brass/20 backdrop-blur-sm">
             <div className="flex justify-between items-center mb-6">
               <div className="text-sm text-text dark:text-darktext font-body">
-                <span className="text-brass font-bold">Fiqh:</span> {FIQHS.find(f => f.id === fiqh)?.name}
-                {fiqh === 'ahl-e-hadith' && (
+                <span className="text-brass font-bold">Fiqh:</span> {FIQHS.find(f => f.id === settings.fiqh)?.name}
+                {settings.fiqh === 'ahl-e-hadith' && (
                   <span className="ml-2 text-xs text-accent4">
                     (Asr: Shadow=1, Maghrib: After sunset, Isha: Earlier)
                   </span>
@@ -374,7 +407,7 @@ export default function PrayerTimesScreen() {
                 >
                   <div className="flex flex-col">
                     <span className="text-xl font-heading text-brass font-bold">{p}</span>
-                    <span className="text-lg text-text dark:text-darktext font-body">{times[p]}</span>
+                    <span className="text-lg text-text dark:text-darktext font-body">{formatTime(times[p])}</span>
                   </div>
                   {i === nextIdx && p !== 'Sunrise' ? (
                     <div className="flex items-center gap-3">
@@ -391,7 +424,7 @@ export default function PrayerTimesScreen() {
                           strokeDashoffset={(2 * Math.PI * 20) * (1 - countdown.total / (60 * 60))}
                           style={{ transition: 'stroke-dashoffset 1s linear' }}
                         />
-                        <text x="24" y="28" textAnchor="middle" fontSize="14" className="text-accent" fill="currentColor">{`${countdown.h}:${String(countdown.m).padStart(2, '0')}`}</text>
+                        <text x="24" y="28" textAnchor="middle" fontSize="14" className="text-accent" fill="currentColor">{formatCountdown(countdown)}</text>
                       </svg>
                       {/* Azan icon pulse */}
                       <span className={`text-3xl text-accent2 ${countdown.total < 60 ? 'animate-azan-pulse' : ''}`}>🔊</span>

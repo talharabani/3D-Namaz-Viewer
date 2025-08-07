@@ -1,135 +1,145 @@
-# Islamic Prayer Companion App
+# Namaz Learning Website
 
-A comprehensive Islamic prayer companion app built with React, Vite, and Tailwind CSS. This app helps Muslims with prayer times, Qibla direction, learning how to pray, tracking prayers, and accessing Islamic knowledge.
+A comprehensive Islamic prayer learning website with detailed instructions, Arabic text, transliterations, and visual guides from authentic Islamic sources.
 
-## 🎨 **Design System & Color Scheme**
+## 🌟 Features
 
-### **Primary Islamic Color Palette**
-- **Brass** (`#956D37`) - Primary brand color, used for headings, icons, and accents
-- **Wood** (`#DDC00F`) - Secondary color, used for buttons, highlights, and hover states
-- **Sand** (`#C9B59B`) - Tertiary color, used for backgrounds and subtle elements
-- **Cream** (`#FFF9F0`) - Light background color for cards and content areas
+### 📚 Learning Modes
+- **Step-by-Step Learning**: Learn each prayer step individually
+- **Comprehensive Learning**: Complete prayer structure with detailed guides
+- **Prayer Structure**: Complete overview of all prayer types
 
-### **Text Colors**
-- **Mocha** (`#2D2A24`) - Primary text color (dark brown)
-- **Ivory** (`#F5F5F5`) - Light text color for dark backgrounds
-- **Text** (`#222`) - Default text color
+### 🎯 Interactive Features
+- **Audio Recitations**: Listen to proper Arabic pronunciations
+- **Video Tutorials**: Visual demonstrations of prayer steps
+- **Image Galleries**: Multiple angles and views for each prayer step
+- **Zoom Functionality**: Detailed examination of prayer postures
+- **Quiz System**: Test your knowledge and earn certificates
 
-### **Background Colors**
-- **Background** (`#FFFFFF`) - Main app background
-- **Card** (`#F5F5F5`) - Card and component backgrounds
-- **Border** (`#E5E7EB`) - Border colors
+### 🖼️ Visual Learning
+- **Step-Specific Images**: Each prayer step has its own relevant images
+- **Multiple Views**: Front, side, and close-up views for better understanding
+- **Interactive Galleries**: Click to zoom and examine details
+- **Responsive Design**: Works perfectly on all devices
 
-### **Accent Colors**
-- **Accent** (`#00C9A7`) - Teal accent for highlights and special elements
-- **Accent2** (`#B5A642`) - Gold accent for important elements
-- **Accent4** (`#8B7355`) - Brown accent for secondary elements
+### 📱 Modern Interface
+- **Responsive Design**: Optimized for desktop, tablet, and mobile
+- **Dark/Light Mode**: Comfortable viewing in any lighting
+- **Smooth Animations**: Engaging user experience
+- **Accessibility**: Screen reader friendly and keyboard navigable
 
-### **Status Colors**
-- **Success** (`#10B981`) - Green for success states
-- **Warning** (`#F59E0B`) - Orange for warning states
-- **Error** (`#EF4444`) - Red for error states
-- **Info** (`#3B82F6`) - Blue for informational states
+## 🚀 Quick Start
 
-### **Dark Theme Colors**
-- **Dark** (`#181c1f`) - Dark background
-- **Darkcard** (`#23272b`) - Dark card backgrounds
-- **Darkborder** (`#333`) - Dark borders
-- **Darktext** (`#f5f5f5`) - Dark theme text
+### Prerequisites
+- Node.js (v16 or higher)
+- npm or yarn
 
-### **Glass Morphism**
-- **Glass** (`rgba(255, 255, 255, 0.8)`) - Light glass effect
-- **Glass-dark** (`rgba(35, 39, 43, 0.8)`) - Dark glass effect
+### Installation
 
-## 🚀 **Features**
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/yourusername/namaz-learning.git
+   cd namaz-learning
+   ```
 
-### **Core Prayer Features**
-- **Prayer Times**: Accurate prayer times based on location with multiple calculation methods
-- **Qibla Direction**: Real-time compass pointing to the Kaaba
-- **Prayer Tracker**: Track daily prayers with statistics
-- **Learn Namaz**: Step-by-step prayer guide with audio
-- **Common Mistakes**: Learn to avoid common prayer mistakes
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
 
-### **Islamic Knowledge**
-- **Hadith Collection**: Searchable collection of authentic hadith
-- **Duas**: Comprehensive dua collection with categories
-- **AI Assistant**: Islamic knowledge assistant powered by AI
-- **Progress Dashboard**: Track your spiritual journey
+3. **Start development server**
+   ```bash
+   npm run dev
+   ```
 
-### **User Experience**
-- **Multi-language Support**: English and Urdu
-- **Dark/Light Theme**: Automatic theme switching
-- **Offline Support**: Works without internet connection
-- **Responsive Design**: Works on all devices
-- **Accessibility**: Screen reader friendly
+4. **Open your browser**
+   Navigate to `http://localhost:3000`
 
-## 🛠 **Technical Stack**
+## 🏗️ Building for Production
 
-- **Frontend**: React 18 with Vite
-- **Styling**: Tailwind CSS with custom design system
-- **Routing**: React Router v6
-- **State Management**: React Hooks
-- **Icons**: Custom Islamic icons + Lucide React
-- **Fonts**: Playfair Display, Inter, Noto Nastaliq Urdu, Amiri
-
-## 📱 **Installation & Setup**
-
+### Local Build
 ```bash
-# Clone the repository
-git clone https://github.com/yourusername/namaz-web.git
-cd namaz-web
-
-# Install dependencies
-npm install
-
-# Start development server
-npm run dev
-
-# Build for production
 npm run build
+npm run preview
 ```
 
-## 🎯 **Usage Guidelines**
+### Deployment Options
 
-### **Color Usage**
-- Use **brass** for primary headings and important elements
-- Use **wood** for buttons and interactive elements
-- Use **mocha** for body text and descriptions
-- Use **accent** colors sparingly for highlights and special features
-- Always provide dark theme alternatives
+#### 1. **Netlify** (Recommended)
+```bash
+npm run build
+# Drag and drop the 'dist' folder to Netlify
+```
 
-### **Component Patterns**
-- Use `glassmorph-card` class for elevated card components
-- Use semantic color classes (success, warning, error, info) for status indicators
-- Maintain consistent spacing with Tailwind's spacing scale
-- Use proper contrast ratios for accessibility
+#### 2. **Vercel**
+```bash
+npm install -g vercel
+vercel
+```
 
-### **Typography**
-- Use `font-heading` for titles and important text
-- Use `font-body` for body text and descriptions
-- Use `font-arabic` for Arabic text
-- Use `urdu-text` for Urdu text
+#### 3. **GitHub Pages**
+```bash
+npm run build
+# Push the 'dist' folder to gh-pages branch
+```
 
-## 🔧 **Configuration**
+#### 4. **Firebase Hosting**
+```bash
+npm install -g firebase-tools
+firebase login
+firebase init hosting
+npm run build
+firebase deploy
+```
 
-### **Prayer Time Methods**
-- ISNA (Islamic Society of North America)
-- MWL (Muslim World League)
-- Umm Al-Qura (Saudi Arabia)
-- Egyptian General Authority
-- Dubai (UAE)
-- University of Islamic Sciences, Karachi
+## 📁 Project Structure
 
-### **Fiqh Support**
-- **Shafi**: Standard calculation method
-- **Hanafi**: Different Asr calculation (shadow = 2)
-- **Ahl-e-Hadith**: Authentic hadith-based calculations
+```
+namaz-learning/
+├── src/
+│   ├── components/          # Reusable UI components
+│   ├── screens/            # Main application screens
+│   ├── assets/             # Images, icons, and static files
+│   ├── data/               # Prayer data and configurations
+│   ├── utils/              # Utility functions and services
+│   └── App.jsx             # Main application component
+├── public/                 # Public assets
+├── dist/                   # Production build output
+└── package.json           # Dependencies and scripts
+```
 
-## 📄 **License**
+## 🎨 Customization
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+### Adding New Prayer Steps
+1. Add images to `src/assets/`
+2. Update image arrays in `src/screens/LearnScreen.jsx`
+3. Add step data to prayer configuration files
 
-## 🤝 **Contributing**
+### Styling
+- **Tailwind CSS**: Utility-first CSS framework
+- **Custom Colors**: Brass and wood theme colors
+- **Responsive**: Mobile-first design approach
+
+## 🔧 Configuration
+
+### Environment Variables
+Create a `.env` file in the root directory:
+```env
+VITE_FIREBASE_API_KEY=your_firebase_api_key
+VITE_FIREBASE_AUTH_DOMAIN=your_firebase_auth_domain
+VITE_FIREBASE_PROJECT_ID=your_firebase_project_id
+VITE_GOOGLE_AI_API_KEY=your_google_ai_api_key
+```
+
+## 📱 PWA Features
+
+The website includes Progressive Web App features:
+- **Offline Support**: Works without internet connection
+- **Installable**: Can be installed on mobile devices
+- **Fast Loading**: Optimized for performance
+- **Responsive**: Works on all screen sizes
+
+## 🤝 Contributing
 
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
@@ -137,10 +147,20 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
-## 📞 **Support**
+## 📄 License
 
-For support and questions, please open an issue on GitHub or contact the development team.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- Islamic scholars and sources for authentic prayer guidance
+- Open source community for amazing tools and libraries
+- Contributors and users for feedback and improvements
+
+## 📞 Support
+
+For support, email support@namaz-learning.com or create an issue in the repository.
 
 ---
 
-**May Allah guide us all in our journey of faith and prayer.** 🤲
+**Made with ❤️ for the Muslim community**

@@ -1,0 +1,20 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://namaz-learning.com/sitemap.xml
+
+# Disallow admin and private areas
+Disallow: /admin/
+Disallow: /private/
+Disallow: /api/
+
+# Allow important pages
+Allow: /learn/
+Allow: /prayer-times/
+Allow: /qibla/
+Allow: /hadith/
+Allow: /duas/
+
+# Crawl delay (optional)
+Crawl-delay: 1 
