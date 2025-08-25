@@ -1,4 +1,5 @@
 // Progress tracking utilities for the Namaz app
+import authService from './authService';
 
 const PROGRESS_KEYS = {
   LEARN_PROGRESS: 'learn_progress',
@@ -18,6 +19,20 @@ export class ProgressTracker {
     this.prayerData = this.loadPrayerData(); // NEW
     this.challenges = this.loadChallenges(); // NEW
     this.points = this.loadPoints(); // NEW
+    this.loadUserData(); // Load data from authentication service
+  }
+
+  // Load data from authentication service if user is logged in
+  loadUserData() {
+    const user = authService.getCurrentUser();
+    if (user && user.progress) {
+      // Merge user progress with local progress
+      this.progress = { ...this.progress, ...user.progress };
+      this.prayerData = { ...this.prayerData, ...user.prayerData };
+      this.challenges = { ...this.challenges, ...user.challenges };
+      this.points = { ...this.points, ...user.points };
+      this.saveAllData(); // Save merged data
+    }
   }
 
   loadProgress() {
@@ -105,6 +120,7 @@ export class ProgressTracker {
   saveProgress() {
     try {
       localStorage.setItem(PROGRESS_KEYS.LEARN_PROGRESS, JSON.stringify(this.progress));
+      this.saveToAuthService();
     } catch (error) {
       console.error('Error saving progress:', error);
     }
@@ -113,6 +129,7 @@ export class ProgressTracker {
   savePrayerData() {
     try {
       localStorage.setItem(PROGRESS_KEYS.PRAYER_TRACKER, JSON.stringify(this.prayerData));
+      this.saveToAuthService();
     } catch (error) {
       console.error('Error saving prayer data:', error);
     }
@@ -122,6 +139,7 @@ export class ProgressTracker {
   saveChallenges() {
     try {
       localStorage.setItem(PROGRESS_KEYS.DAILY_CHALLENGES, JSON.stringify(this.challenges));
+      this.saveToAuthService();
     } catch (error) {
       console.error('Error saving challenges:', error);
     }
@@ -131,9 +149,35 @@ export class ProgressTracker {
   savePoints() {
     try {
       localStorage.setItem(PROGRESS_KEYS.POINTS, JSON.stringify(this.points));
+      this.saveToAuthService();
     } catch (error) {
       console.error('Error saving points:', error);
     }
+  }
+
+  // Save all data to authentication service
+  async saveToAuthService() {
+    try {
+      const user = authService.getCurrentUser();
+      if (user) {
+        await authService.updateUserProgress({
+          progress: this.progress,
+          prayerData: this.prayerData,
+          challenges: this.challenges,
+          points: this.points
+        });
+      }
+    } catch (error) {
+      console.error('Error saving to auth service:', error);
+    }
+  }
+
+  // Save all data to both localStorage and auth service
+  async saveAllData() {
+    this.saveProgress();
+    this.savePrayerData();
+    this.saveChallenges();
+    this.savePoints();
   }
 
   // Step completion tracking
@@ -315,6 +359,8 @@ export class ProgressTracker {
     // NEW: Perfect month (all prayers for a month)
     if (this.prayerData) {
       const marked = this.prayerData.marked || {};
+      const PRAYERS = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
+      const PRAYER_COUNT = PRAYERS.length;
       const months = {};
       Object.keys(marked).forEach(dateStr => {
         const [year, month] = dateStr.split('-');
@@ -325,12 +371,12 @@ export class ProgressTracker {
       for (const key in months) {
         const days = months[key];
         // Assume 28 days minimum for a perfect month
-        if (days.length >= 28 && days.every(arr => arr.length === 5 && arr.every(Boolean))) {
+        if (days.length >= 28 && days.every(arr => arr.length === PRAYER_COUNT && arr.every(Boolean))) {
           if (!this.hasAchievement('perfect_month_' + key)) {
             newAchievements.push({
               id: 'perfect_month_' + key,
               title: 'Perfect Month',
-              description: `Completed all 5 prayers every day in ${key}`,
+              description: `Completed all ${PRAYER_COUNT} prayers every day in ${key}`,
               date: new Date().toISOString()
             });
           }
@@ -357,13 +403,14 @@ export class ProgressTracker {
   updatePrayerDay(dateStr, prayersArray) {
     this.prayerData.marked[dateStr] = prayersArray;
     // Recalculate fullDays and streak
-    const PRAYERS = 5;
+    const PRAYERS = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
+    const PRAYER_COUNT = PRAYERS.length;
     let fullDays = 0;
     let streak = 0;
     let lastFullDay = null;
     const sortedDates = Object.keys(this.prayerData.marked).sort();
     for (const d of sortedDates) {
-      if (this.prayerData.marked[d].length === PRAYERS && this.prayerData.marked[d].every(Boolean)) {
+      if (this.prayerData.marked[d].length === PRAYER_COUNT && this.prayerData.marked[d].every(Boolean)) {
         fullDays++;
         if (!lastFullDay || (new Date(d) - new Date(lastFullDay) === 24*60*60*1000)) {
           streak++;
@@ -502,6 +549,139 @@ export class ProgressTracker {
         return entryDate >= monthAgo && entryDate <= today;
       })
       .reduce((sum, entry) => sum + entry.points, 0);
+  }
+
+  // NEW: Get month progress for prayer tracking
+  getMonthProgress(year, month) {
+    const marked = this.prayerData.marked || {};
+    const PRAYERS = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
+    const PRAYER_COUNT = PRAYERS.length;
+    
+    let total = 0;
+    let completed = 0;
+    
+    // Get all days in the month
+    const daysInMonth = new Date(year, month, 0).getDate();
+    
+    for (let day = 1; day <= daysInMonth; day++) {
+      const dateStr = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
+      const prayers = marked[dateStr];
+      
+      if (prayers && Array.isArray(prayers)) {
+        total += PRAYER_COUNT;
+        completed += prayers.filter(Boolean).length;
+      } else {
+        total += PRAYER_COUNT; // Count as total even if not marked
+      }
+    }
+    
+    return { total, completed };
+  }
+
+  // NEW: Get current streak
+  getCurrentStreak() {
+    return this.prayerData.streak || 0;
+  }
+
+  // NEW: Get longest streak (calculate from history)
+  getLongestStreak() {
+    const marked = this.prayerData.marked || {};
+    const PRAYERS = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
+    const PRAYER_COUNT = PRAYERS.length;
+    let longestStreak = 0;
+    let currentStreak = 0;
+    
+    const sortedDates = Object.keys(marked).sort();
+    
+    for (const dateStr of sortedDates) {
+      const prayers = marked[dateStr];
+      if (prayers && Array.isArray(prayers) && prayers.length === PRAYER_COUNT && prayers.every(Boolean)) {
+        currentStreak++;
+        longestStreak = Math.max(longestStreak, currentStreak);
+      } else {
+        currentStreak = 0;
+      }
+    }
+    
+    return longestStreak;
+  }
+
+  // NEW: Toggle prayer completion
+  togglePrayer(dateStr, prayer) {
+    if (!this.prayerData.marked[dateStr]) {
+      this.prayerData.marked[dateStr] = [false, false, false, false, false];
+    }
+    
+    const PRAYERS = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
+    const prayerIndex = PRAYERS.indexOf(prayer);
+    if (prayerIndex !== -1) {
+      this.prayerData.marked[dateStr][prayerIndex] = !this.prayerData.marked[dateStr][prayerIndex];
+      this.updatePrayerDay(dateStr, this.prayerData.marked[dateStr]);
+    }
+  }
+
+  // NEW: Mark prayer as complete
+  markPrayerComplete(dateStr, prayer) {
+    if (!this.prayerData.marked[dateStr]) {
+      this.prayerData.marked[dateStr] = [false, false, false, false, false];
+    }
+    
+    const PRAYERS = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
+    const prayerIndex = PRAYERS.indexOf(prayer);
+    if (prayerIndex !== -1) {
+      this.prayerData.marked[dateStr][prayerIndex] = true;
+      this.updatePrayerDay(dateStr, this.prayerData.marked[dateStr]);
+    }
+  }
+
+  // NEW: Export all data
+  exportData() {
+    return {
+      progress: this.progress,
+      prayerData: this.prayerData,
+      challenges: this.challenges,
+      points: this.points,
+      exportDate: new Date().toISOString()
+    };
+  }
+
+  // NEW: Import data
+  importData(data) {
+    try {
+      if (data.progress) {
+        this.progress = { ...this.getDefaultProgress(), ...data.progress };
+        this.saveProgress();
+      }
+      if (data.prayerData) {
+        this.prayerData = { ...this.getDefaultPrayerData(), ...data.prayerData };
+        this.savePrayerData();
+      }
+      if (data.challenges) {
+        this.challenges = { ...this.getDefaultChallenges(), ...data.challenges };
+        this.saveChallenges();
+      }
+      if (data.points) {
+        this.points = { ...this.getDefaultPoints(), ...data.points };
+        this.savePoints();
+      }
+      return true;
+    } catch (error) {
+      console.error('Error importing data:', error);
+      return false;
+    }
+  }
+
+  // NEW: Get day progress
+  getDayProgress(dateStr) {
+    const PRAYERS = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
+    const prayers = this.prayerData.marked[dateStr] || [false, false, false, false, false];
+    
+    const result = {};
+    PRAYERS.forEach((prayer, index) => {
+      result[prayer] = prayers[index] || false;
+    });
+    
+    return result;
   }
 
   // Overall progress summary

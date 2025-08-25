@@ -13,6 +13,18 @@ import {
   HADITH_BOOKS
 } from '../utils/hadithService';
 import { runCompleteImport, resetAndReimport } from '../utils/importHadithData';
+import { GlowCard } from '../components/nurui/spotlight-card';
+import { 
+  MotionDiv, 
+  MotionCard, 
+  MotionButton,
+  fadeInUp, 
+  staggerContainer, 
+  staggerItem, 
+  pageTransition,
+  buttonPress,
+  transitions
+} from '../utils/animations';
 
 // Error Boundary Component
 class ErrorBoundary extends React.Component {
@@ -36,8 +48,8 @@ class ErrorBoundary extends React.Component {
           <div className="w-full relative glassmorph-card min-h-[220px] flex flex-col items-center justify-center">
             <div className="text-center text-lg text-ivory font-body">
               <div className="text-2xl mb-4">📖</div>
-              <div className="text-brass font-bold mb-2">Something went wrong</div>
-              <div className="text-mocha">Please refresh the page to try again.</div>
+              <div className="text-brass font-bold mb-2">{t('somethingWentWrong')}</div>
+              <div className="text-mocha">{t('pleaseRefreshPage')}</div>
             </div>
           </div>
         </div>
@@ -462,15 +474,22 @@ export default function HadithScreen() {
 
   return (
     <ErrorBoundary>
-      <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[#44403c] via-[#78716c] to-[#d6d3d1]">
-        <div className="w-full max-w-4xl mx-auto flex flex-col items-center gap-8 py-8">
+      <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+        <div className="w-full max-w-4xl mx-auto flex flex-col items-center gap-8 py-8 relative">
+          {/* Decorative pattern */}
+          <div className="absolute inset-0 -z-10 opacity-5 dark:opacity-10 pointer-events-none select-none">
+            <div className="w-full h-full" style={{
+              backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23956D37' fill-opacity='0.1'%3E%3Cpath d='M30 30c0-11.046-8.954-20-20-20s-20 8.954-20 20 8.954 20 20 20 20-8.954 20-20zm0 0c0 11.046 8.954 20 20 20s20-8.954 20-20-8.954-20-20-20-20 8.954-20 20z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+              backgroundSize: '60px 60px'
+            }} />
+          </div>
           {/* Header */}
           <div className="w-full text-center">
-            <h1 className="text-3xl font-heading text-brass font-bold mb-2 drop-shadow-lg">
-              📖 Hadith Collection
+            <h1 className="text-3xl md:text-4xl font-heading text-amber-800 dark:text-amber-200 font-bold mb-4 drop-shadow">
+              📖 {t('hadithCollection')}
             </h1>
-            <p className="text-mocha font-body mb-4">
-              Search through Sahih Bukhari, Sahih Muslim, and other authentic hadith collections
+            <p className="text-gray-700 dark:text-gray-300 text-lg max-w-2xl mx-auto">
+              {t('discoverWisdom')}
             </p>
           
           {/* Import Data Button - Only show if no hadiths are loaded and database is not empty */}
@@ -478,7 +497,7 @@ export default function HadithScreen() {
             <div className="mb-4">
               <button
                 onClick={handleImportData}
-                className="px-6 py-3 rounded-xl bg-accent text-white font-bold hover:bg-accent2 transition shadow-lg"
+                className="px-6 py-3 rounded-xl bg-amber-600 text-white font-bold hover:bg-amber-700 transition shadow-lg"
               >
                 📥 Import Hadith Data to Firestore
               </button>
@@ -498,13 +517,13 @@ export default function HadithScreen() {
                   await loadInitialData();
                   alert('Cache cleared and data reloaded!');
                 }}
-                className="px-4 py-2 rounded-lg bg-glass text-mocha font-bold hover:bg-brass hover:text-white transition"
+                className="px-4 py-2 rounded-lg bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 font-bold hover:bg-amber-50 dark:hover:bg-gray-700 border border-amber-300 dark:border-amber-600 transition"
               >
                 🗑️ Clear Cache & Reload
               </button>
               <button
                 onClick={handleImportData}
-                className="px-4 py-2 rounded-lg bg-glass text-mocha font-bold hover:bg-brass hover:text-white transition"
+                className="px-4 py-2 rounded-lg bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 font-bold hover:bg-amber-50 dark:hover:bg-gray-700 border border-amber-300 dark:border-amber-600 transition"
               >
                 📥 Re-import Data
               </button>
@@ -519,7 +538,7 @@ export default function HadithScreen() {
         </div>
 
         {/* Search and Filters */}
-        <div className="w-full glassmorph-card p-6">
+        <div className="w-full bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-xl border border-gray-200 dark:border-gray-700">
           {/* Search Bar */}
           <div className="flex gap-3 mb-4">
             <div className="flex-1 relative">
@@ -538,7 +557,7 @@ export default function HadithScreen() {
                   // Delay hiding suggestions to allow clicking on them
                   setTimeout(() => setShowSuggestions(false), 200);
                 }}
-                className="w-full px-4 py-3 rounded-xl border-2 border-brass bg-glass text-mocha font-body focus:ring-2 focus:ring-accent2 focus:border-transparent"
+                className="w-full px-4 py-3 rounded-xl border-2 border-amber-300 dark:border-amber-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 font-body focus:ring-2 focus:ring-amber-500 focus:border-transparent"
               />
               {searching && (
                 <div className="absolute right-3 top-3">
@@ -552,7 +571,7 @@ export default function HadithScreen() {
                     handleSearch('');
                     setShowSuggestions(false);
                   }}
-                  className="absolute right-3 top-3 text-mocha hover:text-brass transition"
+                  className="absolute right-3 top-3 text-gray-500 hover:text-amber-600 transition"
                 >
                   ✕
                 </button>
@@ -560,11 +579,11 @@ export default function HadithScreen() {
               
               {/* Search Suggestions Dropdown */}
               {showSuggestions && (
-                <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-darkcard border-2 border-brass rounded-xl shadow-lg z-50 max-h-64 overflow-y-auto">
+                <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-gray-800 border-2 border-amber-300 dark:border-amber-600 rounded-xl shadow-lg z-50 max-h-64 overflow-y-auto">
                   {suggestionsLoading ? (
-                    <div className="px-4 py-3 text-center text-mocha">
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-brass mx-auto"></div>
-                      <span className="ml-2 text-sm">Loading suggestions...</span>
+                    <div className="px-4 py-3 text-center text-gray-700 dark:text-gray-300">
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-amber-600 mx-auto"></div>
+                      <span className="ml-2 text-sm">{t('loadingSuggestions')}</span>
                     </div>
                   ) : searchSuggestions.length > 0 ? (
                     searchSuggestions.map((suggestion, index) => (
@@ -573,18 +592,18 @@ export default function HadithScreen() {
                         onClick={() => handleSuggestionClick(suggestion)}
                         className={`w-full px-4 py-3 text-left transition-colors first:rounded-t-xl last:rounded-b-xl focus:outline-none ${
                           index === selectedSuggestionIndex
-                            ? 'bg-brass text-white'
-                            : 'text-mocha hover:bg-brass hover:text-white'
+                            ? 'bg-amber-600 text-white'
+                            : 'text-gray-700 dark:text-gray-300 hover:bg-amber-50 dark:hover:bg-gray-700'
                         }`}
                       >
                         <div className="flex items-center gap-2">
-                          <span className={index === selectedSuggestionIndex ? 'text-white' : 'text-accent4'}>🔍</span>
+                          <span className={index === selectedSuggestionIndex ? 'text-white' : 'text-amber-600 dark:text-amber-400'}>🔍</span>
                           <span className="font-medium">{suggestion}</span>
                         </div>
                       </button>
                     ))
                   ) : searchQuery.length >= 2 ? (
-                    <div className="px-4 py-3 text-center text-mocha text-sm">
+                    <div className="px-4 py-3 text-center text-gray-700 dark:text-gray-300 text-sm">
                       No suggestions found
                     </div>
                   ) : null}
@@ -610,7 +629,7 @@ export default function HadithScreen() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
               {/* Book Filter */}
               <div>
-                <label className="block text-brass font-bold mb-2">Book</label>
+                <label className="block text-brass font-bold mb-2">{t('book')}</label>
                 <select
                   value={selectedBook}
                   onChange={(e) => handleFilterChange('book', e.target.value)}
@@ -625,7 +644,7 @@ export default function HadithScreen() {
 
               {/* Category Filter */}
               <div>
-                <label className="block text-brass font-bold mb-2">Category</label>
+                <label className="block text-brass font-bold mb-2">{t('category')}</label>
                 <select
                   value={selectedCategory}
                   onChange={(e) => handleFilterChange('category', e.target.value)}
@@ -640,7 +659,7 @@ export default function HadithScreen() {
 
               {/* Narrator Filter */}
               <div>
-                <label className="block text-brass font-bold mb-2">Narrator</label>
+                <label className="block text-brass font-bold mb-2">{t('narrator')}</label>
                 <select
                   value={selectedNarrator}
                   onChange={(e) => handleFilterChange('narrator', e.target.value)}
@@ -655,7 +674,7 @@ export default function HadithScreen() {
 
               {/* Sort By */}
               <div>
-                <label className="block text-brass font-bold mb-2">Sort By</label>
+                <label className="block text-brass font-bold mb-2">{t('sortBy')}</label>
                 <select
                   value={sortBy}
                   onChange={(e) => {
@@ -717,7 +736,7 @@ export default function HadithScreen() {
         {loading && (
           <div className="w-full text-center py-12">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brass mx-auto mb-4"></div>
-            <p className="text-mocha font-body">Loading hadith collection...</p>
+            <p className="text-mocha font-body">{t('loadingHadithCollection')}</p>
           </div>
         )}
 
@@ -725,13 +744,13 @@ export default function HadithScreen() {
         {!loading && isDatabaseEmpty && (
           <div className="w-full text-center py-12">
             <div className="text-6xl mb-4">📭</div>
-            <h3 className="text-xl font-bold text-brass mb-2">Database is Empty</h3>
-            <p className="text-mocha mb-4">No hadiths found in the database. Please import data first.</p>
+            <h3 className="text-xl font-bold text-brass mb-2">{t('databaseIsEmpty')}</h3>
+            <p className="text-mocha mb-4">{t('noHadithsInDatabase')}</p>
             <button
               onClick={handleImportData}
               className="px-6 py-3 rounded-xl bg-accent text-white font-bold hover:bg-accent2 transition shadow-lg"
             >
-              📥 Import Hadith Data
+              📥 {t('importData')}
             </button>
           </div>
         )}
@@ -740,13 +759,13 @@ export default function HadithScreen() {
         {error && (
           <div className="w-full glassmorph-card p-6 text-center">
             <div className="text-2xl mb-4">⚠️</div>
-            <h3 className="text-xl font-bold text-error mb-2">Error Loading Hadiths</h3>
+            <h3 className="text-xl font-bold text-error mb-2">{t('errorLoadingHadiths')}</h3>
             <p className="text-mocha mb-4">{error}</p>
             <button
               onClick={loadInitialData}
               className="px-4 py-2 rounded-lg bg-brass text-white font-bold hover:bg-wood transition"
             >
-              Try Again
+              {t('retry')}
             </button>
           </div>
         )}
@@ -784,7 +803,7 @@ export default function HadithScreen() {
                 : 'bg-glass text-mocha hover:bg-brass hover:text-white'
             }`}
           >
-            Grid View
+            {t('grid')} {t('viewMode')}
           </button>
                       <button
               onClick={() => setViewMode('list')}
@@ -794,7 +813,7 @@ export default function HadithScreen() {
                   : 'bg-glass text-mocha hover:bg-brass hover:text-white'
               }`}
             >
-              List View
+              {t('list')} {t('viewMode')}
             </button>
           </div>
         )}
@@ -901,8 +920,8 @@ export default function HadithScreen() {
         {!loading && !error && !isDatabaseEmpty && hadiths.length === 0 && !searching && (
           <div className="w-full text-center py-12">
             <div className="text-6xl mb-4">📖</div>
-            <h3 className="text-xl font-bold text-brass mb-2">No Hadiths Found</h3>
-            <p className="text-mocha">Try adjusting your search terms or filters.</p>
+            <h3 className="text-xl font-bold text-brass mb-2">{t('noHadithsFound')}</h3>
+            <p className="text-mocha">{t('tryAdjustingSearchTerms')}</p>
           </div>
         )}
 
@@ -952,19 +971,19 @@ export default function HadithScreen() {
                 {/* Meta Information */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 p-4 bg-glass rounded-lg">
                   <div>
-                    <span className="font-bold text-brass">Narrator:</span>
+                    <span className="font-bold text-brass">{t('narrator')}:</span>
                     <span className="text-mocha ml-2">{selectedHadith.narrator}</span>
                   </div>
                   <div>
-                    <span className="font-bold text-brass">Collection:</span>
+                    <span className="font-bold text-brass">{t('collection')}:</span>
                     <span className="text-mocha ml-2">{selectedHadith.collection}</span>
                   </div>
                   <div>
-                    <span className="font-bold text-brass">Book Number:</span>
+                    <span className="font-bold text-brass">{t('bookNumber')}:</span>
                     <span className="text-mocha ml-2">{selectedHadith.book_number}</span>
                   </div>
                   <div>
-                    <span className="font-bold text-brass">Grade:</span>
+                    <span className="font-bold text-brass">{t('grade')}:</span>
                     <span className="text-mocha ml-2">{selectedHadith.grade}</span>
                   </div>
                 </div>
@@ -979,19 +998,19 @@ export default function HadithScreen() {
                         : 'bg-brass text-white hover:bg-wood'
                     }`}
                   >
-                    {favorites.includes(selectedHadith.id) ? '❤️ Favorited' : '🤍 Add to Favorites'}
+                    {favorites.includes(selectedHadith.id) ? '❤️ ' + t('favorites') : '🤍 ' + t('addToFavorites')}
                   </button>
                   <button
                     onClick={() => handleShare(selectedHadith)}
                     className="px-4 py-2 rounded-lg bg-accent text-white font-bold hover:bg-accent2 transition"
                   >
-                    📤 Share
+                    📤 {t('share')}
                   </button>
                   <button
                     onClick={() => setShowModal(false)}
                     className="px-4 py-2 rounded-lg bg-glass text-mocha font-bold hover:bg-brass hover:text-white transition"
                   >
-                    Close
+                    {t('close')}
                   </button>
                 </div>
               </div>

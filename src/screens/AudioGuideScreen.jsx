@@ -1,4 +1,16 @@
 import { useRef, useState } from 'react';
+import { GlowCard } from '../components/nurui/spotlight-card';
+import { 
+  MotionDiv, 
+  MotionCard, 
+  MotionButton,
+  fadeInUp, 
+  staggerContainer, 
+  staggerItem, 
+  pageTransition,
+  buttonPress,
+  transitions
+} from '../utils/animations';
 
 const AUDIO_GUIDES = [
   {

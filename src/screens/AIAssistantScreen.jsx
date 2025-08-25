@@ -1,68 +1,82 @@
 import React, { useState, useEffect } from 'react';
 import AIChatComponent from '../components/AIChatComponent';
+import { useTranslation } from '../utils/translations';
+import { GlowCard } from '../components/nurui/spotlight-card';
+import { 
+  MotionDiv, 
+  MotionCard, 
+  MotionButton,
+  fadeInUp, 
+  staggerContainer, 
+  staggerItem, 
+  pageTransition,
+  buttonPress,
+  transitions
+} from '../utils/animations';
 
 const AIAssistantScreen = () => {
+  const { t } = useTranslation();
   const [showChat, setShowChat] = useState(false);
   const [quickActions, setQuickActions] = useState([]);
 
   const aiFeatures = [
     {
       icon: '🕌',
-      title: 'Prayer Guidance',
-      description: 'Get detailed guidance on how to perform prayers correctly',
+      title: t('prayerGuidance'),
+      description: t('prayerGuidanceDesc'),
       action: () => setShowChat(true),
       color: 'from-brass to-wood'
     },
     {
       icon: '📖',
-      title: 'Islamic Knowledge',
-      description: 'Ask questions about Islamic teachings, Hadith, and Quran',
+      title: t('islamicKnowledge'),
+      description: t('islamicKnowledgeDesc'),
       action: () => setShowChat(true),
       color: 'from-wood to-brass'
     },
     {
       icon: '🤲',
-      title: 'Dua & Supplications',
-      description: 'Learn about various duas and when to recite them',
+      title: t('duasAndSupplications'),
+      description: t('duasAndSupplicationsDesc'),
       action: () => setShowChat(true),
       color: 'from-brass to-wood'
     },
     {
       icon: '🧭',
-      title: 'Spiritual Advice',
-      description: 'Get personalized spiritual guidance and advice',
+      title: t('spiritualAdvice'),
+      description: t('spiritualAdviceDesc'),
       action: () => setShowChat(true),
       color: 'from-wood to-brass'
     },
     {
       icon: '📚',
-      title: 'Hadith Explanations',
-      description: 'Understand the meaning and significance of Hadith',
+      title: t('hadithExplanations'),
+      description: t('hadithExplanationsDesc'),
       action: () => setShowChat(true),
       color: 'from-brass to-wood'
     },
     {
       icon: '🌟',
-      title: 'Islamic Etiquette',
-      description: 'Learn about Islamic manners and proper conduct',
+      title: t('islamicEtiquette'),
+      description: t('islamicEtiquetteDesc2'),
       action: () => setShowChat(true),
       color: 'from-wood to-brass'
     }
   ];
 
   const commonQuestions = [
-    "How do I perform Wudu correctly?",
-    "What are the benefits of praying on time?",
-    "How can I improve my concentration in prayer?",
-    "What should I do if I miss a prayer?",
-    "How do I make up for missed prayers?",
-    "What are the virtues of each prayer time?",
-    "How can I develop khushu' (humility) in prayer?",
-    "What are the recommended supplications after prayer?",
-    "How do I perform Istikhara prayer?",
-    "What are the benefits of Tahajjud prayer?",
-    "How should I behave in the mosque?",
-    "What are the etiquettes of reading Quran?"
+    t('howToPray'),
+    t('prayerBenefits'),
+    t('concentration'),
+    t('missedPrayer'),
+    t('makeUpPrayers'),
+    t('prayerVirtues'),
+    t('khushu'),
+    t('supplications'),
+    t('istikhara'),
+    t('tahajjud'),
+    t('mosqueBehavior'),
+    t('quranEtiquette')
   ];
 
   return (
@@ -71,10 +85,10 @@ const AIAssistantScreen = () => {
         {/* Header Section */}
         <div className="w-full text-center mb-8">
           <div className="text-5xl font-heading text-brass font-bold drop-shadow-2xl mb-4 bg-gradient-to-r from-brass to-wood bg-clip-text text-transparent">
-            Islamic AI Assistant
+            {t('islamicAiAssistantTitle')}
           </div>
           <div className="text-lg text-text dark:text-darktext opacity-90 max-w-2xl mx-auto">
-            Your personal guide for Islamic knowledge, prayer guidance, and spiritual advice
+            {t('islamicAiAssistantSubtitle')}
           </div>
         </div>
 
@@ -84,14 +98,14 @@ const AIAssistantScreen = () => {
             onClick={() => setShowChat(true)}
             className="bg-gradient-to-r from-brass to-wood text-white px-8 py-4 rounded-2xl text-xl font-bold shadow-2xl hover:shadow-3xl transform hover:scale-105 transition-all duration-300 border border-wood"
           >
-            🚀 Start Chatting with AI Assistant
+            🚀 {t('startChattingWithAssistant')}
           </button>
         </div>
 
         {/* AI Features Grid */}
         <div className="w-full max-w-6xl">
           <div className="text-center mb-8">
-            <h2 className="text-2xl font-heading text-brass font-bold">What I Can Help You With</h2>
+            <h2 className="text-2xl font-heading text-brass font-bold">{t('whatICanHelpWith')}</h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {aiFeatures.map((feature, index) => (
@@ -117,8 +131,8 @@ const AIAssistantScreen = () => {
         <div className="w-full max-w-4xl">
           <div className="card p-6 bg-gradient-to-r from-brass/10 to-wood/10 border border-brass/20 backdrop-blur-sm">
             <div className="text-center mb-6">
-              <h3 className="text-xl font-heading text-brass font-bold">Common Questions</h3>
-              <p className="text-text dark:text-darktext">Click any question to start a conversation</p>
+              <h3 className="text-xl font-heading text-brass font-bold">{t('commonQuestions')}</h3>
+              <p className="text-text dark:text-darktext">{t('clickAnyQuestionToStart')}</p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {commonQuestions.map((question, index) => (
@@ -139,7 +153,7 @@ const AIAssistantScreen = () => {
           <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
             <div className="bg-card dark:bg-darkcard rounded-2xl shadow-2xl max-w-4xl w-full h-[80vh] border border-brass/20">
               <div className="flex items-center justify-between p-4 border-b border-brass/20">
-                <h2 className="text-xl font-heading text-brass font-bold">Islamic AI Assistant</h2>
+                <h2 className="text-xl font-heading text-brass font-bold">{t('islamicAiAssistantTitle')}</h2>
                 <button
                   onClick={() => setShowChat(false)}
                   className="text-3xl text-brass hover:text-wood transition-all duration-300 hover:scale-110"

@@ -1,6 +1,18 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { duasByCategory, duaCategories } from '../data/duas';
+import { GlowCard } from '../components/nurui/spotlight-card';
+import { 
+  MotionDiv, 
+  MotionCard, 
+  MotionButton,
+  fadeInUp, 
+  staggerContainer, 
+  staggerItem, 
+  pageTransition,
+  buttonPress,
+  transitions
+} from '../utils/animations';
 
 export default function DuaListScreen() {
   const { category } = useParams();

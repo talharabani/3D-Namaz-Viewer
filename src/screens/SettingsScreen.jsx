@@ -1,8 +1,22 @@
 import { useEffect, useState } from 'react';
 import { ToggleLeft } from '../components/ToggleLeft';
 import { useSettings } from '../contexts/SettingsContext';
+import { useTranslation } from '../utils/translations';
+import { GlowCard } from '../components/nurui/spotlight-card';
+import { 
+  MotionDiv, 
+  MotionCard, 
+  MotionButton,
+  fadeInUp, 
+  staggerContainer, 
+  staggerItem, 
+  pageTransition,
+  buttonPress,
+  transitions
+} from '../utils/animations';
 
 export default function SettingsScreen() {
+  const { t } = useTranslation();
   const { 
     settings, 
     updateSettings, 
@@ -43,33 +57,33 @@ export default function SettingsScreen() {
 
   const handleThemeUpdate = (theme) => {
     updateTheme(theme);
-    showToastMessage('Theme updated successfully!');
+    showToastMessage(t('themeUpdatedSuccessfully'));
   };
 
   const handleAccessibilityUpdate = (accessibility) => {
     updateAccessibility(accessibility);
-    showToastMessage('Accessibility settings updated!');
+    showToastMessage(t('accessibilitySettingsUpdated'));
   };
 
   const handleDataUsageUpdate = (dataUsage) => {
     updateDataUsage(dataUsage);
-    showToastMessage('Data settings updated!');
+    showToastMessage(t('dataSettingsUpdated'));
   };
 
   const handleNotificationUpdate = (prayer, enabled) => {
     updateNotificationSetting(prayer, enabled);
-    showToastMessage(`${prayer} notifications ${enabled ? 'enabled' : 'disabled'}!`);
+    showToastMessage(t('prayerNotificationsToggle', { prayer, state: enabled ? t('enabled') : t('disabled') }));
   };
 
   const handleAdvanceMinutesUpdate = (minutes) => {
     updateAdvanceMinutes(minutes);
-    showToastMessage(`Advance notification set to ${minutes} minutes!`);
+    showToastMessage(t('advanceNotificationSetTo', { minutes }));
   };
 
   const handleResetToDefaults = () => {
-    if (confirm('This will reset all settings to default values. Are you sure?')) {
+    if (confirm(t('resetSettingsConfirm'))) {
       resetToDefaults();
-      showToastMessage('Settings reset to defaults!');
+      showToastMessage(t('settingsReset'));
     }
   };
 
@@ -78,9 +92,9 @@ export default function SettingsScreen() {
       const permission = await Notification.requestPermission();
       setNotificationPermission(permission);
       if (permission === 'granted') {
-        showToastMessage('Notifications enabled! You will receive prayer time alerts.');
+        showToastMessage(t('notificationsEnabledMessage'));
       } else {
-        showToastMessage('Please enable notifications in your browser settings to receive prayer alerts.');
+        showToastMessage(t('enableNotificationsInBrowser'));
       }
     }
   };
@@ -94,19 +108,19 @@ export default function SettingsScreen() {
   ];
 
   const fiqhOptions = [
-    { value: 'shafi', label: 'Shafi', description: 'Shafi\'i School' },
+    { value: 'shafi', label: 'Shafi', description: "Shafi'i School" },
     { value: 'hanafi', label: 'Hanafi', description: 'Hanafi School' },
     { value: 'ahl-e-hadith', label: 'Ahl-e-Hadith', description: 'Ahl-e-Hadith' }
   ];
 
   const sections = [
-    { id: 'notifications', icon: '🔔', title: 'Notifications', color: 'amber' },
-    { id: 'location', icon: '📍', title: 'Location', color: 'blue' },
-    { id: 'prayer', icon: '🕌', title: 'Prayer Settings', color: 'green' },
-    { id: 'appearance', icon: '🎨', title: 'Appearance', color: 'purple' },
-    { id: 'accessibility', icon: '♿', title: 'Accessibility', color: 'indigo' },
-    { id: 'data', icon: '📊', title: 'Data & Sync', color: 'teal' },
-    { id: 'reset', icon: '🔄', title: 'Reset', color: 'red' }
+    { id: 'notifications', icon: '🔔', title: t('notifications'), color: 'amber' },
+    { id: 'location', icon: '📍', title: t('location'), color: 'blue' },
+    { id: 'prayer', icon: '🕌', title: t('prayer'), color: 'green' },
+    { id: 'appearance', icon: '🎨', title: t('appearanceTab'), color: 'purple' },
+    { id: 'accessibility', icon: '♿', title: t('accessibility'), color: 'indigo' },
+    { id: 'data', icon: '📊', title: t('dataSync'), color: 'teal' },
+    { id: 'reset', icon: '🔄', title: t('reset'), color: 'red' }
   ];
 
   const renderSection = () => {
@@ -115,14 +129,14 @@ export default function SettingsScreen() {
         return (
           <div className="space-y-6">
             <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-200 dark:border-gray-700 shadow-lg">
-              <h3 className="text-xl font-bold text-amber-800 dark:text-amber-200 mb-4">Prayer Notifications</h3>
+              <h3 className="text-xl font-bold text-amber-800 dark:text-amber-200 mb-4">{t('prayerNotificationsTitle')}</h3>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                 {Object.entries(settings.notifications).filter(([key]) => ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'].includes(key)).map(([prayer, enabled]) => (
                   <div key={prayer} className="flex items-center justify-between p-4 rounded-xl bg-gradient-to-r from-amber-50 to-orange-50 dark:from-gray-700 dark:to-gray-600 border border-amber-200 dark:border-amber-700">
                     <div>
                       <span className="text-gray-700 dark:text-gray-300 font-semibold capitalize">{prayer}</span>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">Daily prayer reminder</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">{t('dailyPrayerReminder')}</p>
                     </div>
                     <ToggleLeft
                       isActive={enabled}
@@ -136,25 +150,25 @@ export default function SettingsScreen() {
               <div className="space-y-4">
                 <div className="flex items-center justify-between p-4 rounded-xl bg-gradient-to-r from-amber-50 to-orange-50 dark:from-gray-700 dark:to-gray-600 border border-amber-200 dark:border-amber-700">
                   <div>
-                    <span className="text-gray-700 dark:text-gray-300 font-semibold">Advance Notification</span>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">Minutes before prayer time</p>
+                    <span className="text-gray-700 dark:text-gray-300 font-semibold">{t('advanceNotification')}</span>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">{t('minutesBeforePrayerTime')}</p>
                   </div>
                   <select
                     value={settings.notifications.advanceMinutes}
                     onChange={(e) => handleAdvanceMinutesUpdate(Number(e.target.value))}
                     className="rounded-lg border border-amber-300 dark:border-amber-600 bg-white dark:bg-gray-700 px-3 py-2 text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-amber-500"
                   >
-                    <option value={5}>5 minutes</option>
-                    <option value={10}>10 minutes</option>
-                    <option value={15}>15 minutes</option>
-                    <option value={20}>20 minutes</option>
+                    <option value={5}>5 {t('minutes')}</option>
+                    <option value={10}>10 {t('minutes')}</option>
+                    <option value={15}>15 {t('minutes')}</option>
+                    <option value={20}>20 {t('minutes')}</option>
                   </select>
                 </div>
 
                 <div className="flex items-center justify-between p-4 rounded-xl bg-gradient-to-r from-amber-50 to-orange-50 dark:from-gray-700 dark:to-gray-600 border border-amber-200 dark:border-amber-700">
                   <div>
-                    <span className="text-gray-700 dark:text-gray-300 font-semibold">Notification Permission</span>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">Browser notification status</p>
+                    <span className="text-gray-700 dark:text-gray-300 font-semibold">{t('notificationPermission')}</span>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">{t('notificationPermissionStatus')}</p>
                   </div>
                   <button
                     onClick={requestNotificationPermission}
@@ -164,7 +178,7 @@ export default function SettingsScreen() {
                         : 'bg-amber-600 text-white hover:bg-amber-700'
                     }`}
                   >
-                    {notificationPermission === 'granted' ? '✅ Enabled' : '🔔 Enable'}
+                    {notificationPermission === 'granted' ? `✅ ${t('enabled')}` : `🔔 ${t('enable')}`}
                   </button>
                 </div>
               </div>
@@ -176,16 +190,16 @@ export default function SettingsScreen() {
         return (
           <div className="space-y-6">
             <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-200 dark:border-gray-700 shadow-lg">
-              <h3 className="text-xl font-bold text-blue-800 dark:text-blue-200 mb-4">Location Settings</h3>
+              <h3 className="text-xl font-bold text-blue-800 dark:text-blue-200 mb-4">{t('locationSettings')}</h3>
               
               <div className="space-y-4">
                 <div className="flex items-center justify-between p-4 rounded-xl bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-700 dark:to-gray-600 border border-blue-200 dark:border-blue-700">
                   <div>
-                    <span className="text-gray-700 dark:text-gray-300 font-semibold">Current Location</span>
+                    <span className="text-gray-700 dark:text-gray-300 font-semibold">{t('currentLocation')}</span>
                     <p className="text-sm text-gray-500 dark:text-gray-400">
                       {settings.location.city && settings.location.country 
                         ? `${settings.location.city}, ${settings.location.country}`
-                        : 'Location not set'
+                        : t('locationNotSet')
                       }
                     </p>
                   </div>
@@ -194,16 +208,16 @@ export default function SettingsScreen() {
                     disabled={loading}
                     className="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors disabled:opacity-50"
                   >
-                    {loading ? '🔄 Updating...' : '📍 Update Location'}
+                    {loading ? `🔄 ${t('updating')}` : `📍 ${t('updateLocationButton')}`}
                   </button>
                 </div>
 
                 <div className="p-4 rounded-xl bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-700 dark:to-gray-600 border border-blue-200 dark:border-blue-700">
-                  <h4 className="font-semibold text-gray-700 dark:text-gray-300 mb-2">Location Info</h4>
+                  <h4 className="font-semibold text-gray-700 dark:text-gray-300 mb-2">{t('locationInfo')}</h4>
                   <div className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
-                    <div>City: {settings.location.city || 'Not detected'}</div>
-                    <div>Country: {settings.location.country || 'Not detected'}</div>
-                    <div>Timezone: {settings.location.timezone || 'Not detected'}</div>
+                    <div>{t('city')}: {settings.location.city || t('notDetected')}</div>
+                    <div>{t('country')}: {settings.location.country || t('notDetected')}</div>
+                    <div>{t('timezone')}: {settings.location.timezone || t('notDetected')}</div>
                   </div>
                 </div>
               </div>
@@ -215,16 +229,16 @@ export default function SettingsScreen() {
         return (
           <div className="space-y-6">
             <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-200 dark:border-gray-700 shadow-lg">
-              <h3 className="text-xl font-bold text-green-800 dark:text-green-200 mb-4">Prayer Calculation</h3>
+              <h3 className="text-xl font-bold text-green-800 dark:text-green-200 mb-4">{t('prayerCalculation')}</h3>
               
               <div className="space-y-4">
                 <div className="p-4 rounded-xl bg-gradient-to-r from-green-50 to-emerald-50 dark:from-gray-700 dark:to-gray-600 border border-green-200 dark:border-green-700">
-                  <label className="block text-gray-700 dark:text-gray-300 font-semibold mb-2">Calculation Method</label>
+                  <label className="block text-gray-700 dark:text-gray-300 font-semibold mb-2">{t('calculationMethod')}</label>
                   <select
                     value={settings.prayerMethod}
                     onChange={(e) => {
                       updateSettings({ ...settings, prayerMethod: Number(e.target.value) });
-                      showToastMessage('Prayer method updated!');
+                      showToastMessage(t('prayerMethodUpdated'));
                     }}
                     className="w-full rounded-lg border border-green-300 dark:border-green-600 bg-white dark:bg-gray-700 px-3 py-2 text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500"
                   >
@@ -237,12 +251,12 @@ export default function SettingsScreen() {
                 </div>
                 
                 <div className="p-4 rounded-xl bg-gradient-to-r from-green-50 to-emerald-50 dark:from-gray-700 dark:to-gray-600 border border-green-200 dark:border-green-700">
-                  <label className="block text-gray-700 dark:text-gray-300 font-semibold mb-2">Fiqh School</label>
+                  <label className="block text-gray-700 dark:text-gray-300 font-semibold mb-2">{t('fiqhSchool')}</label>
                   <select
                     value={settings.fiqh}
                     onChange={(e) => {
                       updateSettings({ ...settings, fiqh: e.target.value });
-                      showToastMessage('Fiqh school updated!');
+                      showToastMessage(t('fiqhUpdated'));
                     }}
                     className="w-full rounded-lg border border-green-300 dark:border-green-600 bg-white dark:bg-gray-700 px-3 py-2 text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500"
                   >
@@ -262,33 +276,33 @@ export default function SettingsScreen() {
         return (
           <div className="space-y-6">
             <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-200 dark:border-gray-700 shadow-lg">
-              <h3 className="text-xl font-bold text-purple-800 dark:text-purple-200 mb-4">Appearance Settings</h3>
+              <h3 className="text-xl font-bold text-purple-800 dark:text-purple-200 mb-4">{t('appearanceSettings')}</h3>
               
               <div className="space-y-4">
                 <div className="p-4 rounded-xl bg-gradient-to-r from-purple-50 to-pink-50 dark:from-gray-700 dark:to-gray-600 border border-purple-200 dark:border-purple-700">
-                  <label className="block text-gray-700 dark:text-gray-300 font-semibold mb-2">Theme</label>
+                  <label className="block text-gray-700 dark:text-gray-300 font-semibold mb-2">{t('theme')}</label>
                   <select
                     value={settings.theme}
                     onChange={(e) => handleThemeUpdate(e.target.value)}
                     className="w-full rounded-lg border border-purple-300 dark:border-purple-600 bg-white dark:bg-gray-700 px-3 py-2 text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500"
                   >
-                    <option value="auto">Auto (System)</option>
-                    <option value="light">Light</option>
-                    <option value="dark">Dark</option>
+                    <option value="auto">{t('autoSystem')}</option>
+                    <option value="light">{t('light')}</option>
+                    <option value="dark">{t('dark')}</option>
                   </select>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="flex items-center justify-between p-4 rounded-xl bg-gradient-to-r from-purple-50 to-pink-50 dark:from-gray-700 dark:to-gray-600 border border-purple-200 dark:border-purple-700">
                     <div>
-                      <span className="text-gray-700 dark:text-gray-300 font-semibold">Show Seconds</span>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">Display seconds in time</p>
+                      <span className="text-gray-700 dark:text-gray-300 font-semibold">{t('showSeconds')}</span>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">{t('displaySecondsInTime')}</p>
                     </div>
                     <ToggleLeft
                       isActive={settings.showSeconds}
                       onChange={(active) => {
                         updateSettings({ ...settings, showSeconds: active });
-                        showToastMessage(`Show seconds ${active ? 'enabled' : 'disabled'}!`);
+                        showToastMessage(`${t('showSeconds')} ${active ? t('enabled') : t('disabled')}!`);
                       }}
                       stroke="#7c3aed"
                     />
@@ -296,14 +310,14 @@ export default function SettingsScreen() {
 
                   <div className="flex items-center justify-between p-4 rounded-xl bg-gradient-to-r from-purple-50 to-pink-50 dark:from-gray-700 dark:to-gray-600 border border-purple-200 dark:border-purple-700">
                     <div>
-                      <span className="text-gray-700 dark:text-gray-300 font-semibold">Military Time</span>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">24-hour format</p>
+                      <span className="text-gray-700 dark:text-gray-300 font-semibold">{t('militaryTime')}</span>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">{t('twentyFourHourFormat')}</p>
                     </div>
                     <ToggleLeft
                       isActive={settings.militaryTime}
                       onChange={(active) => {
                         updateSettings({ ...settings, militaryTime: active });
-                        showToastMessage(`Military time ${active ? 'enabled' : 'disabled'}!`);
+                        showToastMessage(`${t('militaryTime')} ${active ? t('enabled') : t('disabled')}!`);
                       }}
                       stroke="#7c3aed"
                     />
@@ -318,13 +332,13 @@ export default function SettingsScreen() {
         return (
           <div className="space-y-6">
             <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-200 dark:border-gray-700 shadow-lg">
-              <h3 className="text-xl font-bold text-indigo-800 dark:text-indigo-200 mb-4">Accessibility</h3>
+              <h3 className="text-xl font-bold text-indigo-800 dark:text-indigo-200 mb-4">{t('accessibility')}</h3>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="flex items-center justify-between p-4 rounded-xl bg-gradient-to-r from-indigo-50 to-blue-50 dark:from-gray-700 dark:to-gray-600 border border-indigo-200 dark:border-indigo-700">
                   <div>
-                    <span className="text-gray-700 dark:text-gray-300 font-semibold">Large Text</span>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">Increase font size</p>
+                    <span className="text-gray-700 dark:text-gray-300 font-semibold">{t('accessibilityLargeText')}</span>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">{t('increaseFontSize')}</p>
                   </div>
                   <ToggleLeft
                     isActive={settings.accessibility.largeText}
@@ -335,8 +349,8 @@ export default function SettingsScreen() {
 
                 <div className="flex items-center justify-between p-4 rounded-xl bg-gradient-to-r from-indigo-50 to-blue-50 dark:from-gray-700 dark:to-gray-600 border border-indigo-200 dark:border-indigo-700">
                   <div>
-                    <span className="text-gray-700 dark:text-gray-300 font-semibold">High Contrast</span>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">Enhanced contrast</p>
+                    <span className="text-gray-700 dark:text-gray-300 font-semibold">{t('accessibilityHighContrast')}</span>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">{t('enhancedContrast')}</p>
                   </div>
                   <ToggleLeft
                     isActive={settings.accessibility.highContrast}
@@ -347,8 +361,8 @@ export default function SettingsScreen() {
 
                 <div className="flex items-center justify-between p-4 rounded-xl bg-gradient-to-r from-indigo-50 to-blue-50 dark:from-gray-700 dark:to-gray-600 border border-indigo-200 dark:border-indigo-700">
                   <div>
-                    <span className="text-gray-700 dark:text-gray-300 font-semibold">Reduce Motion</span>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">Minimize animations</p>
+                    <span className="text-gray-700 dark:text-gray-300 font-semibold">{t('reduceMotion')}</span>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">{t('minimizeAnimations')}</p>
                   </div>
                   <ToggleLeft
                     isActive={settings.accessibility.reduceMotion}
@@ -359,8 +373,8 @@ export default function SettingsScreen() {
 
                 <div className="flex items-center justify-between p-4 rounded-xl bg-gradient-to-r from-indigo-50 to-blue-50 dark:from-gray-700 dark:to-gray-600 border border-indigo-200 dark:border-indigo-700">
                   <div>
-                    <span className="text-gray-700 dark:text-gray-300 font-semibold">Screen Reader</span>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">Accessibility support</p>
+                    <span className="text-gray-700 dark:text-gray-300 font-semibold">{t('screenReader')}</span>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">{t('accessibilitySupport')}</p>
                   </div>
                   <ToggleLeft
                     isActive={settings.accessibility.screenReader}
@@ -377,14 +391,14 @@ export default function SettingsScreen() {
         return (
           <div className="space-y-6">
             <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-200 dark:border-gray-700 shadow-lg">
-              <h3 className="text-xl font-bold text-teal-800 dark:text-teal-200 mb-4">Data & Sync</h3>
+              <h3 className="text-xl font-bold text-teal-800 dark:text-teal-200 mb-4">{t('dataAndSync')}</h3>
               
               <div className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="flex items-center justify-between p-4 rounded-xl bg-gradient-to-r from-teal-50 to-cyan-50 dark:from-gray-700 dark:to-gray-600 border border-teal-200 dark:border-teal-700">
                     <div>
-                      <span className="text-gray-700 dark:text-gray-300 font-semibold">Auto Sync</span>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">Sync data automatically</p>
+                      <span className="text-gray-700 dark:text-gray-300 font-semibold">{t('autoSync')}</span>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">{t('syncDataAutomatically')}</p>
                     </div>
                     <ToggleLeft
                       isActive={settings.dataUsage.autoSync}
@@ -395,8 +409,8 @@ export default function SettingsScreen() {
 
                   <div className="flex items-center justify-between p-4 rounded-xl bg-gradient-to-r from-teal-50 to-cyan-50 dark:from-gray-700 dark:to-gray-600 border border-teal-200 dark:border-teal-700">
                     <div>
-                      <span className="text-gray-700 dark:text-gray-300 font-semibold">Background Sync</span>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">Sync in background</p>
+                      <span className="text-gray-700 dark:text-gray-300 font-semibold">{t('backgroundSync')}</span>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">{t('syncInBackground')}</p>
                     </div>
                     <ToggleLeft
                       isActive={settings.dataUsage.backgroundSync}
@@ -407,16 +421,16 @@ export default function SettingsScreen() {
                 </div>
 
                 <div className="p-4 rounded-xl bg-gradient-to-r from-teal-50 to-cyan-50 dark:from-gray-700 dark:to-gray-600 border border-teal-200 dark:border-teal-700">
-                  <label className="block text-gray-700 dark:text-gray-300 font-semibold mb-2">Sync Interval (minutes)</label>
+                  <label className="block text-gray-700 dark:text-gray-300 font-semibold mb-2">{t('syncIntervalMinutes')}</label>
                   <select
                     value={settings.dataUsage.syncInterval}
                     onChange={(e) => handleDataUsageUpdate({ syncInterval: Number(e.target.value) })}
                     className="w-full rounded-lg border border-teal-300 dark:border-teal-600 bg-white dark:bg-gray-700 px-3 py-2 text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-teal-500"
                   >
-                    <option value={15}>15 minutes</option>
-                    <option value={30}>30 minutes</option>
-                    <option value={60}>1 hour</option>
-                    <option value={120}>2 hours</option>
+                    <option value={15}>15 {t('minutes')}</option>
+                    <option value={30}>30 {t('minutes')}</option>
+                    <option value={60}>60 {t('minutes')}</option>
+                    <option value={120}>120 {t('minutes')}</option>
                   </select>
                 </div>
               </div>
@@ -428,20 +442,20 @@ export default function SettingsScreen() {
         return (
           <div className="space-y-6">
             <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-200 dark:border-gray-700 shadow-lg">
-              <h3 className="text-xl font-bold text-red-800 dark:text-red-200 mb-4">Reset Settings</h3>
+              <h3 className="text-xl font-bold text-red-800 dark:text-red-200 mb-4">{t('resetSettingsTitle')}</h3>
               
               <div className="p-6 rounded-xl bg-gradient-to-r from-red-50 to-pink-50 dark:from-gray-700 dark:to-gray-600 border border-red-200 dark:border-red-700">
                 <div className="text-center">
                   <div className="text-4xl mb-4">⚠️</div>
-                  <h4 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">Reset to Defaults</h4>
+                  <h4 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">{t('resetToDefaultsTitle')}</h4>
                   <p className="text-gray-600 dark:text-gray-400 mb-6">
-                    This will reset all settings to their default values. This action cannot be undone.
+                    {t('resetSettingsWarning')}
                   </p>
                   <button
                     onClick={handleResetToDefaults}
                     className="bg-red-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-red-700 transition-colors"
                   >
-                    🔄 Reset All Settings
+                    🔄 {t('resetAllSettings')}
                   </button>
                 </div>
               </div>
@@ -460,10 +474,10 @@ export default function SettingsScreen() {
         {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-3xl md:text-4xl font-heading text-amber-800 dark:text-amber-200 font-bold mb-4 drop-shadow">
-            ⚙️ Settings
+            ⚙️ {t('settings')}
           </h1>
           <p className="text-gray-700 dark:text-gray-300 text-lg max-w-2xl mx-auto">
-            Customize your prayer experience and app preferences
+            {t('settingsHeaderSubtitle')}
           </p>
         </div>
 

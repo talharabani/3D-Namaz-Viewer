@@ -1,6 +1,20 @@
 import { useState, useEffect } from 'react';
 import { progressTracker } from '../utils/progressTracker';
 import { ToggleLeft } from '../components/ToggleLeft';
+import { BaseProgressDemo } from '../components/ProgressTracker';
+import { useTranslation } from '../utils/translations';
+import { GlowCard } from '../components/nurui/spotlight-card';
+import { 
+  MotionDiv, 
+  MotionCard, 
+  MotionButton,
+  fadeInUp, 
+  staggerContainer, 
+  staggerItem, 
+  pageTransition,
+  buttonPress,
+  transitions
+} from '../utils/animations';
 
 function getNotesList() {
   try {
@@ -24,6 +38,7 @@ function getPrayerHistory() {
 }
 
 export default function ProgressDashboardScreen() {
+  const { t, isRTL } = useTranslation();
   const [progress, setProgress] = useState(null);
   const [achievements, setAchievements] = useState([]);
   const [showAchievement, setShowAchievement] = useState(null);
@@ -60,25 +75,25 @@ export default function ProgressDashboardScreen() {
 
   if (!progress) {
     return (
-      <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[#44403c] via-[#78716c] to-[#d6d3d1]">
+      <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
         <div className="w-full max-w-2xl mx-auto flex flex-col items-center gap-6 py-8 px-4">
-          <div className="text-lg text-text dark:text-darktext">Loading progress...</div>
+          <div className="text-lg text-amber-800 dark:text-amber-200">Loading progress...</div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[#44403c] via-[#78716c] to-[#d6d3d1]">
+    <div className={`min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 ${isRTL ? 'rtl' : 'ltr'}`} dir={isRTL ? 'rtl' : 'ltr'}>
       <div className="w-full max-w-2xl mx-auto flex flex-col gap-6 py-8 px-4">
         <div className="flex justify-between items-center mb-2">
-          <h1 className="text-3xl font-heading text-brass font-bold text-center">Your Progress</h1>
-          <button className="btn ml-4" onClick={loadProgress} title="Refresh Progress">🔄 Refresh</button>
+          <h1 className="text-3xl font-heading text-amber-800 dark:text-amber-200 font-bold text-center">{t('yourProgress')}</h1>
+          <button className="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-lg font-medium transition-colors ml-4" onClick={loadProgress} title={t('refresh')}>🔄 {t('refresh')}</button>
         </div>
       
       {/* Achievement Notification */}
       {showAchievement && (
-        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 bg-brass text-white px-6 py-3 rounded-lg shadow-lg animate-bounce">
+        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 bg-amber-600 text-white px-6 py-3 rounded-lg shadow-lg animate-bounce">
           <div className="text-center">
             <div className="text-2xl mb-1">🏆</div>
             <div className="font-bold">{showAchievement.title}</div>
@@ -88,96 +103,104 @@ export default function ProgressDashboardScreen() {
       )}
 
       {/* Overall Progress */}
-      <div className="card">
-        <h2 className="text-xl font-heading text-brass font-bold mb-4">Learning Progress</h2>
+      <div className="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-xl border border-amber-200 dark:border-amber-700">
+        <h2 className="text-xl font-heading text-amber-800 dark:text-amber-200 font-bold mb-4">{t('learningProgress')}</h2>
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <span className="text-text dark:text-darktext font-medium">Completion</span>
-            <span className="text-brass font-bold text-lg">{progress.completionPercentage}%</span>
+            <span className="text-gray-700 dark:text-gray-300 font-medium">{t('completion')}</span>
+            <span className="text-amber-600 dark:text-amber-400 font-bold text-lg">{progress.completionPercentage}%</span>
           </div>
-          <div className="w-full bg-border dark:bg-darkborder rounded-full h-3">
+          <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
             <div 
-              className="bg-brass h-3 rounded-full transition-all duration-500"
+              className="bg-amber-600 h-3 rounded-full transition-all duration-500"
               style={{ width: `${progress.completionPercentage}%` }}
             />
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-text dark:text-darktext font-medium">Current Step</span>
-            <span className="text-brass font-bold">{progress.currentStep}/8</span>
+            <span className="text-gray-700 dark:text-gray-300 font-medium">{t('currentStep')}</span>
+            <span className="text-amber-600 dark:text-amber-400 font-bold">{progress.currentStep}/8</span>
           </div>
         </div>
       </div>
 
+      {/* Progress Tracker Demo */}
+      <div className="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-xl border border-amber-200 dark:border-amber-700">
+        <h2 className="text-xl font-heading text-amber-800 dark:text-amber-200 font-bold mb-4">{t('progressTrackerDemo')}</h2>
+        <div className="flex justify-center">
+          <BaseProgressDemo />
+        </div>
+      </div>
+
       {/* Points Section */}
-      <div className="card">
-        <h2 className="text-xl font-heading text-brass font-bold mb-4">🏆 Points & Achievements</h2>
+      <div className="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-xl border border-amber-200 dark:border-amber-700">
+        <h2 className="text-xl font-heading text-amber-800 dark:text-amber-200 font-bold mb-4">🏆 {t('pointsAchievements')}</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="text-center p-4 bg-gradient-to-r from-brass/10 to-wood/10 rounded-lg border border-brass/20">
-            <div className="text-3xl text-brass font-bold">{progress.points?.total || 0}</div>
-            <div className="text-sm text-text dark:text-darktext">Total Points</div>
+          <div className="text-center p-4 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 rounded-lg border border-amber-200 dark:border-amber-700">
+            <div className="text-3xl text-amber-600 dark:text-amber-400 font-bold">{progress.points?.total || 0}</div>
+            <div className="text-sm text-gray-700 dark:text-gray-300">{t('totalPoints')}</div>
           </div>
-          <div className="text-center p-4 bg-gradient-to-r from-brass/10 to-wood/10 rounded-lg border border-brass/20">
-            <div className="text-3xl text-brass font-bold">{progress.points?.today || 0}</div>
-            <div className="text-sm text-text dark:text-darktext">Today's Points</div>
+          <div className="text-center p-4 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 rounded-lg border border-amber-200 dark:border-amber-700">
+            <div className="text-3xl text-amber-600 dark:text-amber-400 font-bold">{progress.points?.today || 0}</div>
+            <div className="text-sm text-gray-700 dark:text-gray-300">{t('todaysPoints')}</div>
           </div>
-          <div className="text-center p-4 bg-gradient-to-r from-brass/10 to-wood/10 rounded-lg border border-brass/20">
-            <div className="text-3xl text-brass font-bold">{progress.points?.thisWeek || 0}</div>
-            <div className="text-sm text-text dark:text-darktext">This Week</div>
+          <div className="text-center p-4 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 rounded-lg border border-amber-200 dark:border-amber-700">
+            <div className="text-3xl text-amber-600 dark:text-amber-400 font-bold">{progress.points?.thisWeek || 0}</div>
+            <div className="text-sm text-gray-700 dark:text-gray-300">{t('thisWeek')}</div>
           </div>
-          <div className="text-center p-4 bg-gradient-to-r from-brass/10 to-wood/10 rounded-lg border border-brass/20">
-            <div className="text-3xl text-brass font-bold">{progress.challengeStreak || 0}</div>
-            <div className="text-sm text-text dark:text-darktext">Challenge Streak</div>
+          <div className="text-center p-4 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 rounded-lg border border-amber-200 dark:border-amber-700">
+            <div className="text-3xl text-amber-600 dark:text-amber-400 font-bold">{progress.challengeStreak || 0}</div>
+            <div className="text-sm text-gray-700 dark:text-gray-300">{t('challengeStreak')}</div>
           </div>
         </div>
-        <div className="mt-4 p-3 bg-gradient-to-r from-brass/5 to-wood/5 rounded-lg border border-brass/10">
+        <div className="mt-4 p-3 bg-gradient-to-r from-amber-50/50 to-orange-50/50 dark:from-amber-900/10 dark:to-orange-900/10 rounded-lg border border-amber-200 dark:border-amber-700">
           <div className="text-center">
-            <div className="text-sm text-text dark:text-darktext">
-              Completed {progress.completedChallengesToday || 0} challenges today
+            <div className="text-sm text-gray-700 dark:text-gray-300">
+              {t('completedChallengesToday', { count: progress.completedChallengesToday || 0 })}
             </div>
-            <div className="text-xs text-text dark:text-darktext opacity-80 mt-1">
-              Keep up the great work! 🌟
+            <div className="text-xs text-gray-700 dark:text-gray-300 opacity-80 mt-1">
+              {t('keepUpGreatWork')}
             </div>
           </div>
         </div>
       </div>
 
       {/* Study & Prayer Statistics (merged) */}
-      <div className="card">
-        <h2 className="text-xl font-heading text-brass font-bold mb-4">Study & Prayer Statistics</h2>
+      <div className="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-xl border border-amber-200 dark:border-amber-700">
+        <h2 className="text-xl font-heading text-amber-800 dark:text-amber-200 font-bold mb-4">{t('studyPrayerStatistics')}</h2>
         <div className="grid grid-cols-2 gap-4">
           <div className="text-center">
-            <div className="text-2xl text-brass font-bold">{progress.streakDays}</div>
-            <div className="text-sm text-text dark:text-darktext">Learning Streak (days)</div>
+            <div className="text-2xl text-amber-600 dark:text-amber-400 font-bold">{progress.streakDays}</div>
+            <div className="text-sm text-gray-700 dark:text-gray-300">{t('learningStreak')}</div>
           </div>
           <div className="text-center">
-            <div className="text-2xl text-brass font-bold">{progress.prayerStreak}</div>
-            <div className="text-sm text-text dark:text-darktext">Prayer Streak (days)</div>
+            <div className="text-2xl text-amber-600 dark:text-amber-400 font-bold">{progress.prayerStreak}</div>
+            <div className="text-sm text-gray-700 dark:text-gray-300">{t('prayerStreak')}</div>
           </div>
           <div className="text-center">
-            <div className="text-2xl text-brass font-bold">{Math.round(progress.totalStudyTime / 60 * 10) / 10}</div>
-            <div className="text-sm text-text dark:text-darktext">Study Hours</div>
+            <div className="text-2xl text-amber-600 dark:text-amber-400 font-bold">{Math.round(progress.totalStudyTime / 60 * 10) / 10}</div>
+            <div className="text-sm text-gray-700 dark:text-gray-300">{t('studyHours')}</div>
           </div>
           <div className="text-center">
-            <div className="text-2xl text-brass font-bold">{progress.quizStats.totalQuizzes}</div>
-            <div className="text-sm text-text dark:text-darktext">Quizzes Taken</div>
+            <div className="text-2xl text-amber-600 dark:text-amber-400 font-bold">{progress.quizStats.totalQuizzes}</div>
+            <div className="text-sm text-gray-700 dark:text-gray-300">{t('quizzesTaken')}</div>
           </div>
           <div className="text-center">
-            <div className="text-2xl text-brass font-bold">{getNotesCount()}</div>
-            <div className="text-sm text-text dark:text-darktext">Notes Added</div>
+            <div className="text-2xl text-amber-600 dark:text-amber-400 font-bold">{getNotesCount()}</div>
+            <div className="text-sm text-gray-700 dark:text-gray-300">{t('notesAdded')}</div>
           </div>
           <div className="text-center">
-            <div className="text-2xl text-brass font-bold">{progress.prayerFullDays}</div>
-            <div className="text-sm text-text dark:text-darktext">Full 5-Prayer Days</div>
+            <div className="text-2xl text-amber-600 dark:text-amber-400 font-bold">{progress.prayerFullDays}</div>
+            <div className="text-sm text-gray-700 dark:text-gray-300">{t('fullPrayerDays')}</div>
           </div>
         </div>
       </div>
 
       {/* Notes List */}
-      <div className="card">
-        <h2 className="text-xl font-heading text-brass font-bold mb-4">Your Notes</h2>
+      <div className="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-xl border border-amber-200 dark:border-amber-700">
+        <h2 className="text-xl font-heading text-amber-800 dark:text-amber-200 font-bold mb-4">{t('yourNotes')}</h2>
         <ul className="list-disc pl-6 space-y-2">
           {getNotesList().filter(n => n && n.trim() !== '').length === 0 ? (
-            <li className="text-text dark:text-darktext">No notes yet. Add notes while learning to see them here.</li>
+            <li className="text-gray-700 dark:text-gray-300">{t('noNotesYet')}</li>
           ) : (
             getNotesList().map((note, idx) => note && note.trim() !== '' && (
               <NoteItem key={idx} note={note} idx={idx} refresh={loadProgress} />
@@ -187,16 +210,16 @@ export default function ProgressDashboardScreen() {
       </div>
 
       {/* Prayer History */}
-      <div className="card overflow-x-auto">
-        <h2 className="text-xl font-heading text-brass font-bold mb-4">Prayer History</h2>
+      <div className="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-xl border border-amber-200 dark:border-amber-700 overflow-x-auto">
+        <h2 className="text-xl font-heading text-amber-800 dark:text-amber-200 font-bold mb-4">{t('prayerHistory')}</h2>
         {/* Filters */}
         <div className="flex flex-wrap gap-4 mb-4 items-center">
           <label className="flex items-center gap-2 text-sm">
-            Start:
+            {t('start')}:
             <input type="date" value={prayerStart} onChange={e => setPrayerStart(e.target.value)} className="rounded border p-1" />
           </label>
           <label className="flex items-center gap-2 text-sm">
-            End:
+            {t('end')}:
             <input type="date" value={prayerEnd} onChange={e => setPrayerEnd(e.target.value)} className="rounded border p-1" />
           </label>
           <label className="flex items-center gap-2 text-sm">
@@ -205,18 +228,18 @@ export default function ProgressDashboardScreen() {
               onChange={(active) => setShowFullDaysOnly(active)}
               stroke="#956D37"
             />
-            <span>Show only full days</span>
+            <span>{t('showOnlyFullDays')}</span>
           </label>
         </div>
         <table className="min-w-full border-collapse text-sm">
           <thead>
             <tr>
-              <th className="p-2 border-b border-border dark:border-darkborder text-left">Date</th>
-              <th className="p-2 border-b border-border dark:border-darkborder text-center">Fajr</th>
-              <th className="p-2 border-b border-border dark:border-darkborder text-center">Dhuhr</th>
-              <th className="p-2 border-b border-border dark:border-darkborder text-center">Asr</th>
-              <th className="p-2 border-b border-border dark:border-darkborder text-center">Maghrib</th>
-              <th className="p-2 border-b border-border dark:border-darkborder text-center">Isha</th>
+              <th className="p-2 border-b border-gray-300 dark:border-gray-600 text-left">{t('date')}</th>
+              <th className="p-2 border-b border-gray-300 dark:border-gray-600 text-center">{t('fajr')}</th>
+              <th className="p-2 border-b border-gray-300 dark:border-gray-600 text-center">{t('dhuhr')}</th>
+              <th className="p-2 border-b border-gray-300 dark:border-gray-600 text-center">{t('asr')}</th>
+              <th className="p-2 border-b border-gray-300 dark:border-gray-600 text-center">{t('maghrib')}</th>
+              <th className="p-2 border-b border-gray-300 dark:border-gray-600 text-center">{t('isha')}</th>
             </tr>
           </thead>
           <tbody>
@@ -225,9 +248,9 @@ export default function ProgressDashboardScreen() {
               if (prayerStart) entries = entries.filter(([date]) => date >= prayerStart);
               if (prayerEnd) entries = entries.filter(([date]) => date <= prayerEnd);
               if (showFullDaysOnly) entries = entries.filter(([_, arr]) => arr.length === 5 && arr.every(Boolean));
-              if (entries.length === 0) return (
-                <tr><td colSpan={6} className="p-2 text-center text-text dark:text-darktext">No prayer history for selected filters.</td></tr>
-              );
+                             if (entries.length === 0) return (
+                 <tr><td colSpan={6} className="p-2 text-center text-gray-700 dark:text-gray-300">{t('noPrayerHistory')}</td></tr>
+               );
               // Highlight streaks: consecutive full days
               let streak = 0;
               let lastDate = null;
@@ -246,14 +269,14 @@ export default function ProgressDashboardScreen() {
                   streak = 0;
                   lastDate = null;
                 }
-                return (
-                  <tr key={date} className={isStreak ? 'bg-wood/10' : isFull ? 'bg-brass/10' : ''}>
-                    <td className="p-2 border-b border-border dark:border-darkborder font-bold">{date}</td>
-                    {arr.map((done, idx) => (
-                      <td key={idx} className={`p-2 border-b border-border dark:border-darkborder text-center ${done ? 'text-brass font-bold' : 'text-gray-400'}`}>{done ? '✓' : '-'}</td>
-                    ))}
-                  </tr>
-                );
+                                 return (
+                   <tr key={date} className={isStreak ? 'bg-orange-50 dark:bg-orange-900/20' : isFull ? 'bg-amber-50 dark:bg-amber-900/20' : ''}>
+                     <td className="p-2 border-b border-gray-300 dark:border-gray-600 font-bold">{date}</td>
+                     {arr.map((done, idx) => (
+                       <td key={idx} className={`p-2 border-b border-gray-300 dark:border-gray-600 text-center ${done ? 'text-amber-600 dark:text-amber-400 font-bold' : 'text-gray-400'}`}>{done ? '✓' : '-'}</td>
+                     ))}
+                   </tr>
+                 );
               });
             })()}
           </tbody>

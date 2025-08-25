@@ -3,6 +3,19 @@ import audioService from '../utils/audioService';
 import notificationService from '../utils/notificationService';
 import { ToggleLeft } from '../components/ToggleLeft';
 import { useSettings } from '../contexts/SettingsContext';
+import { GlowCard } from '../components/nurui/spotlight-card';
+import { useTranslation } from '../utils/translations';
+import { 
+  MotionDiv, 
+  MotionCard, 
+  MotionButton,
+  fadeInUp, 
+  staggerContainer, 
+  staggerItem, 
+  pageTransition,
+  buttonPress,
+  transitions
+} from '../utils/animations';
 
 const PRAYERS = ['Fajr', 'Sunrise', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
 const AZAN_AUDIO = 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav';
@@ -65,7 +78,7 @@ function adjustPrayerTimesForAhlEHadith(timings) {
   return adjusted;
 }
 
-// Prayer notification messages
+// Prayer notification messages (kept as-is to preserve Arabic phrases within)
 const PRAYER_MESSAGES = {
   'Fajr': 'Allahu Akbar! Time for Fajr prayer. Come to Allah, He is calling you.',
   'Dhuhr': 'Allahu Akbar! Time for Dhuhr prayer. Come to Allah, He is calling you.',
@@ -75,6 +88,7 @@ const PRAYER_MESSAGES = {
 };
 
 export default function PrayerTimesScreen() {
+  const { t } = useTranslation();
   const { settings } = useSettings();
   const [times, setTimes] = useState(null);
   const [hijri, setHijri] = useState('');
@@ -88,6 +102,18 @@ export default function PrayerTimesScreen() {
   
   const azanRef = useRef();
   const [coords, setCoords] = useState(null);
+
+  const getPrayerDisplayName = (key) => {
+    switch (key) {
+      case 'Fajr': return t('fajr');
+      case 'Sunrise': return t('sunrise');
+      case 'Dhuhr': return t('dhuhr');
+      case 'Asr': return t('asr');
+      case 'Maghrib': return t('maghrib');
+      case 'Isha': return t('isha');
+      default: return key;
+    }
+  };
 
   // Format time based on settings
   const formatTime = (timeString) => {
@@ -167,7 +193,7 @@ export default function PrayerTimesScreen() {
   useEffect(() => {
     setLoading(true);
     if (!navigator.geolocation) {
-      setError('Geolocation not supported.');
+      setError(t('geolocationNotSupported'));
       setLoading(false);
       return;
     }
@@ -209,11 +235,11 @@ export default function PrayerTimesScreen() {
         }
       } catch (error) {
         console.warn('Prayer times API failed:', error);
-        setError('Failed to fetch prayer times. Please check your internet connection and try again.');
+        setError(t('failedToFetchPrayerTimes'));
       }
       setLoading(false);
     }, () => {
-      setError('Location denied or unavailable.');
+      setError(t('locationDeniedOrUnavailable'));
       setLoading(false);
     });
   }, [settings.prayerMethod, settings.fiqh]);
@@ -225,9 +251,9 @@ export default function PrayerTimesScreen() {
     const today = now.toISOString().slice(0, 10);
     const prayerTimes = PRAYERS.map(p => {
       const [h, m] = times[p].split(':').map(Number);
-      const t = new Date(today + 'T' + times[p].padStart(5, '0'));
-      t.setHours(h, m, 0, 0);
-      return t;
+      const tdate = new Date(today + 'T' + times[p].padStart(5, '0'));
+      tdate.setHours(h, m, 0, 0);
+      return tdate;
     });
     let idx = prayerTimes.findIndex((t, i) => t > now && PRAYERS[i] !== 'Sunrise');
     if (idx === -1) idx = 0; // next day
@@ -278,7 +304,7 @@ export default function PrayerTimesScreen() {
     <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[#44403c] via-[#78716c] to-[#d6d3d1] flex items-center justify-center">
       <div className="text-center">
         <div className="text-4xl mb-4">🕋</div>
-        <div className="text-xl text-brass font-bold">Loading prayer times...</div>
+        <div className="text-xl text-brass font-bold">{t('loadingPrayerTimes')}</div>
       </div>
     </div>
   );
@@ -295,15 +321,23 @@ export default function PrayerTimesScreen() {
   if (!times) return null;
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[#44403c] via-[#78716c] to-[#d6d3d1]">
-      <div className="w-full max-w-7xl mx-auto flex flex-col items-center gap-8 py-8 px-4">
+    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+      <div className="w-full max-w-6xl mx-auto flex flex-col items-center gap-8 py-8 px-2 md:px-4 relative">
+        {/* Decorative pattern */}
+        <div className="absolute inset-0 -z-10 opacity-5 dark:opacity-10 pointer-events-none select-none">
+          <div className="w-full h-full" style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23956D37' fill-opacity='0.1'%3E%3Cpath d='M30 30c0-11.046-8.954-20-20-20s-20 8.954-20 20 8.954 20 20 20 20-8.954 20-20zm0 0c0 11.046 8.954 20 20 20s20-8.954 20-20-8.954-20-20-20-20 8.954-20 20z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+            backgroundSize: '60px 60px'
+          }} />
+        </div>
+
         {/* Header Section */}
         <div className="w-full text-center mb-8">
-          <div className="text-5xl font-heading text-brass font-bold drop-shadow-2xl mb-4 bg-gradient-to-r from-brass to-wood bg-clip-text text-transparent">
-            Prayer Times
+          <div className="text-3xl md:text-4xl font-heading text-amber-800 dark:text-amber-200 font-bold drop-shadow mb-4">
+            🕌 {t('prayerTimesHeader')}
           </div>
-          <div className="text-lg text-text dark:text-darktext opacity-90 max-w-2xl mx-auto">
-            Check prayer timings and get notified when it's time to pray
+          <div className="text-gray-700 dark:text-gray-300 text-lg opacity-90 max-w-2xl mx-auto">
+            {t('checkPrayerTimingsSubtitle')}
           </div>
         </div>
 
@@ -313,7 +347,7 @@ export default function PrayerTimesScreen() {
             <div className="bg-card dark:bg-darkcard rounded-2xl shadow-2xl max-w-md w-full p-8 text-center border border-brass/20">
               <div className="text-6xl mb-6">🕌</div>
               <h2 className="text-3xl font-heading text-brass font-bold mb-4">
-                {currentPrayerAlert.prayer} Prayer Time
+                {t('prayerTimeTitle', { prayer: getPrayerDisplayName(currentPrayerAlert.prayer) })}
               </h2>
               <p className="text-text dark:text-darktext text-lg mb-8 leading-relaxed">
                 {currentPrayerAlert.message}
@@ -323,7 +357,7 @@ export default function PrayerTimesScreen() {
                   onClick={() => setCurrentPrayerAlert(null)}
                   className="flex-1 py-4 rounded-xl bg-gradient-to-r from-brass to-wood text-white font-bold hover:from-wood hover:to-brass transition-all duration-300 shadow-lg"
                 >
-                  Dismiss
+                  {t('dismiss')}
                 </button>
                 <button
                   onClick={() => {
@@ -332,7 +366,7 @@ export default function PrayerTimesScreen() {
                   }}
                   className="flex-1 py-4 rounded-xl bg-gradient-to-r from-accent to-accent2 text-white font-bold hover:from-accent2 hover:to-accent transition-all duration-300 shadow-lg"
                 >
-                  Start Prayer
+                  {t('startPrayer')}
                 </button>
               </div>
             </div>
@@ -342,17 +376,17 @@ export default function PrayerTimesScreen() {
         {/* Notification Permission Alert */}
         {showNotificationAlert && (
           <div className="w-full max-w-4xl">
-            <div className="card p-6 bg-gradient-to-r from-warning/10 to-warning/5 border border-warning/30 backdrop-blur-sm">
+            <div className="bg-gradient-to-br from-amber-50 via-yellow-50 to-orange-50 dark:from-gray-800 dark:via-gray-700 dark:to-gray-800 rounded-2xl p-6 shadow-xl border border-amber-200 dark:border-amber-700">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-brass font-bold text-lg mb-2">Enable Prayer Notifications</h3>
-                  <p className="text-text dark:text-darktext">Get notified when it's time for prayer</p>
+                  <h3 className="text-amber-800 dark:text-amber-200 font-bold text-lg mb-2">{t('enablePrayerNotificationsTitle')}</h3>
+                  <p className="text-gray-700 dark:text-gray-300">{t('enablePrayerNotificationsDesc')}</p>
                 </div>
                 <button
                   onClick={enableNotifications}
-                  className="px-6 py-3 bg-warning text-white rounded-xl font-bold hover:bg-warning/80 transition-all duration-300 shadow-lg"
+                  className="px-6 py-3 bg-amber-600 text-white rounded-xl font-bold hover:bg-amber-700 transition-all duration-300 shadow-lg"
                 >
-                  Enable
+                  {t('enable')}
                 </button>
               </div>
             </div>
@@ -361,18 +395,18 @@ export default function PrayerTimesScreen() {
 
         {/* Settings Info Section */}
         <div className="w-full max-w-4xl">
-          <div className="card p-6 bg-gradient-to-r from-brass/10 to-wood/10 border border-brass/20 backdrop-blur-sm">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-xl border border-gray-200 dark:border-gray-700">
             <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-              <div className="text-2xl font-heading text-brass font-bold">Current Settings</div>
+              <div className="text-2xl font-heading text-amber-800 dark:text-amber-200 font-bold">{t('currentSettings')}</div>
               <div className="flex gap-4 text-sm">
-                <div className="text-text dark:text-darktext">
-                  <span className="text-brass font-bold">Method:</span> {METHODS.find(m => m.id === settings.prayerMethod)?.name}
+                <div className="text-gray-700 dark:text-gray-300">
+                  <span className="text-amber-600 dark:text-amber-400 font-bold">{t('methodLabel')}</span> {METHODS.find(m => m.id === settings.prayerMethod)?.name}
                 </div>
-                <div className="text-text dark:text-darktext">
-                  <span className="text-brass font-bold">Fiqh:</span> {FIQHS.find(f => f.id === settings.fiqh)?.name}
+                <div className="text-gray-700 dark:text-gray-300">
+                  <span className="text-amber-600 dark:text-amber-400 font-bold">{t('fiqhLabel')}</span> {FIQHS.find(f => f.id === settings.fiqh)?.name}
                 </div>
-                <div className="text-text dark:text-darktext">
-                  <span className="text-brass font-bold">Time Format:</span> {settings.militaryTime ? '24h' : '12h'}
+                <div className="text-gray-700 dark:text-gray-300">
+                  <span className="text-amber-600 dark:text-amber-400 font-bold">{t('timeFormatLabel')}</span> {settings.militaryTime ? '24h' : '12h'}
                 </div>
               </div>
             </div>
@@ -381,17 +415,17 @@ export default function PrayerTimesScreen() {
 
         {/* Prayer Times Display */}
         <div className="w-full max-w-4xl">
-          <div className="card p-6 bg-gradient-to-r from-brass/10 to-wood/10 border border-brass/20 backdrop-blur-sm">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-xl border border-gray-200 dark:border-gray-700">
             <div className="flex justify-between items-center mb-6">
-              <div className="text-sm text-text dark:text-darktext font-body">
-                <span className="text-brass font-bold">Fiqh:</span> {FIQHS.find(f => f.id === settings.fiqh)?.name}
+              <div className="text-sm text-gray-700 dark:text-gray-300 font-body">
+                <span className="text-amber-600 dark:text-amber-400 font-bold">{t('fiqhLabel')}</span> {FIQHS.find(f => f.id === settings.fiqh)?.name}
                 {settings.fiqh === 'ahl-e-hadith' && (
-                  <span className="ml-2 text-xs text-accent4">
-                    (Asr: Shadow=1, Maghrib: After sunset, Isha: Earlier)
+                  <span className="ml-2 text-xs text-amber-500 dark:text-amber-400">
+                    {t('fiqhNoteAhlEHadith')}
                   </span>
                 )}
               </div>
-              <div className="text-right text-brass font-bold font-body">{hijri}</div>
+              <div className="text-right text-amber-600 dark:text-amber-400 font-bold font-body">{hijri}</div>
             </div>
             
             <div className="space-y-4">
@@ -406,7 +440,7 @@ export default function PrayerTimesScreen() {
                   style={{ animationDelay: `${i * 0.1 + 0.1}s` }}
                 >
                   <div className="flex flex-col">
-                    <span className="text-xl font-heading text-brass font-bold">{p}</span>
+                    <span className="text-xl font-heading text-brass font-bold">{getPrayerDisplayName(p)}</span>
                     <span className="text-lg text-text dark:text-darktext font-body">{formatTime(times[p])}</span>
                   </div>
                   {i === nextIdx && p !== 'Sunrise' ? (
@@ -438,14 +472,14 @@ export default function PrayerTimesScreen() {
         
         {/* Notification Status */}
         <div className="w-full max-w-4xl">
-          <div className="card p-6 bg-gradient-to-r from-brass/10 to-wood/10 border border-brass/20 backdrop-blur-sm">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-xl border border-gray-200 dark:border-gray-700">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-brass font-bold text-lg mb-2">Prayer Notifications</h3>
-                <p className="text-text dark:text-darktext">
+                <h3 className="text-amber-800 dark:text-amber-200 font-bold text-lg mb-2">{t('prayerNotificationsTitle')}</h3>
+                <p className="text-gray-700 dark:text-gray-300">
                   {notificationsEnabled 
-                    ? '✅ Notifications enabled - You will be notified at prayer times'
-                    : '❌ Notifications disabled - Click to enable'
+                    ? t('notificationsEnabledStatus')
+                    : t('notificationsDisabledStatus')
                   }
                 </p>
               </div>

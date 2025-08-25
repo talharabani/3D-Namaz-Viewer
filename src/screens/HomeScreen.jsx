@@ -1,269 +1,237 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useSettings } from '../contexts/SettingsContext';
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { useTranslation } from '../utils/translations';
 
 export default function HomeScreen() {
-  const navigate = useNavigate();
-  const { settings } = useSettings();
+  const { t } = useTranslation();
+  const [currentTime, setCurrentTime] = useState(new Date());
 
-  const formatTime = (date) => {
-    if (settings.militaryTime) {
-      return date.toLocaleTimeString('en-US', { 
-        hour12: false, 
-        hour: '2-digit', 
-        minute: '2-digit',
-        second: settings.showSeconds ? '2-digit' : undefined
-      });
-    } else {
-      return date.toLocaleTimeString('en-US', { 
-        hour12: true, 
-        hour: '2-digit', 
-        minute: '2-digit',
-        second: settings.showSeconds ? '2-digit' : undefined
-      });
-    }
-  };
-
-  const [currentTime, setCurrentTime] = React.useState(new Date());
-
-  React.useEffect(() => {
+  useEffect(() => {
     const timer = setInterval(() => {
       setCurrentTime(new Date());
     }, 1000);
+
     return () => clearInterval(timer);
   }, []);
 
+  const formatTime = (date) => {
+    return date.toLocaleTimeString('en-US', {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: true
+    });
+  };
+
+  const formatDate = (date) => {
+    return date.toLocaleDateString('en-US', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  };
+
   const menuItems = [
     {
-      title: 'Prayer Times',
-      description: 'View daily prayer times',
+      title: t('prayerTimes'),
+      description: t('viewDailyPrayerTimes'),
       icon: '🕐',
       path: '/prayer-times',
-      color: 'from-blue-500 to-blue-600'
+      gradient: 'from-blue-500 to-blue-600',
+      hoverGradient: 'from-blue-600 to-blue-700'
     },
     {
-      title: 'Prayer Tracker',
-      description: 'Track your daily prayers',
-      icon: '📊',
+      title: t('namaz'),
+      description: t('stepByStepPrayerGuide'),
+      icon: '🕌',
+      path: '/namaz',
+      gradient: 'from-emerald-500 to-emerald-600',
+      hoverGradient: 'from-emerald-600 to-emerald-700'
+    },
+    {
+      title: t('tracker'),
+      description: t('trackYourDailyPrayers'),
+      icon: '📈',
       path: '/tracker',
-      color: 'from-green-500 to-green-600'
+      gradient: 'from-purple-500 to-purple-600',
+      hoverGradient: 'from-purple-600 to-purple-700'
     },
     {
-      title: 'Learn Namaz',
-      description: 'Step-by-step prayer guide',
+      title: t('learn'),
+      description: t('stepByStepPrayerGuide'),
       icon: '📚',
       path: '/learn',
-      color: 'from-purple-500 to-purple-600'
+      gradient: 'from-orange-500 to-orange-600',
+      hoverGradient: 'from-orange-600 to-orange-700'
     },
     {
-      title: 'Prayer Quiz',
-      description: 'Test your knowledge of Salah',
+      title: t('quiz'),
+      description: t('testYourKnowledgeOfSalah'),
       icon: '🏆',
       path: '/quiz',
-      color: 'from-yellow-500 to-yellow-600'
+      gradient: 'from-yellow-500 to-yellow-600',
+      hoverGradient: 'from-yellow-600 to-yellow-700'
     },
     {
-      title: 'Qibla Direction',
-      description: 'Find prayer direction',
-      icon: '🕌',
+      title: t('qibla'),
+      description: t('findPrayerDirection'),
+      icon: '🧭',
       path: '/qibla',
-      color: 'from-orange-500 to-orange-600'
+      gradient: 'from-indigo-500 to-indigo-600',
+      hoverGradient: 'from-indigo-600 to-indigo-700'
     },
     {
-      title: 'Duas',
-      description: 'Collection of Islamic duas',
+      title: t('duas'),
+      description: t('collectionOfIslamicDuas'),
       icon: '🤲',
       path: '/duas',
-      color: 'from-teal-500 to-teal-600'
+      gradient: 'from-pink-500 to-pink-600',
+      hoverGradient: 'from-pink-600 to-pink-700'
     },
     {
-      title: 'Hadith',
-      description: 'Islamic traditions and sayings',
-      icon: '📖',
+      title: t('hadith'),
+      description: t('islamicTraditionsAndSayings'),
+      icon: '📜',
       path: '/hadith',
-      color: 'from-indigo-500 to-indigo-600'
+      gradient: 'from-teal-500 to-teal-600',
+      hoverGradient: 'from-teal-600 to-teal-700'
     },
     {
-      title: 'Namaz Mistakes',
-      description: 'Common prayer mistakes to avoid',
-      icon: '⚠️',
-      path: '/mistakes',
-      color: 'from-red-500 to-red-600'
-    },
-    {
-      title: 'AI Assistant',
-      description: 'Get help with Islamic questions',
+      title: t('aiAssistant'),
+      description: t('getHelpWithIslamicQuestions'),
       icon: '🤖',
       path: '/ai-assistant',
-      color: 'from-pink-500 to-pink-600'
+      gradient: 'from-cyan-500 to-cyan-600',
+      hoverGradient: 'from-cyan-600 to-cyan-700'
     }
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-      <div className="w-full max-w-7xl mx-auto py-8 px-4">
-        {/* Beautiful Calligraphy Header */}
-        <div className="text-center mb-12">
-          {/* Arabic Calligraphy */}
-          <div className="mb-6">
-            <div className="text-6xl md:text-8xl font-arabic text-brass mb-4 leading-none drop-shadow-2xl">
-              بسم الله الرحمن الرحيم
-            </div>
-            <div className="text-sm md:text-base text-text dark:text-darktext opacity-80 italic">
-              In the name of Allah, the Most Gracious, the Most Merciful
-            </div>
-          </div>
-
-          {/* Main Title with Calligraphy */}
-          <div className="relative mb-8">
-            {/* Decorative elements */}
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-32 h-1 bg-gradient-to-r from-transparent via-brass to-transparent opacity-30"></div>
-            </div>
-            
-            <h1 className="text-4xl md:text-6xl font-heading text-amber-800 dark:text-amber-200 font-bold mb-4 drop-shadow-2xl relative z-10">
-              🕌 Namaz App
-            </h1>
-            
-            {/* Subtitle with Islamic styling */}
-            <div className="mb-6">
-              <div className="text-2xl md:text-3xl font-arabic text-brass mb-2 leading-relaxed">
-                تطبيق الصلاة
-              </div>
-              <p className="text-lg text-gray-700 dark:text-gray-300 max-w-2xl mx-auto">
-                Your comprehensive Islamic prayer companion
-              </p>
-            </div>
-
-            {/* Islamic quote */}
-            <div className="bg-gradient-to-r from-brass/10 to-wood/10 rounded-2xl p-6 border border-brass/20 backdrop-blur-sm max-w-3xl mx-auto">
-              <div className="text-xl md:text-2xl font-arabic text-brass mb-2 leading-relaxed">
-                "إِنَّ الصَّلَاةَ كَانَتْ عَلَى الْمُؤْمِنِينَ كِتَابًا مَّوْقُوتًا"
-              </div>
-              <div className="text-sm md:text-base text-text dark:text-darktext opacity-90 italic">
-                "Indeed, prayer has been decreed upon the believers a decree of specified times."
-              </div>
-              <div className="text-xs text-text dark:text-darktext opacity-70 mt-2">
-                — Quran 4:103
-              </div>
-            </div>
-          </div>
-        </div>
-          
-        {/* Current Time Display with Islamic styling */}
-        <div className="bg-gradient-to-br from-white/90 to-white/70 dark:from-gray-800/90 dark:to-gray-800/70 rounded-2xl p-6 border border-brass/20 shadow-xl max-w-md mx-auto mb-8 backdrop-blur-sm">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
+      {/* Hero Section */}
+      <div className="relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-amber-500/10 to-yellow-500/10"></div>
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
           <div className="text-center">
-            <div className="text-lg font-arabic text-brass mb-2">الوقت الحالي</div>
-            <h2 className="text-xl font-bold text-gray-800 dark:text-gray-200 mb-2">Current Time</h2>
-            <div className="text-4xl font-mono text-amber-600 dark:text-amber-400 mb-2">
-              {formatTime(currentTime)}
+            <h1 className="text-5xl md:text-7xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-yellow-400 mb-6">
+              {t('homeTitle')}
+            </h1>
+            <p className="text-xl md:text-2xl text-gray-300 mb-8 max-w-3xl mx-auto">
+              {t('comprehensiveIslamicPrayerCompanion')}
+            </p>
+            
+            {/* Current Time Display */}
+            <div className="bg-gray-800/50 backdrop-blur-sm rounded-3xl p-8 mb-12 max-w-md mx-auto border border-gray-700 shadow-2xl">
+              <div className="text-amber-400 text-2xl font-bold mb-2">
+                {t('currentTime')}
+              </div>
+              <div className="text-4xl md:text-5xl font-bold text-white mb-2">
+                {formatTime(currentTime)}
+              </div>
+              <div className="text-gray-400 text-lg">
+                {formatDate(currentTime)}
+              </div>
             </div>
-            <div className="text-sm text-gray-600 dark:text-gray-400">
-              {settings.militaryTime ? '24-hour format' : '12-hour format'}
-              {settings.showSeconds && ' • Showing seconds'}
-            </div>
-          </div>
-        </div>
 
-        {/* Settings Demo with enhanced styling */}
-        <div className="bg-gradient-to-br from-white/90 to-white/70 dark:from-gray-800/90 dark:to-gray-800/70 rounded-2xl p-6 border border-brass/20 shadow-xl max-w-2xl mx-auto mb-8 backdrop-blur-sm">
-          <div className="text-center mb-4">
-            <div className="text-lg font-arabic text-brass mb-2">الإعدادات الحالية</div>
-            <h2 className="text-xl font-bold text-gray-800 dark:text-gray-200">Current Settings</h2>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-            <div className="space-y-2">
-              <div className="flex justify-between">
-                <span className="text-gray-600 dark:text-gray-400">Theme:</span>
-                <span className="font-semibold text-gray-800 dark:text-gray-200 capitalize">{settings.theme}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600 dark:text-gray-400">Large Text:</span>
-                <span className="font-semibold text-gray-800 dark:text-gray-200">{settings.accessibility.largeText ? '✅ Enabled' : '❌ Disabled'}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600 dark:text-gray-400">High Contrast:</span>
-                <span className="font-semibold text-gray-800 dark:text-gray-200">{settings.accessibility.highContrast ? '✅ Enabled' : '❌ Disabled'}</span>
-              </div>
-            </div>
-            <div className="space-y-2">
-              <div className="flex justify-between">
-                <span className="text-gray-600 dark:text-gray-400">Military Time:</span>
-                <span className="font-semibold text-gray-800 dark:text-gray-200">{settings.militaryTime ? '✅ Enabled' : '❌ Disabled'}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600 dark:text-gray-400">Show Seconds:</span>
-                <span className="font-semibold text-gray-800 dark:text-gray-200">{settings.showSeconds ? '✅ Enabled' : '❌ Disabled'}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600 dark:text-gray-400">Reduce Motion:</span>
-                <span className="font-semibold text-gray-800 dark:text-gray-200">{settings.accessibility.reduceMotion ? '✅ Enabled' : '❌ Disabled'}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Menu Grid with enhanced styling */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {menuItems.map((item, index) => (
-            <div
-              key={item.path}
-              onClick={() => navigate(item.path)}
-              className="group relative bg-gradient-to-br from-white/90 to-white/70 dark:from-gray-800/90 dark:to-gray-800/70 rounded-2xl p-6 border border-brass/20 shadow-lg hover:shadow-2xl transition-all duration-300 cursor-pointer backdrop-blur-sm hover:scale-105"
-              style={{
-                animationDelay: `${index * 100}ms`,
-                animation: 'fadeInUp 0.6s ease-out forwards'
-              }}
-            >
-              {/* Decorative corner elements */}
-              <div className="absolute top-0 left-0 w-8 h-8 border-l-2 border-t-2 border-brass/30 rounded-tl-lg"></div>
-              <div className="absolute top-0 right-0 w-8 h-8 border-r-2 border-t-2 border-brass/30 rounded-tr-lg"></div>
-              <div className="absolute bottom-0 left-0 w-8 h-8 border-l-2 border-b-2 border-brass/30 rounded-bl-lg"></div>
-              <div className="absolute bottom-0 right-0 w-8 h-8 border-r-2 border-b-2 border-brass/30 rounded-br-lg"></div>
-
-              <div className="text-center">
-                <div className="text-4xl mb-4 group-hover:scale-110 transition-transform duration-300">
-                  {item.icon}
-                </div>
-                <h3 className="text-xl font-bold text-gray-800 dark:text-gray-200 mb-2 group-hover:text-brass transition-colors duration-300">
-                  {item.title}
-                </h3>
-                <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">
-                  {item.description}
-                </p>
-              </div>
-
-              {/* Hover effect overlay */}
-              <div className="absolute inset-0 bg-gradient-to-br from-brass/5 to-wood/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-            </div>
-          ))}
-        </div>
-
-        {/* Footer with Islamic quote */}
-        <div className="text-center mt-12">
-          <div className="bg-gradient-to-r from-brass/10 to-wood/10 rounded-2xl p-6 border border-brass/20 backdrop-blur-sm max-w-2xl mx-auto">
-            <div className="text-lg font-arabic text-brass mb-2 leading-relaxed">
-              "اللَّهُمَّ أَعِنِّي عَلَى ذِكْرِكَ وَشُكْرِكَ وَحُسْنِ عِبَادَتِكَ"
-            </div>
-            <div className="text-sm text-text dark:text-darktext opacity-90 italic">
-              "O Allah, help me to remember You, thank You, and worship You in the best way."
+            {/* Bismillah */}
+            <div className="text-center mb-12">
+              <p className="text-2xl md:text-3xl text-amber-400 font-arabic mb-4">
+                بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
+              </p>
+              <p className="text-lg text-gray-300 italic">
+                {t('bismillah')}
+              </p>
             </div>
           </div>
         </div>
       </div>
 
-      <style jsx>{`
-        @keyframes fadeInUp {
-          from {
-            opacity: 0;
-            transform: translateY(30px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-      `}</style>
+      {/* Features Grid */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div className="text-center mb-16">
+          <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
+            {t('quickActions')}
+          </h2>
+          <p className="text-xl text-gray-400 max-w-2xl mx-auto">
+            Discover all the features to enhance your Islamic journey
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {menuItems.map((item, index) => (
+            <Link
+              key={index}
+              to={item.path}
+              className="group relative overflow-hidden bg-gray-800/50 backdrop-blur-sm rounded-2xl p-8 border border-gray-700 hover:border-gray-600 transition-all duration-300 hover:scale-105 hover:shadow-2xl"
+            >
+              <div className="absolute inset-0 bg-gradient-to-r opacity-0 group-hover:opacity-10 transition-opacity duration-300 ${item.gradient}"></div>
+              
+              <div className="relative z-10">
+                <div className={`w-16 h-16 bg-gradient-to-r ${item.gradient} rounded-2xl flex items-center justify-center text-2xl mb-6 group-hover:scale-110 transition-transform duration-300`}>
+                  {item.icon}
+                </div>
+                
+                <h3 className="text-2xl font-bold text-white mb-4 group-hover:text-amber-400 transition-colors duration-300">
+                  {item.title}
+                </h3>
+                
+                <p className="text-gray-400 text-lg leading-relaxed">
+                  {item.description}
+                </p>
+                
+                <div className="mt-6 flex items-center text-amber-400 group-hover:text-amber-300 transition-colors duration-300">
+                  <span className="text-sm font-medium">Learn More</span>
+                  <svg className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </div>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </div>
+
+      {/* Islamic Quote Section */}
+      <div className="bg-gradient-to-r from-gray-800/50 to-gray-700/50 backdrop-blur-sm border-t border-gray-700">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+          <div className="text-center">
+            <div className="text-6xl text-amber-400 mb-6">"</div>
+            <blockquote className="text-2xl md:text-3xl text-white font-medium mb-6 max-w-4xl mx-auto leading-relaxed">
+              {t('prayerVerse')}
+            </blockquote>
+            <cite className="text-lg text-amber-400 font-medium">
+              {t('quranReference')}
+            </cite>
+          </div>
+        </div>
+      </div>
+
+      {/* Call to Action */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div className="text-center">
+          <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
+            Start Your Journey Today
+          </h2>
+          <p className="text-xl text-gray-400 mb-8 max-w-2xl mx-auto">
+            Begin your spiritual journey with our comprehensive Islamic companion
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link
+              to="/prayer-times"
+              className="px-8 py-4 bg-gradient-to-r from-amber-500 to-yellow-500 text-gray-900 font-bold rounded-xl hover:from-amber-600 hover:to-yellow-600 transition-all duration-300 shadow-lg hover:shadow-xl"
+            >
+              View Prayer Times
+            </Link>
+            <Link
+              to="/learn"
+              className="px-8 py-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-bold rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all duration-300 shadow-lg hover:shadow-xl"
+            >
+              Learn to Pray
+            </Link>
+          </div>
+        </div>
+      </div>
     </div>
   );
 } 

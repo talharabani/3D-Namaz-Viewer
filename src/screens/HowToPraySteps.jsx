@@ -1,6 +1,18 @@
 import { useState, useRef, useEffect } from 'react';
 import niyyahIcon from '../assets/icons/niyyah.svg';
 import { progressTracker } from '../utils/progressTracker';
+import { GlowCard } from '../components/nurui/spotlight-card';
+import { 
+  MotionDiv, 
+  MotionCard, 
+  MotionButton,
+  fadeInUp, 
+  staggerContainer, 
+  staggerItem, 
+  pageTransition,
+  buttonPress,
+  transitions
+} from '../utils/animations';
 
 const steps = [
   { title: 'Niyyah', desc: 'Intention in the heart.', icon: '🕋',

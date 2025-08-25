@@ -26,6 +26,45 @@
   text-align: right;
 }
 
+/* Arabic Text Centering and Layout Improvements */
+.font-arabic {
+  font-family: 'Amiri', serif;
+  direction: rtl;
+  text-align: center;
+  text-align-last: center;
+  -webkit-text-align-last: center;
+  -moz-text-align-last: center;
+}
+
+/* Perfect centering for Arabic calligraphy */
+.arabic-calligraphy {
+  text-align: center;
+  text-align-last: center;
+  -webkit-text-align-last: center;
+  -moz-text-align-last: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Enhanced Arabic text styling */
+.arabic-text-center {
+  text-align: center;
+  text-align-last: center;
+  -webkit-text-align-last: center;
+  -moz-text-align-last: center;
+  margin: 0 auto;
+  display: block;
+}
+
+/* Better spacing for Arabic content */
+.arabic-content {
+  margin: 0 auto;
+  max-width: 100%;
+  text-align: center;
+}
+
 /* Language-specific styles */
 [lang="ur"] {
   font-family: 'Noto Nastaliq Urdu', serif;
@@ -126,18 +165,90 @@ nav .active, .footer-nav .active {
 }
 
 @keyframes slideIn {
-  from {
-    transform: translateX(100%);
+  0% {
+    transform: translateX(-100%);
     opacity: 0;
   }
-  to {
+  100% {
     transform: translateX(0);
     opacity: 1;
   }
 }
 
 .animate-slideIn {
-  animation: slideIn 0.3s ease-out;
+  animation: slideIn 0.6s ease-out forwards;
+}
+
+/* Enhanced animations for home page */
+@keyframes fadeInUp {
+  0% {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInScale {
+  0% {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200px 0;
+  }
+  100% {
+    background-position: calc(200px + 100%) 0;
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(181, 166, 66, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(181, 166, 66, 0.6);
+  }
+}
+
+.animate-fadeInUp {
+  animation: fadeInUp 0.8s ease-out forwards;
+}
+
+.animate-fadeInScale {
+  animation: fadeInScale 0.6s ease-out forwards;
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.animate-shimmer {
+  background: linear-gradient(90deg, transparent, rgba(181, 166, 66, 0.2), transparent);
+  background-size: 200px 100%;
+  animation: shimmer 2s infinite;
 }
 
 /* Modal overlay styles */
@@ -405,4 +516,153 @@ nav .active, .footer-nav .active {
   .large-text h3, .large-text .text-xl {
     font-size: calc(1.125rem * var(--text-scale)) !important;
   }
+}
+
+/* Islamic Clock Styles */
+.islamic-clock {
+  will-change: transform;
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+}
+
+.islamic-clock * {
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+.clock-hand {
+  transform-origin: bottom center;
+  transition: transform 0.1s ease-out;
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+.clock-face {
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+}
+
+.clock-number {
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+/* Smooth hover transitions */
+.group:hover .clock-hand {
+  transition: transform 0.1s ease-out, background-color 0.3s ease;
+}
+
+.group:hover .clock-number {
+  transition: color 0.3s ease;
+}
+
+.group:hover .clock-face {
+  transition: transform 0.5s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Responsive Arabic text sizing */
+@media (max-width: 640px) {
+  .arabic-calligraphy {
+    font-size: 2.5rem;
+    line-height: 1.2;
+  }
+}
+
+@media (min-width: 641px) and (max-width: 768px) {
+  .arabic-calligraphy {
+    font-size: 3.5rem;
+    line-height: 1.3;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .arabic-calligraphy {
+    font-size: 4.5rem;
+    line-height: 1.4;
+  }
+}
+
+@media (min-width: 1025px) {
+  .arabic-calligraphy {
+    font-size: 5.5rem;
+    line-height: 1.5;
+  }
+}
+
+/* RTL Support */
+.rtl {
+  direction: rtl;
+  text-align: right;
+}
+
+.rtl .flex {
+  flex-direction: row-reverse;
+}
+
+.rtl .flex-col {
+  flex-direction: column;
+}
+
+.rtl .text-left {
+  text-align: right;
+}
+
+.rtl .text-right {
+  text-align: left;
+}
+
+.rtl .ml-4 {
+  margin-left: 0;
+  margin-right: 1rem;
+}
+
+.rtl .mr-4 {
+  margin-right: 0;
+  margin-left: 1rem;
+}
+
+.rtl .pl-6 {
+  padding-left: 0;
+  padding-right: 1.5rem;
+}
+
+.rtl .pr-6 {
+  padding-right: 0;
+  padding-left: 1.5rem;
+}
+
+.rtl .border-l {
+  border-left: none;
+  border-right: 1px solid;
+}
+
+.rtl .border-r {
+  border-right: none;
+  border-left: 1px solid;
+}
+
+/* RTL specific font adjustments for Urdu */
+.rtl {
+  font-family: 'Noto Nastaliq Urdu', 'Jameel Noori Nastaleeq', 'Alvi Nastaleeq', serif;
+}
+
+/* Ensure proper text direction for mixed content */
+.rtl .mixed-content {
+  unicode-bidi: bidi-override;
+}
+
+/* RTL table adjustments */
+.rtl table th,
+.rtl table td {
+  text-align: right;
+}
+
+.rtl table th:first-child,
+.rtl table td:first-child {
+  text-align: right;
+}
+
+.rtl table th:last-child,
+.rtl table td:last-child {
+  text-align: left;
 }

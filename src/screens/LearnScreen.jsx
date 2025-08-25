@@ -2,6 +2,18 @@ import { useState, useEffect, useRef } from 'react';
 import { prayerAudioUrls, prayerVideoUrls, prayerSteps, audioSequences } from '../data/prayerAudio';
 import { prayerAudioPlayer } from '../utils/prayerAudioService';
 import { progressTracker } from '../utils/progressTracker';
+import { GlowCard } from '../components/nurui/spotlight-card';
+import { 
+  MotionDiv, 
+  MotionCard, 
+  MotionButton,
+  fadeInUp, 
+  staggerContainer, 
+  staggerItem, 
+  pageTransition,
+  buttonPress,
+  transitions
+} from '../utils/animations';
 import takbir1 from '../assets/takbir1.jpg';
 import takbir2 from '../assets/takbir2.jpg';
 import takbir3 from '../assets/takbir3.jpg';
@@ -27,7 +39,7 @@ const comprehensivePrayerSteps = {
   niyyah: {
     title: 'Step 1: Make Your Intention (Niyyah)',
     description: 'Begin by making an intention from the heart to pray to Allah. As soon as you begin, your entire focus should be on the prayer itself and nothing else.',
-    image: 'https://www.mymasjid.ca/wp-content/uploads/2020/03/niyyah-intention-prayer.jpg',
+    image: niyyah1,
     arabic: 'نَوَيْتُ أَنْ أُصَلِّيَ صَلاَةَ الْفَجْرِ لِلَّهِ تَعَالَى',
     transliteration: 'Nawaitu an usalli salatal fajri lillahi ta\'ala',
     translation: 'I intend to pray Fajr prayer for Allah the Most High',
@@ -47,7 +59,7 @@ const comprehensivePrayerSteps = {
   takbir: {
     title: 'Step 2: Raise Your Hands and Say "Allahu Akbar"',
     description: 'The moment you say "Allahu Akbar" the prayer will officially begin. From this point forward you should focus wholeheartedly on the prayer and do your best to ignore all distractions.',
-    image: 'https://www.mymasjid.ca/wp-content/uploads/2020/03/takbir-prayer-hands.jpg',
+    image: takbir1,
     arabic: 'اللهُ أَكْبَرُ',
     transliteration: 'Allahu Akbar',
     translation: 'Allah is the Greatest',
@@ -67,7 +79,7 @@ const comprehensivePrayerSteps = {
   qiyam: {
     title: 'Step 3: Recite Surah Al-Fatiha',
     description: 'Recite the opening chapter of the Qur\'an. You will begin by saying "I seek refuge in Allah from the accursed Shaytan" and then begin to recite the chapter verse by verse in Arabic.',
-    image: 'https://www.mymasjid.ca/wp-content/uploads/2020/03/qiyam-standing-prayer.jpg',
+    image: qiyam1,
     arabic: 'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ\nالْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ\nالرَّحْمَٰنِ الرَّحِيمِ\nمَالِكِ يَوْمِ الدِّينِ\nإِيَّاكَ نَعْبُدُ وَإِيَّاكَ نَسْتَعِينُ\nاهْدِنَا الصِّرَاطَ الْمُسْتَقِيمَ\nصِرَاطَ الَّذِينَ أَنْعَمْتَ عَلَيْهِمْ\nغَيْرِ الْمَغْضُوبِ عَلَيْهِمْ وَلَا الضَّالِّينَ',
     transliteration: 'Bismillahir Rahmanir Rahim\nAlhamdu lillahi rabbil \'alameen\nAr-Rahmani ar-Raheem\nMaliki yawmid deen\nIyyaaka na\'aboodu wa iyyaaka nasta\'een\nIhdeenas siraatal mustaqeem\nSiraatal ladheena an \'amta\' alayhim\nGhayril maghduubi \'alayhim waladawleen',
     translation: 'In the name of God, the infinitely Compassionate and Merciful.\nPraise be to Allah, Lord of all the worlds.\nThe Most Gracious, the Most Merciful.\nMaster on the Day of Recompense (Judgement Day).\nYou alone do we worship, and You alone do we ask for help.\nGuide us on the straight path,\nThe path of those who You have bestowed favor, not of those who have evoked [Your] anger or of those who are astray.',
@@ -87,7 +99,7 @@ const comprehensivePrayerSteps = {
   rukoo: {
     title: 'Step 4: Perform Rukoo (Bowing)',
     description: 'Bend forward from the waist while keeping your back straight. Make sure to keep your back straight, your hands on your knees, and your eyes focused on the ground where you will be prostrating.',
-    image: 'https://www.mymasjid.ca/wp-content/uploads/2020/03/rukoo-bowing-prayer.jpg',
+    image: raku1,
     arabic: 'سُبْحَانَ رَبِّيَ الْعَظِيمِ',
     transliteration: 'Subhanna rabbeeyal adheem',
     translation: 'How perfect is my Lord, the Magnificent',
@@ -107,7 +119,7 @@ const comprehensivePrayerSteps = {
   sajda: {
     title: 'Step 5: Perform Sujud (Prostration)',
     description: 'Place your forehead, nose, palms of both hands, knees, and both toes on the ground. This is the position where you are closest to Allah.',
-    image: 'https://www.mymasjid.ca/wp-content/uploads/2020/03/sujud-prostration-prayer.jpg',
+    image: sajjda1,
     arabic: 'سُبْحَانَ رَبِّيَ الْأَعْلَىٰ',
     transliteration: 'Subhanna rabbeeyal \'alaa',
     translation: 'How perfect is my Lord, the Most High',
@@ -127,7 +139,7 @@ const comprehensivePrayerSteps = {
   jalsa: {
     title: 'Step 6: Sit Between Prostrations (Jalsa)',
     description: 'Rise up from sujud and sit for a moment. Sit on your left leg while your left foot will rest on the floor and your right foot is upright.',
-    image: 'https://www.mymasjid.ca/wp-content/uploads/2020/03/jalsa-sitting-prayer.jpg',
+    image: jalsa1,
     arabic: 'رَبِّ اغْفِرْ لِي',
     transliteration: 'Rabbigh-fir lee',
     translation: 'O my Lord, forgive me',
@@ -147,7 +159,7 @@ const comprehensivePrayerSteps = {
   tashahhud: {
     title: 'Step 7: Perform Tashahhud (Testification)',
     description: 'Recite the testification while sitting. This is performed at the end of every two rakah and at the end of the prayer.',
-    image: 'https://www.mymasjid.ca/wp-content/uploads/2020/03/tashahhud-testification-prayer.jpg',
+    image: Tashahhud1,
     arabic: 'التَّحِيَّاتُ لِلَّهِ وَالصَّلَوَاتُ وَالطَّيِّبَاتُ\nالسَّلَامُ عَلَيْكَ أَيُّهَا النَّبِيُّ وَرَحْمَةُ اللَّهِ وَبَرَكَاتُهُ\nالسَّلَامُ عَلَيْنَا وَعَلَىٰ عِبَادِ اللَّهِ الصَّالِحِينَ\nأَشْهَدُ أَنْ لَا إِلَٰهَ إِلَّا اللَّهُ وَأَشْهَدُ أَنَّ مُحَمَّدًا عَبْدُهُ وَرَسُولُهُ',
     transliteration: 'At Tahiyyaatu lilaahi was Salawaatu wat tayibaatu\nAssalaamu \'alaika ayyuhan nabiyyu wa rahmatu Allahi wa barakaatuh\nAssalaamu \'alaynaa wa \'alaa \'ebaadillaahis saaliheen\nAsh hadu allaa ilaha illa Allah Wa ash hadu anna Muhammadan \'abduhuu wa rasuuluh',
     translation: 'All compliments, prayers and pure words are due to Allah.\nPeace be upon you, O Prophet, and the mercy of Allah and His blessings.\nPeace be upon us, and on the righteous slaves of Allah.\nI bear witness that none has the right to be worshipped except Allah, and I bear witness that Muhammad is His slave and Messenger.',
@@ -167,7 +179,7 @@ const comprehensivePrayerSteps = {
   salam: {
     title: 'Step 8: Perform Salam (Ending Prayer)',
     description: 'Turn your head right and left saying Salam to end the prayer. This is the final step that completes your prayer.',
-    image: 'https://www.mymasjid.ca/wp-content/uploads/2020/03/salam-ending-prayer.jpg',
+    image: salam1,
     arabic: 'السَّلَامُ عَلَيْكُمْ وَرَحْمَةُ اللَّهِ',
     transliteration: 'Assalamu alaykum wa rahmatu Allah',
     translation: 'Peace be upon you and Allah\'s mercy',
@@ -515,28 +527,117 @@ export default function LearnScreen() {
 
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[#44403c] via-[#78716c] to-[#d6d3d1]">
-      <div className="w-full max-w-7xl mx-auto flex flex-col items-center gap-8 py-8 px-4">
-        {/* Header Section */}
-        <div className="w-full text-center mb-8">
-          <div className="text-5xl font-heading text-brass font-bold drop-shadow-2xl mb-4 bg-gradient-to-r from-brass to-wood bg-clip-text text-transparent">
-            Learn Namaz
+    <MotionDiv 
+      className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 relative"
+      {...pageTransition}
+    >
+      {/* Floating Islamic Calligraphy - Perfectly Positioned */}
+      <div className="absolute top-4 left-4 sm:top-6 sm:left-6 md:top-8 md:left-8 z-30">
+        <GlowCard className="group islamic-calligraphy bg-gradient-to-br from-white/95 to-white/80 dark:from-gray-800/95 dark:to-gray-800/80 rounded-2xl p-3 sm:p-4 border border-brass/30 shadow-2xl backdrop-blur-sm hover:shadow-3xl hover:scale-105 transition-all duration-500 max-w-[140px] sm:max-w-[160px] md:max-w-[180px]">
+          <div className="text-center">
+            <div className="text-xs sm:text-sm font-arabic text-brass mb-1 group-hover:text-amber-600 transition-colors duration-300">📚</div>
+            <h2 className="text-xs sm:text-sm md:text-base font-bold text-gray-800 dark:text-gray-200 mb-2 group-hover:text-brass transition-colors duration-300">تعلم</h2>
           </div>
-          <div className="text-lg text-text dark:text-darktext opacity-90 max-w-2xl mx-auto">
-            Master the art of prayer with interactive audio and video guides
+        </GlowCard>
+      </div>
+
+      <div className="w-full max-w-7xl mx-auto py-8 px-4 pt-24 sm:pt-28">
+        {/* Beautiful Calligraphy Header - Perfectly Centered */}
+        <div className="text-center mb-16 flex flex-col items-center justify-center min-h-[40vh] px-4">
+          {/* Arabic Calligraphy - Perfectly Centered */}
+          <div className="mb-16 animate-fadeInScale text-center w-full max-w-5xl arabic-content">
+            <div className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-arabic text-brass mb-8 leading-none drop-shadow-2xl animate-pulse arabic-text-center font-bold tracking-wide">
+              📚 {t('learnToPray')}
+            </div>
+            <div className="text-sm md:text-base text-text dark:text-darktext opacity-80 italic text-center mx-auto max-w-2xl">
+              {t('stepByStepPrayerGuide')}
+            </div>
+          </div>
+
+          {/* Enhanced Islamic Design - Perfectly Centered */}
+          <div className="relative mb-16 animate-fadeInUp text-center w-full max-w-5xl arabic-content">
+            {/* Decorative Islamic pattern */}
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="w-32 sm:w-48 h-1 bg-gradient-to-r from-transparent via-brass to-transparent opacity-40 animate-shimmer"></div>
+            </div>
+            
+            {/* Beautiful Arabic Calligraphy - Perfectly Centered */}
+            <div className="mb-8 text-center w-full">
+              <div className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-arabic text-brass mb-6 leading-relaxed drop-shadow-xl animate-float arabic-text-center font-bold tracking-wide">
+                تعلم الصلاة
+              </div>
+              <p className="text-base sm:text-lg text-gray-700 dark:text-gray-300 max-w-2xl mx-auto text-center">
+                {t('masterTheArtOfPrayer')}
+              </p>
+            </div>
+
+            {/* Enhanced Islamic quote with better styling - Perfectly Centered */}
+            <GlowCard className="bg-gradient-to-r from-brass/15 to-wood/15 rounded-3xl p-8 sm:p-10 border border-brass/30 backdrop-blur-sm max-w-4xl mx-auto shadow-2xl animate-pulse-glow text-center">
+              <div className="text-xl sm:text-2xl md:text-3xl font-arabic text-brass mb-4 leading-relaxed arabic-text-center font-bold tracking-wide">
+                "أَفَلاَ يَتَدَبَّرُونَ الْقُرْآنَ وَلَوْ كَانَ مِنْ عِندِ غَيْرِ اللَّهِ لَوَجَدُوا فِيهِ اخْتِلاَفًا كَثِيرًا"
+              </div>
+              <div className="text-sm sm:text-base md:text-lg text-text dark:text-darktext opacity-90 italic text-center mx-auto">
+                "Do they not contemplate the Quran? If it were from other than Allah, they would have found therein much contradiction"
+              </div>
+              <div className="text-xs sm:text-sm text-text dark:text-darktext opacity-70 mt-4 font-semibold text-center mx-auto">
+                Quran 4:82
+              </div>
+            </GlowCard>
           </div>
         </div>
 
         {/* Learning Mode Toggle */}
+        <div className="w-full max-w-4xl mb-8">
+          <GlowCard className="bg-gradient-to-br from-white/95 to-white/80 dark:from-gray-800/95 dark:to-gray-800/80 rounded-2xl p-6 shadow-xl border border-brass/30 backdrop-blur-sm">
+            <div className="text-xl text-brass dark:text-amber-200 font-bold mb-4 text-center">{t('chooseLearningMode')}</div>
+            <div className="flex flex-wrap gap-4 justify-center">
+              <MotionButton
+                className={`px-6 py-3 rounded-lg font-semibold transition-all duration-300 ${
+                  learningMode === 'steps'
+                    ? 'bg-gradient-to-r from-brass to-wood text-white shadow-lg scale-105'
+                    : 'bg-white/80 dark:bg-gray-800/80 text-gray-700 dark:text-gray-300 hover:bg-amber-50 dark:hover:bg-gray-700 border border-brass/30 dark:border-brass/60 backdrop-blur-sm'
+                }`}
+                onClick={() => setLearningMode('steps')}
+                {...buttonPress}
+              >
+                📋 {t('stepByStepGuide')}
+              </MotionButton>
+              <MotionButton
+                className={`px-6 py-3 rounded-lg font-semibold transition-all duration-300 ${
+                  learningMode === 'prayer'
+                    ? 'bg-gradient-to-r from-brass to-wood text-white shadow-lg scale-105'
+                    : 'bg-white/80 dark:bg-gray-800/80 text-gray-700 dark:text-gray-300 hover:bg-amber-50 dark:hover:bg-gray-700 border border-brass/30 dark:border-brass/60 backdrop-blur-sm'
+                }`}
+                onClick={() => setLearningMode('prayer')}
+                {...buttonPress}
+              >
+                🕌 {t('completePrayerStructure')}
+              </MotionButton>
+              <MotionButton
+                className={`px-6 py-3 rounded-lg font-semibold transition-all duration-300 ${
+                  learningMode === 'comprehensive'
+                    ? 'bg-gradient-to-r from-brass to-wood text-white shadow-lg scale-105'
+                    : 'bg-white/80 dark:bg-gray-800/80 text-gray-700 dark:text-gray-300 hover:bg-amber-50 dark:hover:bg-gray-700 border border-brass/30 dark:border-brass/60 backdrop-blur-sm'
+                }`}
+                onClick={() => setLearningMode('comprehensive')}
+                {...buttonPress}
+              >
+                📖 {t('comprehensiveLearning')}
+              </MotionButton>
+            </div>
+          </GlowCard>
+        </div>
+
+        {/* Learning Mode Toggle */}
         <div className="w-full max-w-4xl">
-          <div className="card p-6 bg-gradient-to-r from-brass/10 to-wood/10 border border-brass/20 backdrop-blur-sm">
-            <div className="text-xl text-brass font-bold mb-4 text-center">Choose Learning Mode</div>
+          <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-xl border border-gray-200 dark:border-gray-700">
+            <div className="text-xl text-amber-800 dark:text-amber-200 font-bold mb-4 text-center">Choose Learning Mode</div>
             <div className="flex flex-wrap gap-4 justify-center">
               <button
                 className={`px-6 py-3 rounded-lg font-semibold transition-all duration-300 ${
                   learningMode === 'steps'
-                    ? 'bg-gradient-to-r from-brass to-wood text-white shadow-lg scale-105'
-                    : 'bg-card dark:bg-darkcard text-text dark:text-darktext hover:bg-brass hover:text-white'
+                    ? 'bg-amber-600 text-white shadow-lg scale-105'
+                    : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-amber-50 dark:hover:bg-gray-700 border border-amber-300 dark:border-amber-600'
                 }`}
                 onClick={() => setLearningMode('steps')}
               >
@@ -545,8 +646,8 @@ export default function LearnScreen() {
               <button
                 className={`px-6 py-3 rounded-lg font-semibold transition-all duration-300 ${
                   learningMode === 'prayer'
-                    ? 'bg-gradient-to-r from-brass to-wood text-white shadow-lg scale-105'
-                    : 'bg-card dark:bg-darkcard text-text dark:text-darktext hover:bg-brass hover:text-white'
+                    ? 'bg-amber-600 text-white shadow-lg scale-105'
+                    : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-amber-50 dark:hover:bg-gray-700 border border-amber-300 dark:border-amber-600'
                 }`}
                 onClick={() => setLearningMode('prayer')}
               >
@@ -555,8 +656,8 @@ export default function LearnScreen() {
               <button
                 className={`px-6 py-3 rounded-lg font-semibold transition-all duration-300 ${
                   learningMode === 'comprehensive'
-                    ? 'bg-gradient-to-r from-brass to-wood text-white shadow-lg scale-105'
-                    : 'bg-card dark:bg-darkcard text-text dark:text-darktext hover:bg-brass hover:text-white'
+                    ? 'bg-amber-600 text-white shadow-lg scale-105'
+                    : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-amber-50 dark:hover:bg-gray-700 border border-amber-300 dark:border-amber-600'
                 }`}
                 onClick={() => setLearningMode('comprehensive')}
               >
@@ -569,8 +670,8 @@ export default function LearnScreen() {
         {/* Prayer Structure Section */}
         {learningMode === 'prayer' && (
           <div className="w-full max-w-6xl">
-            <div className="card p-6 bg-gradient-to-r from-brass/10 to-wood/10 border border-brass/20 backdrop-blur-sm">
-              <div className="text-2xl text-brass font-bold mb-6 text-center">🕌 Complete Prayer Structure</div>
+            <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-xl border border-gray-200 dark:border-gray-700">
+              <div className="text-2xl text-amber-800 dark:text-amber-200 font-bold mb-6 text-center">🕌 Complete Prayer Structure</div>
               
               {/* Prayer Selection */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
@@ -579,8 +680,8 @@ export default function LearnScreen() {
                     key={key}
                     className={`p-4 rounded-xl transition-all duration-300 ${
                       selectedPrayer === key
-                        ? 'bg-gradient-to-r from-brass to-wood text-white shadow-lg scale-105'
-                        : 'bg-card dark:bg-darkcard text-text dark:text-darktext hover:bg-brass hover:text-white border border-brass/20'
+                        ? 'bg-amber-600 text-white shadow-lg scale-105'
+                        : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-amber-50 dark:hover:bg-gray-700 border border-amber-300 dark:border-amber-600'
                     }`}
                     onClick={() => setSelectedPrayer(key)}
                   >
@@ -592,16 +693,16 @@ export default function LearnScreen() {
               </div>
 
               {/* Selected Prayer Details */}
-              <div className="bg-card dark:bg-darkcard rounded-xl p-6 border border-brass/20">
-                <div className="text-xl font-bold text-brass mb-4">{prayerStructure[selectedPrayer].name}</div>
-                <div className="text-text dark:text-darktext mb-4">{prayerStructure[selectedPrayer].description}</div>
+              <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700 shadow-lg">
+                <div className="text-xl font-bold text-amber-800 dark:text-amber-200 mb-4">{prayerStructure[selectedPrayer].name}</div>
+                <div className="text-gray-700 dark:text-gray-300 mb-4">{prayerStructure[selectedPrayer].description}</div>
                 
                 {/* Prayer Steps Flow */}
                 <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
                   {prayerStructure[selectedPrayer].steps.map((step, index) => (
                     <div
                       key={index}
-                      className="p-3 bg-gradient-to-r from-brass/10 to-wood/10 rounded-lg border border-brass/20 text-center cursor-pointer hover:bg-brass hover:text-white transition-all duration-300"
+                      className="p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-700 text-center cursor-pointer hover:bg-amber-100 dark:hover:bg-amber-800/30 transition-all duration-300"
                       onClick={() => {
                         setSelectedComprehensiveStep(step);
                         setShowComprehensiveStep(true);
@@ -2169,19 +2270,6 @@ export default function LearnScreen() {
           </div>
         )}
       </div>
-
-      <style jsx>{`
-        @keyframes fadeInUp {
-          from {
-            opacity: 0;
-            transform: translateY(30px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-      `}</style>
-    </div>
+    </MotionDiv>
   );
 } 

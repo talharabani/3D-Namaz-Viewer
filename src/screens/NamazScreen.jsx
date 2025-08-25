@@ -1,5 +1,17 @@
 import React, { useState } from 'react';
 import { ToggleLeft } from '../components/ToggleLeft';
+import { GlowCard } from '../components/nurui/spotlight-card';
+import { 
+  MotionDiv, 
+  MotionCard, 
+  MotionButton,
+  fadeInUp, 
+  staggerContainer, 
+  staggerItem, 
+  pageTransition,
+  buttonPress,
+  transitions
+} from '../utils/animations';
 
 const FARZ_NAMAZ = [
   { key: 'fajr', name: 'Fajr', icon: '🌅', virtue: 'The most beloved prayer to Allah after the obligatory ones.' },
@@ -579,32 +591,38 @@ export default function NamazScreen() {
   function Card({ namaz, color }) {
     return (
       <div
-        className={`card flex flex-col items-center justify-center gap-2 p-6 rounded-2xl shadow-lg border hover:scale-105 hover:shadow-2xl transition cursor-pointer group ${color}`}
-        style={{ background: color === 'farz' ? 'linear-gradient(135deg, #F5F5F5 0%, #fffbe6 60%, #f7ecd7 100%)' : 'linear-gradient(135deg, #f7ecd7 0%, #fffbe6 60%, #F5F5F5 100%)', borderColor: color === 'farz' ? '#DDC00F' : '#956D37' }}
+        className={`bg-white dark:bg-gray-800 flex flex-col items-center justify-center gap-2 p-6 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 hover:scale-105 hover:shadow-2xl transition cursor-pointer group`}
       >
         <div className="text-4xl mb-1">{namaz.icon}</div>
-        <div className="text-2xl font-bold text-brass mb-1">{namaz.name}</div>
-        {namaz.key !== 'fajr' && namaz.key !== 'dhuhr' && namaz.key !== 'asr' && namaz.key !== 'maghrib' && namaz.key !== 'isha' && <div className="text-sm text-mocha mb-1">{namaz.description}</div>}
-        {namaz.key !== 'fajr' && namaz.key !== 'dhuhr' && namaz.key !== 'asr' && namaz.key !== 'maghrib' && namaz.key !== 'isha' && <div className="text-xs text-wood mb-1">{namaz.timing}</div>}
-        <button className="btn btn-xs mt-1" onClick={e => { e.stopPropagation(); setModal({ namaz }); }}>Details</button>
+        <div className="text-2xl font-bold text-amber-800 dark:text-amber-200 mb-1">{namaz.name}</div>
+        {namaz.key !== 'fajr' && namaz.key !== 'dhuhr' && namaz.key !== 'asr' && namaz.key !== 'maghrib' && namaz.key !== 'isha' && <div className="text-sm text-gray-700 dark:text-gray-300 mb-1">{namaz.description}</div>}
+        {namaz.key !== 'fajr' && namaz.key !== 'dhuhr' && namaz.key !== 'asr' && namaz.key !== 'maghrib' && namaz.key !== 'isha' && <div className="text-xs text-amber-600 dark:text-amber-400 mb-1">{namaz.timing}</div>}
+        <button className="px-3 py-1 rounded-lg bg-amber-600 text-white text-xs font-medium hover:bg-amber-700 transition-colors mt-1" onClick={e => { e.stopPropagation(); setModal({ namaz }); }}>Details</button>
         <div className="flex items-center gap-2 mt-2 cursor-pointer">
           <ToggleLeft
             isActive={completed[namaz.key]}
             onChange={(active) => { toggleCompleted(namaz.key); }}
             stroke="#956D37"
           />
-          <span className="text-xs text-brass">Mark as Completed</span>
+          <span className="text-xs text-amber-600 dark:text-amber-400">Mark as Completed</span>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[#44403c] via-[#78716c] to-[#d6d3d1]">
-      <div className="w-full max-w-3xl mx-auto py-8 px-2 md:px-4">
-        <h1 className="text-3xl font-heading text-brass font-bold mb-8 text-center drop-shadow">All Namaz</h1>
+    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+      <div className="w-full max-w-3xl mx-auto py-8 px-2 md:px-4 relative">
+        {/* Decorative pattern */}
+        <div className="absolute inset-0 -z-10 opacity-5 dark:opacity-10 pointer-events-none select-none">
+          <div className="w-full h-full" style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23956D37' fill-opacity='0.1'%3E%3Cpath d='M30 30c0-11.046-8.954-20-20-20s-20 8.954-20 20 8.954 20 20 20 20-8.954 20-20zm0 0c0 11.046 8.954 20 20 20s20-8.954 20-20-8.954-20-20-20-20 8.954-20 20z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+            backgroundSize: '60px 60px'
+          }} />
+        </div>
+        <h1 className="text-3xl md:text-4xl font-heading text-amber-800 dark:text-amber-200 font-bold mb-8 text-center drop-shadow">🕌 All Namaz</h1>
         <div className="mb-10">
-          <h2 className="text-2xl font-bold text-wood mb-4 text-center">Farz Namaz</h2>
+          <h2 className="text-2xl font-bold text-amber-800 dark:text-amber-200 mb-4 text-center">📋 Farz Namaz</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
             {FARZ_NAMAZ.map(namaz => (
               <Card key={namaz.key} namaz={namaz} color="farz" />
@@ -612,7 +630,7 @@ export default function NamazScreen() {
           </div>
         </div>
         <div>
-          <h2 className="text-2xl font-bold text-wood mb-4 text-center">Nawafil (Nafl) Namaz</h2>
+          <h2 className="text-2xl font-bold text-amber-800 dark:text-amber-200 mb-4 text-center">🌟 Nawafil (Nafl) Namaz</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
             {NAWAFIL_NAMAZ.map(namaz => (
               <Card key={namaz.key} namaz={namaz} color="nafl" />
