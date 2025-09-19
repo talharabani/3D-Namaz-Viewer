@@ -9,7 +9,6 @@
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "start": "vite preview --port $PORT --host",
-    "render-build": "npm run build",
     "postbuild": "echo 'Build completed successfully!'"
   },
   "dependencies": {
