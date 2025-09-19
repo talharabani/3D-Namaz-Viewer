@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import duaCategories, { duasByCategory } from '../data/duas';
+import duaCategories, { duasByCategory } from '../data/duas.js';
 import { useTranslation } from '../utils/translations';
 import { motion } from 'framer-motion';
 import { GlowCard } from '../components/nurui/spotlight-card';
