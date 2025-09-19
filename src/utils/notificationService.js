@@ -2,7 +2,7 @@
 import { auth } from './firebase';
 import { collection, doc, setDoc, getDoc } from 'firebase/firestore';
 import { db } from './firebase';
-import { duasByCategory } from '../data/duas.ts';
+import { duasByCategory } from '../data/duas.js';
 import authService from './authService';
 
 class NotificationService {
