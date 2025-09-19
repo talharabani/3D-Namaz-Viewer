@@ -9,7 +9,6 @@ import PrayerTimesScreen from './screens/PrayerTimesScreen';
 import SettingsScreen from './screens/SettingsScreen';
 import ProgressDashboardScreen from './screens/ProgressDashboardScreen';
 import DailyChallengeScreen from './screens/DailyChallengeScreen';
-import FooterNavTabs from './components/FooterNavTabs';
 import { useState, useEffect, useRef } from 'react';
 import reactLogo from './assets/react.svg';
 import viteLogo from '/vite.svg';
@@ -26,7 +25,8 @@ import { useTranslation, setLanguage, getCurrentLanguage } from './utils/transla
 import { SettingsProvider } from './contexts/SettingsContext';
 import SplashCursor from './components/nurui/splash-cursor.jsx';
 
-import ModernHeader from './components/ModernHeader';
+import Navbar from './components/Navbar';
+import SearchBar from './components/SearchBar';
 import WebsiteFooter from './components/WebsiteFooter';
 import LandingPage from './screens/LandingPage';
 import AuthModal from './components/AuthModal';
@@ -128,19 +128,12 @@ function App() {
             lang={currentLang}
             dir={isRTL ? 'rtl' : 'ltr'}>
             
-            {/* Modern Header */}
-            <ModernHeader 
-              currentLang={currentLang}
-              onLanguageChange={() => changeLanguage(currentLang === 'en' ? 'ur' : 'en')}
-              isAuthenticated={isAuthenticated}
-              userProfile={userProfile}
-              onAuthClick={() => setShowAuthModal(true)}
-              onLogout={handleLogout}
-            />
+            {/* Professional Navigation */}
+            <Navbar />
 
             {/* Main Content */}
-            <main className="flex-1 flex flex-col min-h-0">
-              <div className={`flex-1 ${isMobile ? 'pb-20' : ''}`}>
+            <main className="flex-1 flex flex-col min-h-0 pt-16">
+              <div className="flex-1">
                 <Routes>
                   <Route path="/" element={<LandingPage />} />
                   <Route path="/dashboard" element={<HomeScreen />} />
@@ -163,11 +156,8 @@ function App() {
             </main>
 
             {/* Footer - Desktop shows WebsiteFooter, Mobile shows FooterNavTabs */}
-            {isMobile ? (
-              <FooterNavTabs currentLang={currentLang} />
-            ) : (
-              <WebsiteFooter />
-            )}
+            {/* Footer - Only show on desktop */}
+            {!isMobile && <WebsiteFooter />}
 
 
             
