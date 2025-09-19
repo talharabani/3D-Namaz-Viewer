@@ -2,8 +2,63 @@
 import { auth } from './firebase';
 import { collection, doc, setDoc, getDoc } from 'firebase/firestore';
 import { db } from './firebase';
-import { duasByCategory } from '../data/duas.js';
 import authService from './authService';
+
+// Daily duas data embedded directly to avoid import issues
+const duasByCategory = {
+  daily: [
+    {
+      arabic: "الحمدُ للهِ الذي أحيانا بعد ما أماتنا وإليه النشورُ",
+      transliteration: "Alhamdu lillaahil-ladhee ahyaanaa ba'da maa amaatanaa wa ilayhin-nushoor",
+      translation: "All praise is for Allah Who gave us life after causing us to die, and to Him is the resurrection."
+    },
+    {
+      arabic: "بِاسْمِكَ رَبِّي وَضَعْتُ جَنْبِي وَبِكَ أَرْفَعُهُ",
+      transliteration: "Bismika rabbī waḍa'tu janbī wa bika arfa'uhu",
+      translation: "In Your name, O my Lord, I lay down and in Your name I rise."
+    },
+    {
+      arabic: "بِسْمِ اللَّهِ",
+      transliteration: "Bismillah",
+      translation: "In the name of Allah."
+    },
+    {
+      arabic: "الْحَمْدُ لِلَّهِ الَّذِي أَطْعَمَنَا وَسَقَانَا وَجَعَلَنَا مُسْلِمِينَ",
+      transliteration: "Alhamdu lillahil-ladhi at'amana wa saqana wa ja'alana Muslimeen",
+      translation: "All praise is for Allah who fed us and gave us drink and made us Muslims."
+    },
+    {
+      arabic: "اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنَ الْخُبُثِ وَالْخَبَائِثِ",
+      transliteration: "Allahumma inni a'oodhu bika minal-khubthi wal-khaba'ith",
+      translation: "O Allah, I seek refuge with You from male and female devils."
+    },
+    {
+      arabic: "غُفْرَانَكَ",
+      transliteration: "Ghufranaka",
+      translation: "I seek Your forgiveness."
+    },
+    {
+      arabic: "بِسْمِ اللَّهِ، تَوَكَّلْتُ عَلَى اللَّهِ، وَلَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ",
+      transliteration: "Bismillah, tawakkaltu 'alallah, wa la hawla wa la quwwata illa billah",
+      translation: "In the name of Allah, I place my trust in Allah, and there is no power nor might except with Allah."
+    },
+    {
+      arabic: "بِسْمِ اللَّهِ وَلَجْنَا، وَبِسْمِ اللَّهِ خَرَجْنَا، وَعَلَى رَبِّنَا تَوَكَّلْنَا",
+      transliteration: "Bismillah walajna, wa bismillah kharajna, wa 'ala Rabbina tawakkalna",
+      translation: "In the name of Allah we enter, and in the name of Allah we leave, and upon our Lord we place our trust."
+    },
+    {
+      arabic: "اللّهُـمَّ أَنْتَ رَبِّـي لا إلهَ إلاّ أَنْتَ",
+      transliteration: "Allahumma anta rabbee la ilaha illa anta",
+      translation: "O Allah, You are my Lord, there is no deity except You."
+    },
+    {
+      arabic: "بِسْمِ اللهِ الَّذِي لا يَضُرُّ مَعَ اسْمِهِ شَيْءٌ",
+      transliteration: "Bismillahil-ladhi la yadurru ma'asmihi shay'un",
+      translation: "In the name of Allah, with whose name nothing can harm on earth or in heaven."
+    }
+  ]
+};
 
 class NotificationService {
   constructor() {
