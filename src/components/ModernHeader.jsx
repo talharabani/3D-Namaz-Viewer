@@ -113,30 +113,33 @@ export default function ModernHeader({
     <header className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border-b border-gray-200 dark:border-gray-700 shadow-sm sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Top Bar */}
-        <div className="flex items-center justify-between h-16">
+        <div className="flex items-center justify-between h-12 sm:h-16">
           {/* Logo */}
-          <div className="flex items-center space-x-4">
-            <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-lg shadow-sm">
+          <div className="flex items-center space-x-2 sm:space-x-3">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-sm sm:text-lg shadow-sm">
               🕌
             </div>
-            <div>
-              <h1 className="text-lg font-semibold text-gray-900 dark:text-white">Namaz Web</h1>
-              <p className="text-xs text-gray-600 dark:text-gray-400">Islamic Companion</p>
+            <div className="hidden sm:block">
+              <h1 className="text-sm sm:text-lg font-semibold text-gray-900 dark:text-white">Namaz Web</h1>
+              <p className="text-[10px] sm:text-xs text-gray-600 dark:text-gray-400">Islamic Companion</p>
+            </div>
+            <div className="block sm:hidden">
+              <h1 className="text-sm font-semibold text-gray-900 dark:text-white">Namaz</h1>
             </div>
           </div>
 
           {/* Search Bar */}
-          <div className="flex-1 max-w-2xl mx-4 md:mx-8 relative" ref={searchRef}>
+          <div className="flex-1 max-w-2xl mx-2 sm:mx-4 md:mx-8 relative" ref={searchRef}>
             <div className="relative">
               <input
                 type="text"
                 placeholder={t('searchPlaceholder')}
                 value={searchQuery}
                 onChange={handleSearch}
-                className="w-full px-3 md:px-4 py-2 pl-10 md:pl-12 pr-3 md:pr-4 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                className="w-full px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 pl-8 sm:pl-10 md:pl-12 pr-2 sm:pr-3 md:pr-4 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
               />
-              <div className="absolute inset-y-0 left-0 pl-3 md:pl-4 flex items-center pointer-events-none">
-                <svg className="h-4 w-4 text-gray-500 dark:text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <div className="absolute inset-y-0 left-0 pl-2 sm:pl-3 md:pl-4 flex items-center pointer-events-none">
+                <svg className="h-3 w-3 sm:h-4 sm:w-4 text-gray-500 dark:text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
               </div>
@@ -190,28 +193,28 @@ export default function ModernHeader({
           </div>
 
           {/* Right Side Controls */}
-          <div className="flex items-center space-x-2 md:space-x-4">
+          <div className="flex items-center space-x-1 sm:space-x-2 md:space-x-4">
 
             {/* User Menu */}
             {isAuthenticated ? (
               <div className="relative user-menu">
                 <button
                   onClick={() => setShowUserMenu(!showUserMenu)}
-                  className="flex items-center space-x-2 md:space-x-3 p-2 rounded-xl text-gray-300 hover:text-white hover:bg-gray-800 transition-all duration-200"
+                  className="flex items-center space-x-1 sm:space-x-2 md:space-x-3 p-1 sm:p-2 rounded-lg text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-200"
                 >
                   {userProfile?.picture ? (
                     <img
                       src={userProfile.picture}
                       alt={userProfile.name}
-                      className="w-8 h-8 rounded-full"
+                      className="w-6 h-6 sm:w-8 sm:h-8 rounded-full"
                     />
                   ) : (
-                    <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-sm">
+                    <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-xs sm:text-sm">
                       {userProfile?.name?.charAt(0) || 'U'}
                     </div>
                   )}
-                  <span className="hidden sm:block text-sm font-medium">{userProfile?.name || 'User'}</span>
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <span className="hidden sm:block text-xs sm:text-sm font-medium">{userProfile?.name || 'User'}</span>
+                  <svg className="w-3 h-3 sm:w-4 sm:h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                   </svg>
                 </button>
@@ -249,16 +252,16 @@ export default function ModernHeader({
                 )}
               </div>
             ) : (
-              <div className="flex items-center space-x-2 md:space-x-3">
+              <div className="flex items-center space-x-1 sm:space-x-2 md:space-x-3">
                 <button
                   onClick={onAuthClick}
-                  className="px-3 md:px-4 py-2 text-gray-300 hover:text-white hover:bg-gray-800 rounded-xl transition-all duration-200"
+                  className="px-2 sm:px-3 md:px-4 py-1 sm:py-2 text-xs sm:text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-all duration-200"
                 >
                   Sign In
                 </button>
                 <button
                   onClick={onAuthClick}
-                  className="px-3 md:px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl font-medium hover:from-blue-600 hover:to-blue-700 transition-all duration-200 shadow-lg"
+                  className="px-2 sm:px-3 md:px-4 py-1 sm:py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg text-xs sm:text-sm font-medium hover:from-blue-600 hover:to-blue-700 transition-all duration-200 shadow-sm"
                 >
                   Sign Up
                 </button>
