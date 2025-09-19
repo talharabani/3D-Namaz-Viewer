@@ -1,0 +1,31 @@
+services:
+  - type: web
+    name: namaz-web
+    env: static
+    buildCommand: npm run build
+    staticPublishPath: ./dist
+    envVars:
+      - key: NODE_VERSION
+        value: 18.18.0
+      - key: VITE_FIREBASE_API_KEY
+        value: AIzaSyCM41n18V-EIP6rpKvLMY0fcbblPQZUi9o
+      - key: VITE_FIREBASE_AUTH_DOMAIN
+        value: namaz-e9611.firebaseapp.com
+      - key: VITE_FIREBASE_PROJECT_ID
+        value: namaz-e9611
+      - key: VITE_FIREBASE_STORAGE_BUCKET
+        value: namaz-e9611.firebasestorage.app
+      - key: VITE_FIREBASE_MESSAGING_SENDER_ID
+        value: 471303185593
+      - key: VITE_FIREBASE_APP_ID
+        value: 1:471303185593:web:191ad040efc2fcea052768
+      - key: VITE_FIREBASE_MEASUREMENT_ID
+        value: G-WZLM4TCJV1
+      - key: VITE_GEMINI_API_KEY
+        value: AIzaSyC6FJTOwRc0SaYZMgK4y3EQsRJuekXP2Zt
+      - key: VITE_APP_NAME
+        value: Namaz Web
+      - key: VITE_APP_VERSION
+        value: 1.0.3
+      - key: VITE_APP_ENVIRONMENT
+        value: production
