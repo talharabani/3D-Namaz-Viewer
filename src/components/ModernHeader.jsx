@@ -270,7 +270,7 @@ export default function ModernHeader({
         {/* Navigation Tabs */}
         <div className="relative border-t border-gray-700">
           {/* Scroll buttons for small screens */}
-          {showScrollControls && (
+          {false && showScrollControls && (
             <>
               <button
                 onClick={() => scrollTabs('left')}
@@ -291,7 +291,7 @@ export default function ModernHeader({
 
           <nav
             ref={tabsScrollRef}
-            className="flex flex-wrap md:flex-nowrap gap-1 overflow-x-auto scrollbar-hide py-2"
+            className="hidden md:flex flex-wrap md:flex-nowrap gap-1 overflow-x-auto scrollbar-hide py-2"
           >
             {navTabs.map((tab) => (
               <NavLink

@@ -115,6 +115,28 @@ const Icons = {
     >
       <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
     </motion.svg>
+  ),
+  Trophy: ({ isActive }) => (
+    <motion.svg 
+      className={`w-6 h-6 transition-all duration-300 ${isActive ? 'scale-110' : 'scale-100'}`}
+      animate={{ scale: isActive ? 1.1 : 1 }}
+      transition={{ duration: 0.2 }}
+      fill="currentColor" 
+      viewBox="0 0 24 24"
+    >
+      <path d="M7 4V2c0-1.1.9-2 2-2h6c1.1 0 2 .9 2 2v2h4c1.1 0 2 .9 2 2v2c0 4.97-4.03 9-9 9s-9-4.03-9-9V6c0-1.1.9-2 2-2h4zM9 6H7v2c0 3.87 3.13 7 7 7s7-3.13 7-7V6h-2v2c0 2.76-2.24 5-5 5s-5-2.24-5-5V6z"/>
+    </motion.svg>
+  ),
+  AlertTriangle: ({ isActive }) => (
+    <motion.svg 
+      className={`w-6 h-6 transition-all duration-300 ${isActive ? 'scale-110' : 'scale-100'}`}
+      animate={{ scale: isActive ? 1.1 : 1 }}
+      transition={{ duration: 0.2 }}
+      fill="currentColor" 
+      viewBox="0 0 24 24"
+    >
+      <path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/>
+    </motion.svg>
   )
 };
 
@@ -156,15 +178,7 @@ export default function FooterNavTabs({ onNavigate, className = '' }) {
       key: 'quiz', 
       to: '/quiz', 
       label: t('quiz'), 
-      icon: ({ isActive }) => (
-        <motion.span 
-          className={`text-2xl transition-all duration-300 ${isActive ? 'scale-110' : 'scale-100'}`}
-          animate={{ scale: isActive ? 1.1 : 1 }}
-          transition={{ duration: 0.2 }}
-        >
-          🏆
-        </motion.span>
-      ), 
+      icon: Icons.Trophy, 
       primary: true,
       color: 'from-purple-500 to-purple-600'
     },
@@ -172,15 +186,7 @@ export default function FooterNavTabs({ onNavigate, className = '' }) {
       key: 'mistakes', 
       to: '/mistakes', 
       label: t('mistakes'), 
-      icon: ({ isActive }) => (
-        <motion.span 
-          className={`text-2xl transition-all duration-300 ${isActive ? 'scale-110' : 'scale-100'}`}
-          animate={{ scale: isActive ? 1.1 : 1 }}
-          transition={{ duration: 0.2 }}
-        >
-          ⚠️
-        </motion.span>
-      ), 
+      icon: Icons.AlertTriangle, 
       primary: true,
       color: 'from-red-500 to-red-600'
     },
