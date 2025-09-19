@@ -72,14 +72,14 @@ function FajrGuide({ onClose }) {
           </li>
           <li>
             <span className="text-xl sm:text-2xl">🕋</span> <span className="font-bold text-base sm:text-lg md:text-xl">Takbir al-Ihram (تكبيرة الإحرام):</span>
-            <div className="text-mocha mt-1">Raise both hands to the <b>ears (men)</b> or <b>shoulders (women)</b> and say:<br />
+            <div className="text-gray-800 mt-1">Raise both hands to the <b>ears (men)</b> or <b>shoulders (women)</b> and say:<br />
               <span className="font-arabic text-brass text-xl">اللَّهُ أَكْبَر</span> <span className="italic">(Allahu Akbar)</span><br />
               → This marks the start of Salah.
             </div>
           </li>
           <li>
             <span className="text-xl">✋</span> <span className="font-bold text-lg">Place Hands and Start Prayer</span>
-            <div className="text-mocha mt-1">Place right hand over the left on the <b>chest</b>.<br />Begin with the opening supplication (optional).</div>
+            <div className="text-gray-800 mt-1">Place right hand over the left on the <b>chest</b>.<br />Begin with the opening supplication (optional).</div>
           </li>
           <li>
             <span className="text-xl">🙏</span> <span className="font-bold text-lg">Dua al-Istiftah (Optional Opening Supplication)</span>
@@ -88,12 +88,12 @@ function FajrGuide({ onClose }) {
           <li>
             <span className="text-xl">📖</span> <span className="font-bold text-lg">Recite Surah Al-Fatiha (الفاتحة)</span>
             <div className="font-arabic text-brass text-xl mt-1">بِسْمِ اللَّهِ الرَّحْمَـٰنِ الرَّحِيمِ</div>
-            <div className="text-mocha">Then complete the full <b>Surah Al-Fatiha</b>.</div>
+            <div className="text-gray-800">Then complete the full <b>Surah Al-Fatiha</b>.</div>
             <div className="text-xs text-wood mt-1">📌 Prophet ﷺ said: "There is no prayer for the one who does not recite Al-Fatiha." (Bukhari, Muslim)</div>
           </li>
           <li>
             <span className="text-xl">🌟</span> <span className="font-bold text-lg">Recite a Short Surah (in both Rak'ahs)</span>
-            <div className="text-mocha mt-1">
+            <div className="text-gray-800 mt-1">
               <b>First Rak'ah</b>: Surah <b>Al-Kafirun (الكافرون)</b><br />
               <b>Second Rak'ah</b>: Surah <b>Al-Ikhlas (الإخلاص)</b><br />
               <span className="text-xs">(These were commonly recited by the Prophet ﷺ in Fajr)</span>
@@ -101,19 +101,19 @@ function FajrGuide({ onClose }) {
           </li>
           <li>
             <span className="text-xl">✋</span> <span className="font-bold text-lg">Raise Hands Before Ruku' (رفع اليدين قبل الركوع)</span>
-            <div className="text-mocha mt-1">Raise hands again to <b>ears/shoulders</b> and say:<br />
+            <div className="text-gray-800 mt-1">Raise hands again to <b>ears/shoulders</b> and say:<br />
               <span className="font-arabic text-brass text-xl">اللَّهُ أَكْبَر</span> <span className="italic">(Allahu Akbar)</span>
             </div>
           </li>
           <li>
             <span className="text-xl">🙇</span> <span className="font-bold text-lg">Ruku' (Bowing - الركوع)</span>
-            <div className="text-mocha mt-1">Bow, placing hands on knees, back flat.<br />Recite <b>three times</b> (or more):<br />
+            <div className="text-gray-800 mt-1">Bow, placing hands on knees, back flat.<br />Recite <b>three times</b> (or more):<br />
               <span className="font-arabic text-brass text-xl">سُبْحَانَ رَبِّيَ الْعَظِيمِ</span>
             </div>
           </li>
           <li>
             <span className="text-xl">🧍</span> <span className="font-bold text-lg">Standing Up from Ruku' (الرفع من الركوع)</span>
-            <div className="text-mocha mt-1">Rise saying:<br />
+            <div className="text-gray-800 mt-1">Rise saying:<br />
               <span className="font-arabic text-brass text-xl">سَمِعَ اللَّهُ لِمَنْ حَمِدَهُ</span> <span className="italic">(Sami' Allahu liman ḥamidah)</span><br />
               Then say:<br />
               <span className="font-arabic text-brass text-xl">رَبَّنَا لَكَ الْحَمْدُ، حَمْدًا كَثِيرًا طَيِّبًا مُبَارَكًا فِيهِ</span><br />
@@ -123,25 +123,25 @@ function FajrGuide({ onClose }) {
           </li>
           <li>
             <span className="text-xl">🤲</span> <span className="font-bold text-lg">Sujood (Prostration - السجود)</span>
-            <div className="text-mocha mt-1">Go into sujood and say <b>three times</b>:<br />
+            <div className="text-gray-800 mt-1">Go into sujood and say <b>three times</b>:<br />
               <span className="font-arabic text-brass text-xl">سُبْحَانَ رَبِّيَ الأَعْلَى</span>
             </div>
           </li>
           <li>
             <span className="text-xl">🪑</span> <span className="font-bold text-lg">Sit Between Two Sujoods</span>
-            <div className="text-mocha mt-1">Sit calmly and recite:<br />
+            <div className="text-gray-800 mt-1">Sit calmly and recite:<br />
               <span className="font-arabic text-brass text-xl">رَبِّ اغْفِرْ لِي</span> or <span className="font-arabic text-brass text-xl">اللَّهُمَّ اغْفِرْ لِي</span>
             </div>
           </li>
           <li>
             <span className="text-xl">🙇‍♂️</span> <span className="font-bold text-lg">Second Sujood</span>
-            <div className="text-mocha mt-1">Go into sujood again and repeat:<br />
+            <div className="text-gray-800 mt-1">Go into sujood again and repeat:<br />
               <span className="font-arabic text-brass text-xl">سُبْحَانَ رَبِّيَ الأَعْلَى</span>
             </div>
           </li>
           <li>
             <span className="text-xl">🔁</span> <span className="font-bold text-lg">Stand for Second Rak'ah</span>
-            <div className="text-mocha mt-1">Say <span className="font-arabic text-brass text-xl">اللَّهُ أَكْبَر</span>, then repeat the same steps:<br />
+            <div className="text-gray-800 mt-1">Say <span className="font-arabic text-brass text-xl">اللَّهُ أَكْبَر</span>, then repeat the same steps:<br />
               <ul className="list-disc pl-6 text-base mt-2">
                 <li>Surah Al-Fatiha</li>
                 <li>Short Surah (e.g., Surah Al-Ikhlas)</li>
@@ -151,7 +151,7 @@ function FajrGuide({ onClose }) {
           </li>
           <li>
             <span className="text-xl">🧎</span> <span className="font-bold text-lg">Tashahhud (تشهد) After Second Rak'ah</span>
-            <div className="text-mocha mt-1">Sit and recite the Tashahhud:</div>
+            <div className="text-gray-800 mt-1">Sit and recite the Tashahhud:</div>
             <div className="font-arabic text-brass text-xl mt-2">التحيات لله والصلوات والطيبات،<br />السلام عليك أيها النبي ورحمة الله وبركاته،<br />السلام علينا وعلى عباد الله الصالحين،<br />أشهد أن لا إله إلا الله، وأشهد أن محمدًا عبده ورسوله</div>
           </li>
           <li>
@@ -160,7 +160,7 @@ function FajrGuide({ onClose }) {
           </li>
           <li>
             <span className="text-xl">🕊️</span> <span className="font-bold text-lg">Tasleem (التسليم)</span>
-            <div className="text-mocha mt-1">To <b>end the Salah</b>, turn your head:</div>
+            <div className="text-gray-800 mt-1">To <b>end the Salah</b>, turn your head:</div>
             <ul className="list-disc pl-6 text-base mt-2">
               <li>To the <b>right</b> and say: <span className="font-arabic text-brass text-xl">السلام عليكم ورحمة الله</span></li>
               <li>To the <b>left</b> and say: <span className="font-arabic text-brass text-xl">السلام عليكم ورحمة الله</span></li>
@@ -186,7 +186,7 @@ function DhuhrGuide({ onClose }) {
     <div className="relative max-h-[80vh] overflow-y-auto rounded-3xl bg-gradient-to-br from-[#fffbe6] via-[#fff] to-[#f7ecd7] border-2 border-brass shadow-2xl p-0 max-w-2xl w-full mx-auto">
       {/* Floating close button - outside the card, not overlapping */}
       <button
-        className="fixed z-50 w-12 h-12 rounded-full bg-brass text-white text-3xl flex items-center justify-center shadow-lg border-4 border-white hover:bg-wood focus:bg-wood transition"
+        className="fixed z-50 w-12 h-12 rounded-full bg-amber-600 text-white text-3xl flex items-center justify-center shadow-lg border-4 border-white hover:bg-amber-700 focus:bg-amber-700 transition"
         style={{ top: 'calc(50% - 240px)', right: 'calc(50% - 320px)' }}
         onClick={onClose}
         aria-label="Close"
@@ -197,26 +197,26 @@ function DhuhrGuide({ onClose }) {
       <div className="sticky top-0 z-10 bg-gradient-to-br from-[#fffbe6] via-[#fff] to-[#f7ecd7] rounded-t-3xl flex flex-col items-center pt-6 pb-2 border-b-2 border-brass">
         <div className="text-5xl mb-2">🌞</div>
         <div className="text-3xl font-bold text-brass mb-1 text-center">Dhuhr Prayer Guide (4 Rak'ahs)</div>
-        <div className="text-base text-mocha text-center mb-1">According to the Sunnah of the Prophet Muhammad ﷺ</div>
+        <div className="text-base text-gray-800 text-center mb-1">According to the Sunnah of the Prophet Muhammad ﷺ</div>
       </div>
       <div className="px-8 pb-8 pt-4 text-lg leading-relaxed">
         <ol className="list-decimal pl-6 space-y-7">
           <li>
             <span className="text-xl">🕌</span> <span className="font-bold text-lg">Intention (النية):</span>
-            <div className="text-mocha mt-1">Silently make the intention in your heart:<br />
+            <div className="text-gray-800 mt-1">Silently make the intention in your heart:<br />
               <span className="italic">"I intend to pray four Rak'ahs of Dhuhr for the sake of Allah."</span>
             </div>
           </li>
           <li>
             <span className="text-xl sm:text-2xl">🕋</span> <span className="font-bold text-base sm:text-lg md:text-xl">Takbir al-Ihram (تكبيرة الإحرام):</span>
-            <div className="text-mocha mt-1">Raise both hands to the <b>ears (men)</b> or <b>shoulders (women)</b> and say:<br />
+            <div className="text-gray-800 mt-1">Raise both hands to the <b>ears (men)</b> or <b>shoulders (women)</b> and say:<br />
               <span className="font-arabic text-brass text-xl">اللَّهُ أَكْبَر</span> <span className="italic">(Allahu Akbar)</span><br />
               → This marks the start of Salah.
             </div>
           </li>
           <li>
             <span className="text-xl">✋</span> <span className="font-bold text-lg">Place Hands and Start Prayer</span>
-            <div className="text-mocha mt-1">Place right hand over the left on the <b>chest</b>.<br />Begin with the opening supplication (optional).</div>
+            <div className="text-gray-800 mt-1">Place right hand over the left on the <b>chest</b>.<br />Begin with the opening supplication (optional).</div>
           </li>
           <li>
             <span className="text-xl">🙏</span> <span className="font-bold text-lg">Dua al-Istiftah (Optional Opening Supplication)</span>
@@ -225,12 +225,12 @@ function DhuhrGuide({ onClose }) {
           <li>
             <span className="text-xl">📖</span> <span className="font-bold text-lg">Recite Surah Al-Fatiha (الفاتحة)</span>
             <div className="font-arabic text-brass text-xl mt-1">بِسْمِ اللَّهِ الرَّحْمَـٰنِ الرَّحِيمِ</div>
-            <div className="text-mocha">Then complete the full <b>Surah Al-Fatiha</b>.</div>
+            <div className="text-gray-800">Then complete the full <b>Surah Al-Fatiha</b>.</div>
             <div className="text-xs text-wood mt-1">📌 Prophet ﷺ said: "There is no prayer for the one who does not recite Al-Fatiha." (Bukhari, Muslim)</div>
           </li>
           <li>
             <span className="text-xl">🌟</span> <span className="font-bold text-lg">Recite a Short Surah (in both Rak'ahs)</span>
-            <div className="text-mocha mt-1">
+            <div className="text-gray-800 mt-1">
               <b>First Rak'ah</b>: Surah <b>Al-Kafirun (الكافرون)</b><br />
               <b>Second Rak'ah</b>: Surah <b>Al-Ikhlas (الإخلاص)</b><br />
               <span className="text-xs">(These were commonly recited by the Prophet ﷺ in Fajr)</span>
@@ -238,19 +238,19 @@ function DhuhrGuide({ onClose }) {
           </li>
           <li>
             <span className="text-xl">✋</span> <span className="font-bold text-lg">Raise Hands Before Ruku' (رفع اليدين قبل الركوع)</span>
-            <div className="text-mocha mt-1">Raise hands again to <b>ears/shoulders</b> and say:<br />
+            <div className="text-gray-800 mt-1">Raise hands again to <b>ears/shoulders</b> and say:<br />
               <span className="font-arabic text-brass text-xl">اللَّهُ أَكْبَر</span> <span className="italic">(Allahu Akbar)</span>
             </div>
           </li>
           <li>
             <span className="text-xl">🙇</span> <span className="font-bold text-lg">Ruku' (Bowing - الركوع)</span>
-            <div className="text-mocha mt-1">Bow, placing hands on knees, back flat.<br />Recite <b>three times</b> (or more):<br />
+            <div className="text-gray-800 mt-1">Bow, placing hands on knees, back flat.<br />Recite <b>three times</b> (or more):<br />
               <span className="font-arabic text-brass text-xl">سُبْحَانَ رَبِّيَ الْعَظِيمِ</span>
             </div>
           </li>
           <li>
             <span className="text-xl">🧍</span> <span className="font-bold text-lg">Standing Up from Ruku' (الرفع من الركوع)</span>
-            <div className="text-mocha mt-1">Rise saying:<br />
+            <div className="text-gray-800 mt-1">Rise saying:<br />
               <span className="font-arabic text-brass text-xl">سَمِعَ اللَّهُ لِمَنْ حَمِدَهُ</span> <span className="italic">(Sami' Allahu liman ḥamidah)</span><br />
               Then say:<br />
               <span className="font-arabic text-brass text-xl">رَبَّنَا لَكَ الْحَمْدُ، حَمْدًا كَثِيرًا طَيِّبًا مُبَارَكًا فِيهِ</span><br />
@@ -260,25 +260,25 @@ function DhuhrGuide({ onClose }) {
           </li>
           <li>
             <span className="text-xl">🤲</span> <span className="font-bold text-lg">Sujood (Prostration - السجود)</span>
-            <div className="text-mocha mt-1">Go into sujood and say <b>three times</b>:<br />
+            <div className="text-gray-800 mt-1">Go into sujood and say <b>three times</b>:<br />
               <span className="font-arabic text-brass text-xl">سُبْحَانَ رَبِّيَ الأَعْلَى</span>
             </div>
           </li>
           <li>
             <span className="text-xl">🪑</span> <span className="font-bold text-lg">Sit Between Two Sujoods</span>
-            <div className="text-mocha mt-1">Sit calmly and recite:<br />
+            <div className="text-gray-800 mt-1">Sit calmly and recite:<br />
               <span className="font-arabic text-brass text-xl">رَبِّ اغْفِرْ لِي</span> or <span className="font-arabic text-brass text-xl">اللَّهُمَّ اغْفِرْ لِي</span>
             </div>
           </li>
           <li>
             <span className="text-xl">🙇‍♂️</span> <span className="font-bold text-lg">Second Sujood</span>
-            <div className="text-mocha mt-1">Go into sujood again and repeat:<br />
+            <div className="text-gray-800 mt-1">Go into sujood again and repeat:<br />
               <span className="font-arabic text-brass text-xl">سُبْحَانَ رَبِّيَ الأَعْلَى</span>
             </div>
           </li>
           <li>
             <span className="text-xl">🔁</span> <span className="font-bold text-lg">Stand for Second Rak'ah</span>
-            <div className="text-mocha mt-1">Say <span className="font-arabic text-brass text-xl">اللَّهُ أَكْبَر</span>, then repeat the same steps:<br />
+            <div className="text-gray-800 mt-1">Say <span className="font-arabic text-brass text-xl">اللَّهُ أَكْبَر</span>, then repeat the same steps:<br />
               <ul className="list-disc pl-6 text-base mt-2">
                 <li>Surah Al-Fatiha</li>
                 <li>Short Surah (e.g., Surah Al-Ikhlas)</li>
@@ -288,7 +288,7 @@ function DhuhrGuide({ onClose }) {
           </li>
           <li>
             <span className="text-xl">🧎</span> <span className="font-bold text-lg">Tashahhud (تشهد) After Second Rak'ah</span>
-            <div className="text-mocha mt-1">Sit and recite the Tashahhud:</div>
+            <div className="text-gray-800 mt-1">Sit and recite the Tashahhud:</div>
             <div className="font-arabic text-brass text-xl mt-2">التحيات لله والصلوات والطيبات،<br />السلام عليك أيها النبي ورحمة الله وبركاته،<br />السلام علينا وعلى عباد الله الصالحين،<br />أشهد أن لا إله إلا الله، وأشهد أن محمدًا عبده ورسوله</div>
           </li>
           <li>
@@ -297,7 +297,7 @@ function DhuhrGuide({ onClose }) {
           </li>
           <li>
             <span className="text-xl">🕊️</span> <span className="font-bold text-lg">Tasleem (التسليم)</span>
-            <div className="text-mocha mt-1">To <b>end the Salah</b>, turn your head:</div>
+            <div className="text-gray-800 mt-1">To <b>end the Salah</b>, turn your head:</div>
             <ul className="list-disc pl-6 text-base mt-2">
               <li>To the <b>right</b> and say: <span className="font-arabic text-brass text-xl">السلام عليكم ورحمة الله</span></li>
               <li>To the <b>left</b> and say: <span className="font-arabic text-brass text-xl">السلام عليكم ورحمة الله</span></li>
@@ -323,7 +323,7 @@ function AsrGuide({ onClose }) {
     <div className="relative max-h-[80vh] overflow-y-auto rounded-3xl bg-gradient-to-br from-[#fffbe6] via-[#fff] to-[#f7ecd7] border-2 border-brass shadow-2xl p-0 max-w-2xl w-full mx-auto">
       {/* Floating close button */}
       <button
-        className="fixed z-50 w-12 h-12 rounded-full bg-brass text-white text-3xl flex items-center justify-center shadow-lg border-4 border-white hover:bg-wood focus:bg-wood transition"
+        className="fixed z-50 w-12 h-12 rounded-full bg-amber-600 text-white text-3xl flex items-center justify-center shadow-lg border-4 border-white hover:bg-amber-700 focus:bg-amber-700 transition"
         style={{ top: 'calc(50% - 240px)', right: 'calc(50% - 320px)' }}
         onClick={onClose}
         aria-label="Close"
@@ -334,26 +334,26 @@ function AsrGuide({ onClose }) {
       <div className="sticky top-0 z-10 bg-gradient-to-br from-[#fffbe6] via-[#fff] to-[#f7ecd7] rounded-t-3xl flex flex-col items-center pt-6 pb-2 border-b-2 border-brass">
         <div className="text-5xl mb-2">🌇</div>
         <div className="text-3xl font-bold text-brass mb-1 text-center">Asr (ʿAsr) Prayer Guide — 4 Rak'ahs</div>
-        <div className="text-base text-mocha text-center mb-1">According to the Sunnah of Prophet Muhammad ﷺ</div>
+        <div className="text-base text-gray-800 text-center mb-1">According to the Sunnah of Prophet Muhammad ﷺ</div>
       </div>
       <div className="px-8 pb-8 pt-4 text-lg leading-relaxed">
         <ol className="list-decimal pl-6 space-y-7">
           <li>
             <span className="text-xl">🕌</span> <span className="font-bold text-lg">Intention (النية):</span>
-            <div className="text-mocha mt-1">Silently make the intention in your heart:<br />
+            <div className="text-gray-800 mt-1">Silently make the intention in your heart:<br />
               <span className="italic">"I intend to pray four Rak'ahs of Asr prayer for the sake of Allah."</span>
             </div>
           </li>
           <li>
             <span className="text-xl sm:text-2xl">🕋</span> <span className="font-bold text-base sm:text-lg md:text-xl">Takbir al-Ihram (Opening Takbir):</span>
-            <div className="text-mocha mt-1">Raise both hands to <b>ear level (men)</b> or <b>shoulder level (women)</b> and say:<br />
+            <div className="text-gray-800 mt-1">Raise both hands to <b>ear level (men)</b> or <b>shoulder level (women)</b> and say:<br />
               <span className="font-arabic text-brass text-xl">اللَّهُ أَكْبَر</span> <span className="italic">(Allahu Akbar)</span><br />
               → This marks the beginning of your prayer.
             </div>
           </li>
           <li>
             <span className="text-xl">🤲</span> <span className="font-bold text-lg">Place Hands on Chest</span>
-            <div className="text-mocha mt-1">Right hand over left hand on your chest.</div>
+            <div className="text-gray-800 mt-1">Right hand over left hand on your chest.</div>
           </li>
           <li>
             <span className="text-xl">✨</span> <span className="font-bold text-lg">Dua al-Istiftah (Optional Opening Supplication)</span>
@@ -362,12 +362,12 @@ function AsrGuide({ onClose }) {
           <li>
             <span className="text-xl">📖</span> <span className="font-bold text-lg">Recite Surah Al-Fatiha (الفاتحة)</span>
             <div className="font-arabic text-brass text-xl mt-1">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ...</div>
-            <div className="text-mocha">Complete the full <b>Surah Al-Fatiha</b>.</div>
+            <div className="text-gray-800">Complete the full <b>Surah Al-Fatiha</b>.</div>
             <div className="text-xs text-wood mt-1">📌 "There is no prayer for the one who does not recite Al-Fatiha." — (Bukhari, Muslim)</div>
           </li>
           <li>
             <span className="text-xl">🌟</span> <span className="font-bold text-lg">Recite a Short Surah</span>
-            <div className="text-mocha mt-1">
+            <div className="text-gray-800 mt-1">
               <b>1st Rak'ah</b>: Surah Al-ʿAsr<br />
               <b>2nd Rak'ah</b>: Surah Al-Kawthar<br />
               <span className="text-xs">(3rd & 4th Rak'ahs: Surah Al-Fatiha only)</span>
@@ -375,19 +375,19 @@ function AsrGuide({ onClose }) {
           </li>
           <li>
             <span className="text-xl">✋</span> <span className="font-bold text-lg">Raise Hands Before Ruku' (رفع اليدين)</span>
-            <div className="text-mocha mt-1">Raise hands and say:<br />
+            <div className="text-gray-800 mt-1">Raise hands and say:<br />
               <span className="font-arabic text-brass text-xl">اللَّهُ أَكْبَر</span>
             </div>
           </li>
           <li>
             <span className="text-xl">🙇</span> <span className="font-bold text-lg">Ruku' (Bowing)</span>
-            <div className="text-mocha mt-1">Bow with hands on knees, back straight. Say <b>three times</b> (or more):<br />
+            <div className="text-gray-800 mt-1">Bow with hands on knees, back straight. Say <b>three times</b> (or more):<br />
               <span className="font-arabic text-brass text-xl">سُبْحَانَ رَبِّيَ الْعَظِيمِ</span>
             </div>
           </li>
           <li>
             <span className="text-xl">🧍</span> <span className="font-bold text-lg">Rising from Ruku' (الرفع من الركوع)</span>
-            <div className="text-mocha mt-1">Say:<br />
+            <div className="text-gray-800 mt-1">Say:<br />
               <span className="font-arabic text-brass text-xl">سَمِعَ اللَّهُ لِمَنْ حَمِدَهُ</span><br />
               Then say:<br />
               <span className="font-arabic text-brass text-xl">رَبَّنَا لَكَ الْحَمْدُ،<br />حَمْدًا كَثِيرًا طَيِّبًا مُبَارَكًا فِيهِ</span>
@@ -395,25 +395,25 @@ function AsrGuide({ onClose }) {
           </li>
           <li>
             <span className="text-xl">🤲</span> <span className="font-bold text-lg">Sujood (Prostration)</span>
-            <div className="text-mocha mt-1">Prostrate fully and say three times:<br />
+            <div className="text-gray-800 mt-1">Prostrate fully and say three times:<br />
               <span className="font-arabic text-brass text-xl">سُبْحَانَ رَبِّيَ الأَعْلَى</span>
             </div>
           </li>
           <li>
             <span className="text-xl">🪑</span> <span className="font-bold text-lg">Sitting Between Two Sujoods</span>
-            <div className="text-mocha mt-1">Sit calmly and say:<br />
+            <div className="text-gray-800 mt-1">Sit calmly and say:<br />
               <span className="font-arabic text-brass text-xl">رَبِّ اغْفِرْ لِي</span> or <span className="font-arabic text-brass text-xl">اللَّهُمَّ اغْفِرْ لِي</span>
             </div>
           </li>
           <li>
             <span className="text-xl">🙇‍♂️</span> <span className="font-bold text-lg">Second Sujood</span>
-            <div className="text-mocha mt-1">Repeat:<br />
+            <div className="text-gray-800 mt-1">Repeat:<br />
               <span className="font-arabic text-brass text-xl">سُبْحَانَ رَبِّيَ الأَعْلَى</span>
             </div>
           </li>
           <li>
             <span className="text-xl">🔁</span> <span className="font-bold text-lg">Stand for Second Rak'ah</span>
-            <div className="text-mocha mt-1">Say <span className="font-arabic text-brass text-xl">اللَّهُ أَكْبَر</span>, then repeat the cycle:<br />
+            <div className="text-gray-800 mt-1">Say <span className="font-arabic text-brass text-xl">اللَّهُ أَكْبَر</span>, then repeat the cycle:<br />
               <ul className="list-disc pl-6 text-base mt-2">
                 <li>Surah Al-Fatiha</li>
                 <li>Short Surah</li>
@@ -423,13 +423,13 @@ function AsrGuide({ onClose }) {
           </li>
           <li>
             <span className="text-xl">🧎</span> <span className="font-bold text-lg">After 2nd Rak'ah – First Tashahhud (التشهد الأول)</span>
-            <div className="text-mocha mt-1">Sit and recite:</div>
+            <div className="text-gray-800 mt-1">Sit and recite:</div>
             <div className="font-arabic text-brass text-xl mt-2">التحيات لله والصلوات والطيبات،<br />السلام عليك أيها النبي ورحمة الله وبركاته،<br />السلام علينا وعلى عباد الله الصالحين،<br />أشهد أن لا إله إلا الله، وأشهد أن محمدًا عبده ورسوله</div>
-            <div className="text-mocha mt-2">➤ Then stand up for the 3rd Rak'ah.</div>
+            <div className="text-gray-800 mt-2">➤ Then stand up for the 3rd Rak'ah.</div>
           </li>
           <li>
             <span className="text-xl">🔄</span> <span className="font-bold text-lg">3rd Rak'ah</span>
-            <div className="text-mocha mt-1">
+            <div className="text-gray-800 mt-1">
               <ul className="list-disc pl-6 text-base mt-2">
                 <li>Surah Al-Fatiha only</li>
                 <li>Ruku' → Standing → Sujood ×2</li>
@@ -438,7 +438,7 @@ function AsrGuide({ onClose }) {
           </li>
           <li>
             <span className="text-xl">🔄</span> <span className="font-bold text-lg">4th Rak'ah</span>
-            <div className="text-mocha mt-1">
+            <div className="text-gray-800 mt-1">
               <ul className="list-disc pl-6 text-base mt-2">
                 <li>Surah Al-Fatiha only</li>
                 <li>Ruku' → Standing → Sujood ×2</li>
@@ -447,15 +447,15 @@ function AsrGuide({ onClose }) {
           </li>
           <li>
             <span className="text-xl">🧎</span> <span className="font-bold text-lg">Final Tashahhud After 4th Rak'ah</span>
-            <div className="text-mocha mt-1">Recite both Tashahhud and Salat al-Ibrahimiyya:</div>
-            <div className="font-bold text-mocha mt-2">🗣️ Tashahhud:</div>
+            <div className="text-gray-800 mt-1">Recite both Tashahhud and Salat al-Ibrahimiyya:</div>
+            <div className="font-bold text-gray-800 mt-2">🗣️ Tashahhud:</div>
             <div className="font-arabic text-brass text-xl mt-2">التحيات لله...<br />أشهد أن لا إله إلا الله...<br />وأشهد أن محمدًا عبده ورسوله</div>
-            <div className="font-bold text-mocha mt-2">🌸 Salat al-Ibrahimiyya:</div>
+            <div className="font-bold text-gray-800 mt-2">🌸 Salat al-Ibrahimiyya:</div>
             <div className="font-arabic text-brass text-xl mt-2">اللهم صل على محمد وعلى آل محمد،<br />كما صليت على إبراهيم وعلى آل إبراهيم إنك حميد مجيد،<br />وبارك على محمد وعلى آل محمد،<br />كما باركت على إبراهيم وعلى آل إبراهيم إنك حميد مجيد</div>
           </li>
           <li>
             <span className="text-xl">🕊️</span> <span className="font-bold text-lg">Tasleem (Ending the Prayer)</span>
-            <div className="text-mocha mt-1">* Turn head to the <b>right</b>:<br />
+            <div className="text-gray-800 mt-1">* Turn head to the <b>right</b>:<br />
               <span className="font-arabic text-brass text-xl">السلام عليكم ورحمة الله</span><br />* Then to the <b>left</b>:<br />
               <span className="font-arabic text-brass text-xl">السلام عليكم ورحمة الله</span>
             </div>
@@ -479,7 +479,7 @@ function MaghribGuide({ onClose }) {
   return (
     <div className="relative max-h-[80vh] overflow-y-auto rounded-3xl bg-gradient-to-br from-[#fffbe6] via-[#fff] to-[#f7ecd7] border-2 border-brass shadow-2xl p-0 max-w-2xl w-full mx-auto">
       <button
-        className="fixed z-50 w-12 h-12 rounded-full bg-brass text-white text-3xl flex items-center justify-center shadow-lg border-4 border-white hover:bg-wood focus:bg-wood transition"
+        className="fixed z-50 w-12 h-12 rounded-full bg-amber-600 text-white text-3xl flex items-center justify-center shadow-lg border-4 border-white hover:bg-amber-700 focus:bg-amber-700 transition"
         style={{ top: 'calc(50% - 240px)', right: 'calc(50% - 320px)' }}
         onClick={onClose}
         aria-label="Close"
@@ -489,27 +489,27 @@ function MaghribGuide({ onClose }) {
       <div className="sticky top-0 z-10 bg-gradient-to-br from-[#fffbe6] via-[#fff] to-[#f7ecd7] rounded-t-3xl flex flex-col items-center pt-6 pb-2 border-b-2 border-brass">
         <div className="text-5xl mb-2">🌆</div>
         <div className="text-3xl font-bold text-brass mb-1 text-center">Maghrib Prayer Guide — 3 Rak'ahs</div>
-        <div className="text-base text-mocha text-center mb-1">According to the Sunnah of Prophet Muhammad ﷺ</div>
+        <div className="text-base text-gray-800 text-center mb-1">According to the Sunnah of Prophet Muhammad ﷺ</div>
       </div>
       <div className="px-8 pb-8 pt-4 text-lg leading-relaxed">
         <ol className="list-decimal pl-6 space-y-7">
-          <li><span className="text-xl">🕌</span> <span className="font-bold text-lg">Intention (النية):</span> <div className="text-mocha mt-1">Silently make the intention in your heart:<br /><span className="italic">"I intend to pray three Rak'ahs of Maghrib for the sake of Allah."</span></div></li>
-          <li><span className="text-xl">🕋</span> <span className="font-bold text-lg">Takbir al-Ihram (Opening Takbir):</span> <div className="text-mocha mt-1">Raise both hands to <b>ear level (men)</b> or <b>shoulder level (women)</b> and say:<br /><span className="font-arabic text-brass text-xl">اللَّهُ أَكْبَر</span> <span className="italic">(Allahu Akbar)</span><br />→ This marks the beginning of your prayer.</div></li>
-          <li><span className="text-xl">🤲</span> <span className="font-bold text-lg">Place Hands on Chest</span> <div className="text-mocha mt-1">Right hand over left hand on your chest.</div></li>
+          <li><span className="text-xl">🕌</span> <span className="font-bold text-lg">Intention (النية):</span> <div className="text-gray-800 mt-1">Silently make the intention in your heart:<br /><span className="italic">"I intend to pray three Rak'ahs of Maghrib for the sake of Allah."</span></div></li>
+          <li><span className="text-xl">🕋</span> <span className="font-bold text-lg">Takbir al-Ihram (Opening Takbir):</span> <div className="text-gray-800 mt-1">Raise both hands to <b>ear level (men)</b> or <b>shoulder level (women)</b> and say:<br /><span className="font-arabic text-brass text-xl">اللَّهُ أَكْبَر</span> <span className="italic">(Allahu Akbar)</span><br />→ This marks the beginning of your prayer.</div></li>
+          <li><span className="text-xl">🤲</span> <span className="font-bold text-lg">Place Hands on Chest</span> <div className="text-gray-800 mt-1">Right hand over left hand on your chest.</div></li>
           <li><span className="text-xl">✨</span> <span className="font-bold text-lg">Dua al-Istiftah (Optional Opening Supplication)</span> <div className="font-arabic text-brass text-xl mt-1">سُبْحَانَكَ اللَّهُمَّ وَبِحَمْدِكَ،<br />وَتَبَارَكَ اسْمُكَ، وَتَعَالَى جَدُّكَ،<br />وَلَا إِلَهَ غَيْرُكَ</div></li>
-          <li><span className="text-xl">📖</span> <span className="font-bold text-lg">Recite Surah Al-Fatiha (الفاتحة)</span> <div className="font-arabic text-brass text-xl mt-1">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ...</div> <div className="text-mocha">Complete the full <b>Surah Al-Fatiha</b>.</div> <div className="text-xs text-wood mt-1">📌 "There is no prayer for the one who does not recite Al-Fatiha." — (Bukhari, Muslim)</div></li>
-          <li><span className="text-xl">🌟</span> <span className="font-bold text-lg">Recite a Short Surah</span> <div className="text-mocha mt-1"><b>1st Rak'ah</b>: Surah Al-Falaq<br /><b>2nd Rak'ah</b>: Surah Al-Nas<br /><span className="text-xs">(3rd Rak'ah: Surah Al-Fatiha only)</span></div></li>
-          <li><span className="text-xl">✋</span> <span className="font-bold text-lg">Raise Hands Before Ruku' (رفع اليدين)</span> <div className="text-mocha mt-1">Raise hands and say:<br /><span className="font-arabic text-brass text-xl">اللَّهُ أَكْبَر</span></div></li>
-          <li><span className="text-xl">🙇</span> <span className="font-bold text-lg">Ruku' (Bowing)</span> <div className="text-mocha mt-1">Bow with hands on knees, back straight. Say <b>three times</b> (or more):<br /><span className="font-arabic text-brass text-xl">سُبْحَانَ رَبِّيَ الْعَظِيمِ</span></div></li>
-          <li><span className="text-xl">🧍</span> <span className="font-bold text-lg">Rising from Ruku' (الرفع من الركوع)</span> <div className="text-mocha mt-1">Say:<br /><span className="font-arabic text-brass text-xl">سَمِعَ اللَّهُ لِمَنْ حَمِدَهُ</span><br />Then say:<br /><span className="font-arabic text-brass text-xl">رَبَّنَا لَكَ الْحَمْدُ،<br />حَمْدًا كَثِيرًا طَيِّبًا مُبَارَكًا فِيهِ</span></div></li>
-          <li><span className="text-xl">🤲</span> <span className="font-bold text-lg">Sujood (Prostration)</span> <div className="text-mocha mt-1">Prostrate fully and say three times:<br /><span className="font-arabic text-brass text-xl">سُبْحَانَ رَبِّيَ الأَعْلَى</span></div></li>
-          <li><span className="text-xl">🪑</span> <span className="font-bold text-lg">Sitting Between Two Sujoods</span> <div className="text-mocha mt-1">Sit calmly and say:<br /><span className="font-arabic text-brass text-xl">رَبِّ اغْفِرْ لِي</span> or <span className="font-arabic text-brass text-xl">اللَّهُمَّ اغْفِرْ لِي</span></div></li>
-          <li><span className="text-xl">🙇‍♂️</span> <span className="font-bold text-lg">Second Sujood</span> <div className="text-mocha mt-1">Repeat:<br /><span className="font-arabic text-brass text-xl">سُبْحَانَ رَبِّيَ الأَعْلَى</span></div></li>
-          <li><span className="text-xl">🔁</span> <span className="font-bold text-lg">Stand for Second Rak'ah</span> <div className="text-mocha mt-1">Say <span className="font-arabic text-brass text-xl">اللَّهُ أَكْبَر</span>, then repeat the cycle:<br /><ul className="list-disc pl-6 text-base mt-2"><li>Surah Al-Fatiha</li><li>Short Surah</li><li>Ruku' → Standing → Sujood ×2</li></ul></div></li>
-          <li><span className="text-xl">🧎</span> <span className="font-bold text-lg">After 2nd Rak'ah – First Tashahhud (التشهد الأول)</span> <div className="text-mocha mt-1">Sit and recite:</div><div className="font-arabic text-brass text-xl mt-2">التحيات لله والصلوات والطيبات،<br />السلام عليك أيها النبي ورحمة الله وبركاته،<br />السلام علينا وعلى عباد الله الصالحين،<br />أشهد أن لا إله إلا الله، وأشهد أن محمدًا عبده ورسوله</div><div className="text-mocha mt-2">➤ Then stand up for the 3rd Rak'ah.</div></li>
-          <li><span className="text-xl">🔄</span> <span className="font-bold text-lg">3rd Rak'ah</span> <div className="text-mocha mt-1"><ul className="list-disc pl-6 text-base mt-2"><li>Surah Al-Fatiha only</li><li>Ruku' → Standing → Sujood ×2</li></ul></div></li>
-          <li><span className="text-xl">🧎</span> <span className="font-bold text-lg">Final Tashahhud After 3rd Rak'ah</span> <div className="text-mocha mt-1">Recite both Tashahhud and Salat al-Ibrahimiyya:</div><div className="font-bold text-mocha mt-2">🗣️ Tashahhud:</div><div className="font-arabic text-brass text-xl mt-2">التحيات لله...<br />أشهد أن لا إله إلا الله...<br />وأشهد أن محمدًا عبده ورسوله</div><div className="font-bold text-mocha mt-2">🌸 Salat al-Ibrahimiyya:</div><div className="font-arabic text-brass text-xl mt-2">اللهم صل على محمد وعلى آل محمد،<br />كما صليت على إبراهيم وعلى آل إبراهيم إنك حميد مجيد،<br />وبارك على محمد وعلى آل محمد،<br />كما باركت على إبراهيم وعلى آل إبراهيم إنك حميد مجيد</div></li>
-          <li><span className="text-xl">🕊️</span> <span className="font-bold text-lg">Tasleem (Ending the Prayer)</span> <div className="text-mocha mt-1">* Turn head to the <b>right</b>:<br /><span className="font-arabic text-brass text-xl">السلام عليكم ورحمة الله</span><br />* Then to the <b>left</b>:<br /><span className="font-arabic text-brass text-xl">السلام عليكم ورحمة الله</span></div></li>
+          <li><span className="text-xl">📖</span> <span className="font-bold text-lg">Recite Surah Al-Fatiha (الفاتحة)</span> <div className="font-arabic text-brass text-xl mt-1">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ...</div> <div className="text-gray-800">Complete the full <b>Surah Al-Fatiha</b>.</div> <div className="text-xs text-wood mt-1">📌 "There is no prayer for the one who does not recite Al-Fatiha." — (Bukhari, Muslim)</div></li>
+          <li><span className="text-xl">🌟</span> <span className="font-bold text-lg">Recite a Short Surah</span> <div className="text-gray-800 mt-1"><b>1st Rak'ah</b>: Surah Al-Falaq<br /><b>2nd Rak'ah</b>: Surah Al-Nas<br /><span className="text-xs">(3rd Rak'ah: Surah Al-Fatiha only)</span></div></li>
+          <li><span className="text-xl">✋</span> <span className="font-bold text-lg">Raise Hands Before Ruku' (رفع اليدين)</span> <div className="text-gray-800 mt-1">Raise hands and say:<br /><span className="font-arabic text-brass text-xl">اللَّهُ أَكْبَر</span></div></li>
+          <li><span className="text-xl">🙇</span> <span className="font-bold text-lg">Ruku' (Bowing)</span> <div className="text-gray-800 mt-1">Bow with hands on knees, back straight. Say <b>three times</b> (or more):<br /><span className="font-arabic text-brass text-xl">سُبْحَانَ رَبِّيَ الْعَظِيمِ</span></div></li>
+          <li><span className="text-xl">🧍</span> <span className="font-bold text-lg">Rising from Ruku' (الرفع من الركوع)</span> <div className="text-gray-800 mt-1">Say:<br /><span className="font-arabic text-brass text-xl">سَمِعَ اللَّهُ لِمَنْ حَمِدَهُ</span><br />Then say:<br /><span className="font-arabic text-brass text-xl">رَبَّنَا لَكَ الْحَمْدُ،<br />حَمْدًا كَثِيرًا طَيِّبًا مُبَارَكًا فِيهِ</span></div></li>
+          <li><span className="text-xl">🤲</span> <span className="font-bold text-lg">Sujood (Prostration)</span> <div className="text-gray-800 mt-1">Prostrate fully and say three times:<br /><span className="font-arabic text-brass text-xl">سُبْحَانَ رَبِّيَ الأَعْلَى</span></div></li>
+          <li><span className="text-xl">🪑</span> <span className="font-bold text-lg">Sitting Between Two Sujoods</span> <div className="text-gray-800 mt-1">Sit calmly and say:<br /><span className="font-arabic text-brass text-xl">رَبِّ اغْفِرْ لِي</span> or <span className="font-arabic text-brass text-xl">اللَّهُمَّ اغْفِرْ لِي</span></div></li>
+          <li><span className="text-xl">🙇‍♂️</span> <span className="font-bold text-lg">Second Sujood</span> <div className="text-gray-800 mt-1">Repeat:<br /><span className="font-arabic text-brass text-xl">سُبْحَانَ رَبِّيَ الأَعْلَى</span></div></li>
+          <li><span className="text-xl">🔁</span> <span className="font-bold text-lg">Stand for Second Rak'ah</span> <div className="text-gray-800 mt-1">Say <span className="font-arabic text-brass text-xl">اللَّهُ أَكْبَر</span>, then repeat the cycle:<br /><ul className="list-disc pl-6 text-base mt-2"><li>Surah Al-Fatiha</li><li>Short Surah</li><li>Ruku' → Standing → Sujood ×2</li></ul></div></li>
+          <li><span className="text-xl">🧎</span> <span className="font-bold text-lg">After 2nd Rak'ah – First Tashahhud (التشهد الأول)</span> <div className="text-gray-800 mt-1">Sit and recite:</div><div className="font-arabic text-brass text-xl mt-2">التحيات لله والصلوات والطيبات،<br />السلام عليك أيها النبي ورحمة الله وبركاته،<br />السلام علينا وعلى عباد الله الصالحين،<br />أشهد أن لا إله إلا الله، وأشهد أن محمدًا عبده ورسوله</div><div className="text-gray-800 mt-2">➤ Then stand up for the 3rd Rak'ah.</div></li>
+          <li><span className="text-xl">🔄</span> <span className="font-bold text-lg">3rd Rak'ah</span> <div className="text-gray-800 mt-1"><ul className="list-disc pl-6 text-base mt-2"><li>Surah Al-Fatiha only</li><li>Ruku' → Standing → Sujood ×2</li></ul></div></li>
+          <li><span className="text-xl">🧎</span> <span className="font-bold text-lg">Final Tashahhud After 3rd Rak'ah</span> <div className="text-gray-800 mt-1">Recite both Tashahhud and Salat al-Ibrahimiyya:</div><div className="font-bold text-gray-800 mt-2">🗣️ Tashahhud:</div><div className="font-arabic text-brass text-xl mt-2">التحيات لله...<br />أشهد أن لا إله إلا الله...<br />وأشهد أن محمدًا عبده ورسوله</div><div className="font-bold text-gray-800 mt-2">🌸 Salat al-Ibrahimiyya:</div><div className="font-arabic text-brass text-xl mt-2">اللهم صل على محمد وعلى آل محمد،<br />كما صليت على إبراهيم وعلى آل إبراهيم إنك حميد مجيد،<br />وبارك على محمد وعلى آل محمد،<br />كما باركت على إبراهيم وعلى آل إبراهيم إنك حميد مجيد</div></li>
+          <li><span className="text-xl">🕊️</span> <span className="font-bold text-lg">Tasleem (Ending the Prayer)</span> <div className="text-gray-800 mt-1">* Turn head to the <b>right</b>:<br /><span className="font-arabic text-brass text-xl">السلام عليكم ورحمة الله</span><br />* Then to the <b>left</b>:<br /><span className="font-arabic text-brass text-xl">السلام عليكم ورحمة الله</span></div></li>
         </ol>
         <div className="mt-8 space-y-2 border-t border-brass pt-4">
           <h3 className="text-lg font-bold text-wood">Important Notes for Maghrib Salah</h3>
@@ -529,7 +529,7 @@ function IshaGuide({ onClose }) {
   return (
     <div className="relative max-h-[80vh] overflow-y-auto rounded-3xl bg-gradient-to-br from-[#fffbe6] via-[#fff] to-[#f7ecd7] border-2 border-brass shadow-2xl p-0 max-w-2xl w-full mx-auto">
       <button
-        className="fixed z-50 w-12 h-12 rounded-full bg-brass text-white text-3xl flex items-center justify-center shadow-lg border-4 border-white hover:bg-wood focus:bg-wood transition"
+        className="fixed z-50 w-12 h-12 rounded-full bg-amber-600 text-white text-3xl flex items-center justify-center shadow-lg border-4 border-white hover:bg-amber-700 focus:bg-amber-700 transition"
         style={{ top: 'calc(50% - 240px)', right: 'calc(50% - 320px)' }}
         onClick={onClose}
         aria-label="Close"
@@ -539,28 +539,28 @@ function IshaGuide({ onClose }) {
       <div className="sticky top-0 z-10 bg-gradient-to-br from-[#fffbe6] via-[#fff] to-[#f7ecd7] rounded-t-3xl flex flex-col items-center pt-6 pb-2 border-b-2 border-brass">
         <div className="text-5xl mb-2">🌙</div>
         <div className="text-3xl font-bold text-brass mb-1 text-center">Isha Prayer Guide — 4 Rak'ahs</div>
-        <div className="text-base text-mocha text-center mb-1">According to the Sunnah of Prophet Muhammad ﷺ</div>
+        <div className="text-base text-gray-800 text-center mb-1">According to the Sunnah of Prophet Muhammad ﷺ</div>
       </div>
       <div className="px-8 pb-8 pt-4 text-lg leading-relaxed">
         <ol className="list-decimal pl-6 space-y-7">
-          <li><span className="text-xl">🕌</span> <span className="font-bold text-lg">Intention (النية):</span> <div className="text-mocha mt-1">Silently make the intention in your heart:<br /><span className="italic">"I intend to pray four Rak'ahs of Isha for the sake of Allah."</span></div></li>
-          <li><span className="text-xl">🕋</span> <span className="font-bold text-lg">Takbir al-Ihram (Opening Takbir):</span> <div className="text-mocha mt-1">Raise both hands to <b>ear level (men)</b> or <b>shoulder level (women)</b> and say:<br /><span className="font-arabic text-brass text-xl">اللَّهُ أَكْبَر</span> <span className="italic">(Allahu Akbar)</span><br />→ This marks the beginning of your prayer.</div></li>
-          <li><span className="text-xl">🤲</span> <span className="font-bold text-lg">Place Hands on Chest</span> <div className="text-mocha mt-1">Right hand over left hand on your chest.</div></li>
+          <li><span className="text-xl">🕌</span> <span className="font-bold text-lg">Intention (النية):</span> <div className="text-gray-800 mt-1">Silently make the intention in your heart:<br /><span className="italic">"I intend to pray four Rak'ahs of Isha for the sake of Allah."</span></div></li>
+          <li><span className="text-xl">🕋</span> <span className="font-bold text-lg">Takbir al-Ihram (Opening Takbir):</span> <div className="text-gray-800 mt-1">Raise both hands to <b>ear level (men)</b> or <b>shoulder level (women)</b> and say:<br /><span className="font-arabic text-brass text-xl">اللَّهُ أَكْبَر</span> <span className="italic">(Allahu Akbar)</span><br />→ This marks the beginning of your prayer.</div></li>
+          <li><span className="text-xl">🤲</span> <span className="font-bold text-lg">Place Hands on Chest</span> <div className="text-gray-800 mt-1">Right hand over left hand on your chest.</div></li>
           <li><span className="text-xl">✨</span> <span className="font-bold text-lg">Dua al-Istiftah (Optional Opening Supplication)</span> <div className="font-arabic text-brass text-xl mt-1">سُبْحَانَكَ اللَّهُمَّ وَبِحَمْدِكَ،<br />وَتَبَارَكَ اسْمُكَ، وَتَعَالَى جَدُّكَ،<br />وَلَا إِلَهَ غَيْرُكَ</div></li>
-          <li><span className="text-xl">📖</span> <span className="font-bold text-lg">Recite Surah Al-Fatiha (الفاتحة)</span> <div className="font-arabic text-brass text-xl mt-1">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ...</div> <div className="text-mocha">Complete the full <b>Surah Al-Fatiha</b>.</div> <div className="text-xs text-wood mt-1">📌 "There is no prayer for the one who does not recite Al-Fatiha." — (Bukhari, Muslim)</div></li>
-          <li><span className="text-xl">🌟</span> <span className="font-bold text-lg">Recite a Short Surah</span> <div className="text-mocha mt-1"><b>1st Rak'ah</b>: Surah Al-Ikhlas<br /><b>2nd Rak'ah</b>: Surah Al-Falaq<br /><span className="text-xs">(3rd & 4th Rak'ahs: Surah Al-Fatiha only)</span></div></li>
-          <li><span className="text-xl">✋</span> <span className="font-bold text-lg">Raise Hands Before Ruku' (رفع اليدين)</span> <div className="text-mocha mt-1">Raise hands and say:<br /><span className="font-arabic text-brass text-xl">اللَّهُ أَكْبَر</span></div></li>
-          <li><span className="text-xl">🙇</span> <span className="font-bold text-lg">Ruku' (Bowing)</span> <div className="text-mocha mt-1">Bow with hands on knees, back straight. Say <b>three times</b> (or more):<br /><span className="font-arabic text-brass text-xl">سُبْحَانَ رَبِّيَ الْعَظِيمِ</span></div></li>
-          <li><span className="text-xl">🧍</span> <span className="font-bold text-lg">Rising from Ruku' (الرفع من الركوع)</span> <div className="text-mocha mt-1">Say:<br /><span className="font-arabic text-brass text-xl">سَمِعَ اللَّهُ لِمَنْ حَمِدَهُ</span><br />Then say:<br /><span className="font-arabic text-brass text-xl">رَبَّنَا لَكَ الْحَمْدُ،<br />حَمْدًا كَثِيرًا طَيِّبًا مُبَارَكًا فِيهِ</span></div></li>
-          <li><span className="text-xl">🤲</span> <span className="font-bold text-lg">Sujood (Prostration)</span> <div className="text-mocha mt-1">Prostrate fully and say three times:<br /><span className="font-arabic text-brass text-xl">سُبْحَانَ رَبِّيَ الأَعْلَى</span></div></li>
-          <li><span className="text-xl">🪑</span> <span className="font-bold text-lg">Sitting Between Two Sujoods</span> <div className="text-mocha mt-1">Sit calmly and say:<br /><span className="font-arabic text-brass text-xl">رَبِّ اغْفِرْ لِي</span> or <span className="font-arabic text-brass text-xl">اللَّهُمَّ اغْفِرْ لِي</span></div></li>
-          <li><span className="text-xl">🙇‍♂️</span> <span className="font-bold text-lg">Second Sujood</span> <div className="text-mocha mt-1">Repeat:<br /><span className="font-arabic text-brass text-xl">سُبْحَانَ رَبِّيَ الأَعْلَى</span></div></li>
-          <li><span className="text-xl">🔁</span> <span className="font-bold text-lg">Stand for Second Rak'ah</span> <div className="text-mocha mt-1">Say <span className="font-arabic text-brass text-xl">اللَّهُ أَكْبَر</span>, then repeat the cycle:<br /><ul className="list-disc pl-6 text-base mt-2"><li>Surah Al-Fatiha</li><li>Short Surah</li><li>Ruku' → Standing → Sujood ×2</li></ul></div></li>
-          <li><span className="text-xl">🧎</span> <span className="font-bold text-lg">After 2nd Rak'ah – First Tashahhud (التشهد الأول)</span> <div className="text-mocha mt-1">Sit and recite:</div><div className="font-arabic text-brass text-xl mt-2">التحيات لله والصلوات والطيبات،<br />السلام عليك أيها النبي ورحمة الله وبركاته،<br />السلام علينا وعلى عباد الله الصالحين،<br />أشهد أن لا إله إلا الله، وأشهد أن محمدًا عبده ورسوله</div><div className="text-mocha mt-2">➤ Then stand up for the 3rd Rak'ah.</div></li>
-          <li><span className="text-xl">🔄</span> <span className="font-bold text-lg">3rd Rak'ah</span> <div className="text-mocha mt-1"><ul className="list-disc pl-6 text-base mt-2"><li>Surah Al-Fatiha only</li><li>Ruku' → Standing → Sujood ×2</li></ul></div></li>
-          <li><span className="text-xl">🔄</span> <span className="font-bold text-lg">4th Rak'ah</span> <div className="text-mocha mt-1"><ul className="list-disc pl-6 text-base mt-2"><li>Surah Al-Fatiha only</li><li>Ruku' → Standing → Sujood ×2</li></ul></div></li>
-          <li><span className="text-xl">🧎</span> <span className="font-bold text-lg">Final Tashahhud After 4th Rak'ah</span> <div className="text-mocha mt-1">Recite both Tashahhud and Salat al-Ibrahimiyya:</div><div className="font-bold text-mocha mt-2">🗣️ Tashahhud:</div><div className="font-arabic text-brass text-xl mt-2">التحيات لله...<br />أشهد أن لا إله إلا الله...<br />وأشهد أن محمدًا عبده ورسوله</div><div className="font-bold text-mocha mt-2">🌸 Salat al-Ibrahimiyya:</div><div className="font-arabic text-brass text-xl mt-2">اللهم صل على محمد وعلى آل محمد،<br />كما صليت على إبراهيم وعلى آل إبراهيم إنك حميد مجيد،<br />وبارك على محمد وعلى آل محمد،<br />كما باركت على إبراهيم وعلى آل إبراهيم إنك حميد مجيد</div></li>
-          <li><span className="text-xl">🕊️</span> <span className="font-bold text-lg">Tasleem (Ending the Prayer)</span> <div className="text-mocha mt-1">* Turn head to the <b>right</b>:<br /><span className="font-arabic text-brass text-xl">السلام عليكم ورحمة الله</span><br />* Then to the <b>left</b>:<br /><span className="font-arabic text-brass text-xl">السلام عليكم ورحمة الله</span></div></li>
+          <li><span className="text-xl">📖</span> <span className="font-bold text-lg">Recite Surah Al-Fatiha (الفاتحة)</span> <div className="font-arabic text-brass text-xl mt-1">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ...</div> <div className="text-gray-800">Complete the full <b>Surah Al-Fatiha</b>.</div> <div className="text-xs text-wood mt-1">📌 "There is no prayer for the one who does not recite Al-Fatiha." — (Bukhari, Muslim)</div></li>
+          <li><span className="text-xl">🌟</span> <span className="font-bold text-lg">Recite a Short Surah</span> <div className="text-gray-800 mt-1"><b>1st Rak'ah</b>: Surah Al-Ikhlas<br /><b>2nd Rak'ah</b>: Surah Al-Falaq<br /><span className="text-xs">(3rd & 4th Rak'ahs: Surah Al-Fatiha only)</span></div></li>
+          <li><span className="text-xl">✋</span> <span className="font-bold text-lg">Raise Hands Before Ruku' (رفع اليدين)</span> <div className="text-gray-800 mt-1">Raise hands and say:<br /><span className="font-arabic text-brass text-xl">اللَّهُ أَكْبَر</span></div></li>
+          <li><span className="text-xl">🙇</span> <span className="font-bold text-lg">Ruku' (Bowing)</span> <div className="text-gray-800 mt-1">Bow with hands on knees, back straight. Say <b>three times</b> (or more):<br /><span className="font-arabic text-brass text-xl">سُبْحَانَ رَبِّيَ الْعَظِيمِ</span></div></li>
+          <li><span className="text-xl">🧍</span> <span className="font-bold text-lg">Rising from Ruku' (الرفع من الركوع)</span> <div className="text-gray-800 mt-1">Say:<br /><span className="font-arabic text-brass text-xl">سَمِعَ اللَّهُ لِمَنْ حَمِدَهُ</span><br />Then say:<br /><span className="font-arabic text-brass text-xl">رَبَّنَا لَكَ الْحَمْدُ،<br />حَمْدًا كَثِيرًا طَيِّبًا مُبَارَكًا فِيهِ</span></div></li>
+          <li><span className="text-xl">🤲</span> <span className="font-bold text-lg">Sujood (Prostration)</span> <div className="text-gray-800 mt-1">Prostrate fully and say three times:<br /><span className="font-arabic text-brass text-xl">سُبْحَانَ رَبِّيَ الأَعْلَى</span></div></li>
+          <li><span className="text-xl">🪑</span> <span className="font-bold text-lg">Sitting Between Two Sujoods</span> <div className="text-gray-800 mt-1">Sit calmly and say:<br /><span className="font-arabic text-brass text-xl">رَبِّ اغْفِرْ لِي</span> or <span className="font-arabic text-brass text-xl">اللَّهُمَّ اغْفِرْ لِي</span></div></li>
+          <li><span className="text-xl">🙇‍♂️</span> <span className="font-bold text-lg">Second Sujood</span> <div className="text-gray-800 mt-1">Repeat:<br /><span className="font-arabic text-brass text-xl">سُبْحَانَ رَبِّيَ الأَعْلَى</span></div></li>
+          <li><span className="text-xl">🔁</span> <span className="font-bold text-lg">Stand for Second Rak'ah</span> <div className="text-gray-800 mt-1">Say <span className="font-arabic text-brass text-xl">اللَّهُ أَكْبَر</span>, then repeat the cycle:<br /><ul className="list-disc pl-6 text-base mt-2"><li>Surah Al-Fatiha</li><li>Short Surah</li><li>Ruku' → Standing → Sujood ×2</li></ul></div></li>
+          <li><span className="text-xl">🧎</span> <span className="font-bold text-lg">After 2nd Rak'ah – First Tashahhud (التشهد الأول)</span> <div className="text-gray-800 mt-1">Sit and recite:</div><div className="font-arabic text-brass text-xl mt-2">التحيات لله والصلوات والطيبات،<br />السلام عليك أيها النبي ورحمة الله وبركاته،<br />السلام علينا وعلى عباد الله الصالحين،<br />أشهد أن لا إله إلا الله، وأشهد أن محمدًا عبده ورسوله</div><div className="text-gray-800 mt-2">➤ Then stand up for the 3rd Rak'ah.</div></li>
+          <li><span className="text-xl">🔄</span> <span className="font-bold text-lg">3rd Rak'ah</span> <div className="text-gray-800 mt-1"><ul className="list-disc pl-6 text-base mt-2"><li>Surah Al-Fatiha only</li><li>Ruku' → Standing → Sujood ×2</li></ul></div></li>
+          <li><span className="text-xl">🔄</span> <span className="font-bold text-lg">4th Rak'ah</span> <div className="text-gray-800 mt-1"><ul className="list-disc pl-6 text-base mt-2"><li>Surah Al-Fatiha only</li><li>Ruku' → Standing → Sujood ×2</li></ul></div></li>
+          <li><span className="text-xl">🧎</span> <span className="font-bold text-lg">Final Tashahhud After 4th Rak'ah</span> <div className="text-gray-800 mt-1">Recite both Tashahhud and Salat al-Ibrahimiyya:</div><div className="font-bold text-gray-800 mt-2">🗣️ Tashahhud:</div><div className="font-arabic text-brass text-xl mt-2">التحيات لله...<br />أشهد أن لا إله إلا الله...<br />وأشهد أن محمدًا عبده ورسوله</div><div className="font-bold text-gray-800 mt-2">🌸 Salat al-Ibrahimiyya:</div><div className="font-arabic text-brass text-xl mt-2">اللهم صل على محمد وعلى آل محمد،<br />كما صليت على إبراهيم وعلى آل إبراهيم إنك حميد مجيد،<br />وبارك على محمد وعلى آل محمد،<br />كما باركت على إبراهيم وعلى آل إبراهيم إنك حميد مجيد</div></li>
+          <li><span className="text-xl">🕊️</span> <span className="font-bold text-lg">Tasleem (Ending the Prayer)</span> <div className="text-gray-800 mt-1">* Turn head to the <b>right</b>:<br /><span className="font-arabic text-brass text-xl">السلام عليكم ورحمة الله</span><br />* Then to the <b>left</b>:<br /><span className="font-arabic text-brass text-xl">السلام عليكم ورحمة الله</span></div></li>
         </ol>
         <div className="mt-8 space-y-2 border-t border-brass pt-4">
           <h3 className="text-lg font-bold text-wood">Important Notes for Isha Salah</h3>

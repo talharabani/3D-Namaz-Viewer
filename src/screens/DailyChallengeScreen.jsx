@@ -428,7 +428,7 @@ export default function DailyChallengeScreen() {
                             <div className="text-3xl">{challenge.icon}</div>
                             <div>
                               <h3 className="text-lg font-bold text-brass">{challenge.title}</h3>
-                              <div className="text-sm text-text dark:text-darktext">{challenge.reward} {t('points')}</div>
+                              <div className="text-sm text-gray-900 dark:text-gray-100">{challenge.reward} {t('points')}</div>
                             </div>
                           </div>
                           {isCompleted && (
@@ -437,14 +437,14 @@ export default function DailyChallengeScreen() {
                         </div>
 
                         {/* Description */}
-                        <p className="text-sm text-text dark:text-darktext mb-4 leading-relaxed">
+                        <p className="text-sm text-gray-900 dark:text-gray-100 mb-4 leading-relaxed">
                           {challenge.description}
                         </p>
 
                         {/* Buttons */}
                         <div className="flex gap-2">
                           <button
-                            className="flex-1 px-4 py-2 rounded-lg font-semibold text-sm bg-brass text-white hover:bg-wood hover:scale-102 transition-all duration-300"
+                            className="flex-1 px-4 py-2 rounded-lg font-semibold text-sm bg-amber-600 text-white hover:bg-amber-700 hover:scale-102 transition-all duration-300"
                             onClick={() => showChallengeDetails(challenge)}
                           >
                             📋 {t('details')}
@@ -453,7 +453,7 @@ export default function DailyChallengeScreen() {
                             className={`flex-1 px-4 py-2 rounded-lg font-semibold text-sm transition-all duration-300 ${
                               isCompleted
                                 ? 'bg-green-500 text-white cursor-not-allowed'
-                                : 'bg-wood text-white hover:scale-102'
+                                : 'bg-amber-700 text-white hover:scale-102'
                             }`}
                             onClick={() => completeChallenge(challenge)}
                             disabled={isCompleted}
@@ -473,13 +473,13 @@ export default function DailyChallengeScreen() {
         {/* Challenge Details Modal */}
         {showDetails && selectedChallenge && (
           <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
-            <div className="bg-card dark:bg-darkcard rounded-2xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-brass/20">
+            <div className="bg-gray-100 dark:bg-gray-900card rounded-2xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-brass/20">
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-3">
                   <span className="text-4xl">{selectedChallenge.icon}</span>
                   <div>
                     <h2 className="text-2xl font-bold text-brass">{selectedChallenge.title}</h2>
-                    <div className="text-sm text-text dark:text-darktext">{selectedChallenge.reward} {t('points')}</div>
+                    <div className="text-sm text-gray-900 dark:text-gray-100">{selectedChallenge.reward} {t('points')}</div>
                   </div>
                 </div>
                 <button
@@ -494,13 +494,13 @@ export default function DailyChallengeScreen() {
                 {/* Description */}
                 <div>
                   <h3 className="text-xl font-bold text-brass mb-3">📝 {t('description')}</h3>
-                  <p className="text-lg leading-relaxed text-text dark:text-darktext">{selectedChallenge.description}</p>
+                  <p className="text-lg leading-relaxed text-gray-900 dark:text-gray-100">{selectedChallenge.description}</p>
                 </div>
 
                 {/* Details */}
                 <div>
                   <h3 className="text-xl font-bold text-brass mb-3">📖 {t('detailedInformation')}</h3>
-                  <p className="text-text dark:text-darktext leading-relaxed">{selectedChallenge.details}</p>
+                  <p className="text-gray-900 dark:text-gray-100 leading-relaxed">{selectedChallenge.details}</p>
                 </div>
 
                 {/* Instructions */}
@@ -510,7 +510,7 @@ export default function DailyChallengeScreen() {
                     {selectedChallenge.instructions.map((instruction, index) => (
                       <div key={index} className="flex items-start gap-3 p-3 bg-gradient-to-r from-brass/5 to-wood/5 rounded-lg border border-brass/10">
                         <span className="text-brass font-bold text-lg mt-1">{index + 1}.</span>
-                        <span className="text-text dark:text-darktext leading-relaxed">{instruction}</span>
+                        <span className="text-gray-900 dark:text-gray-100 leading-relaxed">{instruction}</span>
                       </div>
                     ))}
                   </div>
@@ -522,7 +522,7 @@ export default function DailyChallengeScreen() {
                     className={`w-full px-6 py-3 rounded-lg font-semibold text-lg transition-all duration-300 ${
                       progressTracker.isChallengeCompletedToday(selectedChallenge.id)
                         ? 'bg-green-500 text-white cursor-not-allowed'
-                        : 'bg-brass text-white hover:bg-wood hover:scale-105'
+                        : 'bg-amber-600 text-white hover:bg-amber-700 hover:scale-105'
                     }`}
                     onClick={() => completeChallenge(selectedChallenge)}
                     disabled={progressTracker.isChallengeCompletedToday(selectedChallenge.id)}

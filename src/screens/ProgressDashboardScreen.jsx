@@ -513,15 +513,15 @@ export default function ProgressDashboardScreen() {
           <h2 className="text-xl font-heading text-brass font-bold mb-4">Quiz Performance</h2>
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-text dark:text-darktext font-medium">Average Score</span>
+              <span className="text-gray-900 dark:text-gray-100 font-medium">Average Score</span>
               <span className="text-brass font-bold">{progress.quizStats.averageScore}%</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-text dark:text-darktext font-medium">Best Score</span>
+              <span className="text-gray-900 dark:text-gray-100 font-medium">Best Score</span>
               <span className="text-brass font-bold">{progress.quizStats.bestScore}%</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-text dark:text-darktext font-medium">Total Quizzes</span>
+              <span className="text-gray-900 dark:text-gray-100 font-medium">Total Quizzes</span>
               <span className="text-brass font-bold">{progress.quizStats.totalQuizzes}</span>
             </div>
           </div>
@@ -533,7 +533,7 @@ export default function ProgressDashboardScreen() {
               <div className="space-y-2">
                 {progress.quizStats.recentScores.slice().reverse().map((quiz, index) => (
                   <div key={index} className="flex items-center justify-between text-sm">
-                    <span className="text-text dark:text-darktext">
+                    <span className="text-gray-900 dark:text-gray-100">
                       {new Date(quiz.date).toLocaleDateString()}
                     </span>
                     <span className={`font-bold ${
@@ -554,7 +554,7 @@ export default function ProgressDashboardScreen() {
       <div className="card">
         <h2 className="text-xl font-heading text-brass font-bold mb-4">Achievements</h2>
         {achievements.length === 0 ? (
-          <div className="text-center text-text dark:text-darktext py-8">
+          <div className="text-center text-gray-900 dark:text-gray-100 py-8">
             <div className="text-4xl mb-2">🎯</div>
             <div className="font-medium">No achievements yet</div>
             <div className="text-sm opacity-75">Complete steps and take quizzes to earn achievements!</div>
@@ -562,12 +562,12 @@ export default function ProgressDashboardScreen() {
         ) : (
           <div className="space-y-3">
             {achievements.map((achievement, index) => (
-              <div key={index} className="flex items-center gap-3 p-3 bg-card dark:bg-darkcard border border-border dark:border-darkborder rounded-lg">
+              <div key={index} className="flex items-center gap-3 p-3 bg-gray-100 dark:bg-gray-900card border border-gray-300 dark:border-gray-600 rounded-lg">
                 <div className="text-2xl">🏆</div>
                 <div className="flex-1">
                   <div className="font-bold text-brass">{achievement.title}</div>
-                  <div className="text-sm text-text dark:text-darktext">{achievement.description}</div>
-                  <div className="text-xs text-text dark:text-darktext opacity-75">
+                  <div className="text-sm text-gray-900 dark:text-gray-100">{achievement.description}</div>
+                  <div className="text-xs text-gray-900 dark:text-gray-100 opacity-75">
                     {new Date(achievement.date).toLocaleDateString()}
                   </div>
                 </div>
@@ -584,7 +584,7 @@ export default function ProgressDashboardScreen() {
           {progress.completionPercentage < 25 && (
             <div className="flex items-start gap-3">
               <div className="text-brass text-lg">📚</div>
-              <div className="text-text dark:text-darktext">
+              <div className="text-gray-900 dark:text-gray-100">
                 <div className="font-medium">Start Learning</div>
                 <div className="text-sm opacity-75">Complete the first few prayer steps to get started</div>
               </div>
@@ -594,7 +594,7 @@ export default function ProgressDashboardScreen() {
           {progress.streakDays < 3 && (
             <div className="flex items-start gap-3">
               <div className="text-brass text-lg">🔥</div>
-              <div className="text-text dark:text-darktext">
+              <div className="text-gray-900 dark:text-gray-100">
                 <div className="font-medium">Build a Streak</div>
                 <div className="text-sm opacity-75">Study daily to build a learning streak</div>
               </div>
@@ -604,7 +604,7 @@ export default function ProgressDashboardScreen() {
           {progress.quizStats.averageScore < 70 && progress.quizStats.totalQuizzes > 0 && (
             <div className="flex items-start gap-3">
               <div className="text-brass text-lg">📝</div>
-              <div className="text-text dark:text-darktext">
+              <div className="text-gray-900 dark:text-gray-100">
                 <div className="font-medium">Practice More</div>
                 <div className="text-sm opacity-75">Take more quizzes to improve your score</div>
               </div>
@@ -614,7 +614,7 @@ export default function ProgressDashboardScreen() {
           {progress.notesCount < 3 && (
             <div className="flex items-start gap-3">
               <div className="text-brass text-lg">✏️</div>
-              <div className="text-text dark:text-darktext">
+              <div className="text-gray-900 dark:text-gray-100">
                 <div className="font-medium">Add Notes</div>
                 <div className="text-sm opacity-75">Write notes while learning to remember better</div>
               </div>
@@ -673,7 +673,7 @@ function NoteItem({ note, idx, refresh }) {
     return (
       <li className="flex items-center gap-2 bg-[#f5f5f5] rounded-lg px-3 py-2 mb-1 shadow-sm">
         <textarea
-          className="flex-1 rounded border border-border p-1 text-text"
+          className="flex-1 rounded border border-gray-300 p-1 text-gray-900"
           value={value}
           onChange={e => setValue(e.target.value)}
         />
@@ -684,7 +684,7 @@ function NoteItem({ note, idx, refresh }) {
   }
   return (
     <li className="flex items-center gap-2 bg-[#f5f5f5] rounded-lg px-3 py-2 mb-1 shadow-sm">
-      <span className="flex-1 text-text dark:text-darktext">{note}</span>
+      <span className="flex-1 text-gray-900 dark:text-gray-100">{note}</span>
       <button className="btn text-xs px-2 py-1" onClick={() => setEditing(true)} title="Edit">✏️</button>
       <button className="btn text-xs px-2 py-1" onClick={handleDelete} title="Delete">🗑️</button>
     </li>

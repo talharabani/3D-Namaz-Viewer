@@ -174,7 +174,7 @@ export default function HowToPraySteps() {
           <div className="text-xl text-brass mb-4">You have completed all steps of Salah.</div>
           <div className="italic text-center text-brass/80 text-lg mb-4">{completionDua}</div>
           <button
-            className="px-6 py-2 rounded-lg bg-brass text-mocha font-bold mt-2 shadow hover:bg-brass/80 transition"
+            className="px-6 py-2 rounded-lg bg-amber-600 text-gray-800 font-bold mt-2 shadow hover:bg-amber-600/80 transition"
             onClick={() => setCurrent(0)}
           >
             Start Again
@@ -212,7 +212,7 @@ export default function HowToPraySteps() {
             src={step.video}
             width={128}
             height={128}
-            className="rounded-xl bg-white/60 dark:bg-darkcard/60 object-contain drop-shadow-lg"
+            className="rounded-xl bg-white/60 dark:bg-gray-900card/60 object-contain drop-shadow-lg"
             style={{ background: 'rgba(255,255,255,0.5)' }}
             loop
             controls={false}
@@ -220,7 +220,7 @@ export default function HowToPraySteps() {
             onPause={() => setVideoPlaying(false)}
           />
           <button
-            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-brass text-white rounded-full p-2 shadow-button border-2 border-brass hover:scale-110 transition"
+            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-amber-600 text-white rounded-full p-2 shadow-button border-2 border-brass hover:scale-110 transition"
             onClick={handleVideoPlayPause}
             style={{ zIndex: 2 }}
           >
@@ -230,12 +230,12 @@ export default function HowToPraySteps() {
         <img
           src={step.img}
           alt={step.title + ' illustration'}
-          className="mb-2 w-32 h-32 object-contain drop-shadow-lg rounded-xl bg-white/60 dark:bg-darkcard/60"
+          className="mb-2 w-32 h-32 object-contain drop-shadow-lg rounded-xl bg-white/60 dark:bg-gray-900card/60"
           style={{ background: 'rgba(255,255,255,0.5)' }}
         />
         <div className="text-5xl mb-3 animate-bounce-slow">{step.icon}</div>
         <div className="text-2xl font-bold text-brass mb-1">{step.title}</div>
-        <div className="text-text dark:text-darktext text-center text-lg mb-4">{step.desc}</div>
+        <div className="text-gray-900 dark:text-gray-100 text-center text-lg mb-4">{step.desc}</div>
         <button
           className="btn mb-4 flex items-center gap-2"
           onClick={playAudio}
@@ -243,12 +243,12 @@ export default function HowToPraySteps() {
           <span role="img" aria-label="audio">🔊</span> Play Recitation
         </button>
         <audio ref={audioRef} src={step.audio} preload="auto" />
-        <div className="italic text-center text-text dark:text-darktext text-base mb-2" style={{ minHeight: 32 }}>
+        <div className="italic text-center text-gray-900 dark:text-gray-100 text-base mb-2" style={{ minHeight: 32 }}>
           {unlockedQuotes.includes(current) && quotes[current % quotes.length]}
         </div>
         {/* User notes */}
         <textarea
-          className="w-full min-h-[48px] rounded-xl border border-border dark:border-darkborder bg-card dark:bg-darkcard p-2 text-text dark:text-darktext mt-2 mb-2 focus:outline-none focus:ring-2 focus:ring-brass transition"
+          className="w-full min-h-[48px] rounded-xl border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-900card p-2 text-gray-900 dark:text-gray-100 mt-2 mb-2 focus:outline-none focus:ring-2 focus:ring-brass transition"
           placeholder="Your notes for this step..."
           value={notes[current]}
           onChange={handleNoteChange}
@@ -273,7 +273,7 @@ export default function HowToPraySteps() {
           {steps.map((_, i) => (
             <span
               key={i}
-              className={`w-3 h-3 rounded-full ${i === current ? 'bg-brass' : 'bg-border dark:bg-darkborder'} transition`}
+              className={`w-3 h-3 rounded-full ${i === current ? 'bg-amber-600' : 'bg-border dark:bg-gray-900border'} transition`}
             />
           ))}
         </div>

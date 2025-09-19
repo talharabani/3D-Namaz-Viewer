@@ -120,7 +120,7 @@ export default function AudioGuideScreen() {
             >
               <div className="flex flex-col flex-1">
                 <span className="text-xl font-heading text-brass font-bold">{g.title}</span>
-                <span className="text-lg text-ivory font-body">{g.desc}</span>
+                <span className="text-lg text-gray-100 font-sans">{g.desc}</span>
                 {current === i && (
                   <div className="mt-2 flex items-center gap-2">
                     <div className="w-32 h-4 bg-accent4/20 rounded-full overflow-hidden relative">
@@ -132,14 +132,14 @@ export default function AudioGuideScreen() {
                     <span className="text-xs text-accent4">{Math.round(progress * 100)}%</span>
                   </div>
                 )}
-                <div className="mt-2 text-mocha text-base italic font-body">{g.transcript}</div>
+                <div className="mt-2 text-gray-800 text-base italic font-sans">{g.transcript}</div>
               </div>
               <div className="flex flex-col items-center gap-2">
                 <button
                   className={`w-14 h-14 rounded-full flex items-center justify-center bg-gradient-to-r from-accent to-accent2 shadow-vibrant border-2 border-accent transition hover:scale-105 ${current === i ? 'pulse-wave' : ''}`}
                   onClick={() => (current === i ? handlePause() : handlePlay(i))}
                 >
-                  <span className="text-3xl text-mocha">
+                  <span className="text-3xl text-gray-800">
                     {current === i ? '⏸️' : '▶️'}
                   </span>
                 </button>

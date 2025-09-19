@@ -679,7 +679,7 @@ export default function QuizScreen() {
               <div className="text-center">
                 <div className="text-6xl mb-4 animate-bounce">{showAchievement.icon}</div>
                 <h3 className="text-2xl font-bold text-brass mb-2">{showAchievement.title}</h3>
-                <p className="text-text dark:text-darktext mb-4">{showAchievement.description}</p>
+                <p className="text-gray-900 dark:text-gray-100 mb-4">{showAchievement.description}</p>
                 <div className="text-lg font-bold text-wood">+{showAchievement.points} points</div>
               </div>
             </div>
@@ -1044,19 +1044,19 @@ export default function QuizScreen() {
               <div className="grid grid-cols-2 gap-6 mb-6">
                 <div className="p-4 bg-gradient-to-r from-brass/10 to-wood/10 rounded-lg border border-brass/20">
                   <div className="text-2xl font-bold text-brass">{quizProgress.totalQuizzes || 0}</div>
-                    <div className="text-sm text-text dark:text-darktext">{t('Total Quizzes')}</div>
+                    <div className="text-sm text-gray-900 dark:text-gray-100">{t('Total Quizzes')}</div>
                 </div>
                 <div className="p-4 bg-gradient-to-r from-brass/10 to-wood/10 rounded-lg border border-brass/20">
                   <div className="text-2xl font-bold text-brass">{quizProgress.totalScore || 0}</div>
-                    <div className="text-sm text-text dark:text-darktext">{t('Total Points')}</div>
+                    <div className="text-sm text-gray-900 dark:text-gray-100">{t('Total Points')}</div>
                 </div>
                 <div className="p-4 bg-gradient-to-r from-brass/10 to-wood/10 rounded-lg border border-brass/20">
                   <div className="text-2xl font-bold text-brass">{formatTime(quizProgress.totalTime || 0)}</div>
-                    <div className="text-sm text-text dark:text-darktext">{t('Total Time')}</div>
+                    <div className="text-sm text-gray-900 dark:text-gray-100">{t('Total Time')}</div>
                 </div>
                 <div className="p-4 bg-gradient-to-r from-brass/10 to-wood/10 rounded-lg border border-brass/20">
                   <div className="text-2xl font-bold text-brass">{quizProgress.achievements ? quizProgress.achievements.length : 0}</div>
-                    <div className="text-sm text-text dark:text-darktext">{t('Achievements')}</div>
+                    <div className="text-sm text-gray-900 dark:text-gray-100">{t('Achievements')}</div>
                 </div>
               </div>
 
@@ -1073,7 +1073,7 @@ export default function QuizScreen() {
                         <span className="text-xl">{category.icon}</span>
                         <div>
                           <div className="font-semibold text-brass">{category.title}</div>
-                          <div className="text-sm text-text dark:text-darktext">{bestScore}/{totalPoints} {t('Points')}</div>
+                          <div className="text-sm text-gray-900 dark:text-gray-100">{bestScore}/{totalPoints} {t('Points')}</div>
                         </div>
                       </div>
                       <div className="text-lg font-bold text-brass">{percentage}%</div>
@@ -1098,7 +1098,7 @@ export default function QuizScreen() {
                     <h4 className="font-bold text-brass mb-3">{t('question')} {index + 1}: {question.q}</h4>
                     <div className="grid gap-2">
                       {question.options.map((option, optIndex) => (
-                        <div key={optIndex} className="p-2 bg-card dark:bg-darkcard rounded border border-brass/20">
+                        <div key={optIndex} className="p-2 bg-gray-100 dark:bg-gray-900card rounded border border-brass/20">
                           {option}
                         </div>
                       ))}

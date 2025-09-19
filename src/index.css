@@ -203,7 +203,7 @@
 }
 
 body {
-  @apply bg-white text-gray-900 font-body min-h-screen antialiased;
+  @apply bg-white text-gray-900 font-sans min-h-screen antialiased;
   word-spacing: 0.1em;
   letter-spacing: 0.02em;
 }
@@ -230,22 +230,22 @@ body {
   }
 }
 .dark body {
-  @apply bg-dark text-darktext;
+  @apply bg-gray-900 text-gray-100;
 }
 
 h1, h2, h3, h4, h5, h6 {
-  @apply font-heading text-brass;
+  @apply font-serif text-amber-600;
 }
 
 a {
-  @apply text-brass font-semibold transition-colors duration-200;
+  @apply text-amber-600 font-semibold transition-colors duration-200;
 }
 a:hover {
-  @apply text-wood underline;
+  @apply text-amber-700 underline;
 }
 
 .card {
-  @apply bg-white/80 dark:bg-darkcard/90 border border-brass/20 dark:border-brass/30 rounded-xl shadow-card p-6 mb-6 backdrop-blur-sm;
+  @apply bg-white/80 dark:bg-gray-800/90 border border-amber-200 dark:border-amber-300 rounded-xl shadow-lg p-6 mb-6 backdrop-blur-sm;
   word-spacing: 0.15em;
   line-height: 1.6;
 }
@@ -276,7 +276,7 @@ a:hover {
 }
 
 button, .btn {
-  @apply rounded-full px-5 py-2 font-body font-semibold text-base shadow-button bg-brass text-white hover:bg-wood focus:outline-none focus:ring-2 focus:ring-wood transition cursor-pointer;
+  @apply rounded-full px-5 py-2 font-sans font-semibold text-base shadow-lg bg-amber-600 text-white hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-500 transition cursor-pointer;
   position: relative;
   z-index: 10;
   pointer-events: auto;
@@ -302,7 +302,7 @@ button, .btn {
 }
 
 input, textarea {
-  @apply bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl px-4 py-2 text-gray-900 dark:text-gray-100 font-body focus:outline-none focus:ring-2 focus:ring-amber-500 transition;
+  @apply bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl px-4 py-2 text-gray-900 dark:text-gray-100 font-sans focus:outline-none focus:ring-2 focus:ring-amber-500 transition;
 }
 
 /* Responsive Input Design */
@@ -326,7 +326,7 @@ input, textarea {
 
 /* Glass morphism card utility */
 .glassmorph-card {
-  @apply bg-white/60 dark:bg-darkcard/70 backdrop-blur-lg border border-brass/30 dark:border-brass/40 rounded-2xl shadow-glassmorph;
+  @apply bg-white/60 dark:bg-gray-800/70 backdrop-blur-lg border border-amber-300 dark:border-amber-400 rounded-2xl shadow-xl;
 }
 
 /* Responsive Grid Utilities */
@@ -439,11 +439,11 @@ input, textarea {
 }
 
 nav, .footer-nav {
-  @apply fixed bottom-0 left-0 right-0 mx-auto max-w-2xl bg-card dark:bg-darkcard border-t border-border dark:border-darkborder flex justify-around py-3 px-2 z-50;
+  @apply fixed bottom-0 left-0 right-0 mx-auto max-w-2xl bg-gray-100 dark:bg-gray-800 border-t border-gray-300 dark:border-gray-600 flex justify-around py-3 px-2 z-50;
 }
 
 nav .active, .footer-nav .active {
-  @apply text-wood font-bold;
+  @apply text-amber-700 font-bold;
 }
 
 .islamic-icon {
@@ -614,11 +614,11 @@ nav .active, .footer-nav .active {
 }
 
 .btn-dua.primary {
-  @apply bg-brass text-white hover:bg-brass/80;
+  @apply bg-amber-600 text-white hover:bg-amber-700;
 }
 
 .btn-dua.secondary {
-  @apply bg-wood text-white hover:bg-wood/80;
+  @apply bg-amber-700 text-white hover:bg-amber-800;
 }
 
 .btn-dua.success {

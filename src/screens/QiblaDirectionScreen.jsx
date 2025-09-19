@@ -122,7 +122,7 @@ function RecenterButton({ userLatLng, label, title }) {
   const map = useMap();
   return (
     <button
-      className="absolute top-3 right-3 z-[1000] bg-brass text-mocha rounded-full px-3 py-1 shadow hover:bg-wood transition"
+      className="absolute top-3 right-3 z-[1000] bg-amber-600 text-gray-800 rounded-full px-3 py-1 shadow hover:bg-amber-700 transition"
       style={{ fontWeight: 600, fontSize: 14 }}
       onClick={() => userLatLng && map.setView(userLatLng, 12)}
       title={title}
@@ -447,7 +447,7 @@ export default function QiblaDirectionScreen() {
           <div className="w-full flex flex-col items-center">
             <button
               onClick={requestOrientationPermission}
-              className="bg-gradient-to-r from-brass to-wood text-mocha font-bold rounded-full px-8 py-4 text-lg shadow-xl border-2 border-wood hover:from-wood hover:to-brass hover:text-mocha transition-all duration-300 transform hover:scale-105 mb-4"
+              className="bg-gradient-to-r from-brass to-wood text-gray-800 font-bold rounded-full px-8 py-4 text-lg shadow-xl border-2 border-wood hover:from-wood hover:to-brass hover:text-gray-800 transition-all duration-300 transform hover:scale-105 mb-4"
             >
               <span role="img" aria-label="Compass">🧭</span> {t('enable Compass')}
             </button>
@@ -484,7 +484,7 @@ export default function QiblaDirectionScreen() {
               <div className="text-2xl font-heading text-brass font-bold mb-4">
                 {isAligned ? `🎯 ${t('perfectFacingQibla')}` : `📱 ${t('rotate To Align Qibla')}`}
               </div>
-              <div className="text-text dark:text-darktext">
+              <div className="text-gray-900 dark:text-gray-100">
                 {error ? error : t('live Compass')}
               </div>
             </div>
@@ -508,7 +508,7 @@ export default function QiblaDirectionScreen() {
               </div>
 
               {/* Center Point */}
-              <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 w-4 h-4 bg-brass rounded-full border-2 border-wood shadow-lg"></div>
+              <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 w-4 h-4 bg-amber-600 rounded-full border-2 border-wood shadow-lg"></div>
 
               {/* Direction Labels */}
               <div className="absolute top-2 left-1/2 transform -translate-x-1/2 text-brass font-bold">N</div>
@@ -537,7 +537,7 @@ export default function QiblaDirectionScreen() {
               </div>
               <div className="w-full h-80 rounded-2xl overflow-hidden border-2 border-brass/30 shadow-2xl relative">
                 <ErrorBoundary fallback={
-                  <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-r from-card/80 to-card/60 text-text dark:text-darktext p-4">
+                  <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-r from-card/80 to-card/60 text-gray-900 dark:text-gray-100 p-4">
                     <div className="text-4xl mb-4">🗺️</div>
                     <div className="text-center">
                       <div className="font-semibold mb-2">{t('map Unavailable')}</div>
@@ -552,7 +552,7 @@ export default function QiblaDirectionScreen() {
                           setError(null);
                           setIsLoading(true);
                         }}
-                        className="bg-brass text-white px-4 py-2 rounded-xl text-sm hover:bg-wood transition-all duration-300"
+                        className="bg-amber-600 text-white px-4 py-2 rounded-xl text-sm hover:bg-amber-700 transition-all duration-300"
                       >
                         {t('try Loading Map Again')}
                       </button>
@@ -596,25 +596,25 @@ export default function QiblaDirectionScreen() {
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
                     <span className="text-brass font-bold">1.</span>
-                    <span className="text-text dark:text-darktext">{t('step Hold Device Flat')}</span>
+                    <span className="text-gray-900 dark:text-gray-100">{t('step Hold Device Flat')}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-brass font-bold">2.</span>
-                    <span className="text-text dark:text-darktext">{t('step Move Figure Eight')}</span>
+                    <span className="text-gray-900 dark:text-gray-100">{t('step Move Figure Eight')}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-brass font-bold">3.</span>
-                    <span className="text-text dark:text-darktext">{t('step Rotate 360')}</span>
+                    <span className="text-gray-900 dark:text-gray-100">{t('step Rotate 360')}</span>
                   </div>
                 </div>
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
                     <span className="text-brass font-bold">4.</span>
-                    <span className="text-text dark:text-darktext">{t('step Stay Away Metal')}</span>
+                    <span className="text-gray-900 dark:text-gray-100">{t('step Stay Away Metal')}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-brass font-bold">5.</span>
-                    <span className="text-text dark:text-darktext">{t('step Wait Compass Stabilize')}</span>
+                    <span className="text-gray-900 dark:text-gray-100">{t('step Wait Compass Stabilize')}</span>
                   </div>
                 </div>
               </div>

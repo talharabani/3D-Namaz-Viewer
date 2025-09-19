@@ -470,12 +470,12 @@ export default function PrayerTimesScreen() {
         {/* Prayer Time Alert Modal */}
         {currentPrayerAlert && (
           <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
-            <div className="bg-card dark:bg-darkcard rounded-2xl shadow-2xl max-w-md w-full p-8 text-center border border-brass/20">
+            <div className="bg-gray-100 dark:bg-gray-900card rounded-2xl shadow-2xl max-w-md w-full p-8 text-center border border-brass/20">
               <div className="text-6xl mb-6">🕌</div>
               <h2 className="text-3xl font-heading text-brass font-bold mb-4">
                 {t('prayerTimeTitle', { prayer: getPrayerDisplayName(currentPrayerAlert.prayer) })}
               </h2>
-              <p className="text-text dark:text-darktext text-lg mb-8 leading-relaxed">
+              <p className="text-gray-900 dark:text-gray-100 text-lg mb-8 leading-relaxed">
                 {currentPrayerAlert.message}
               </p>
               <div className="flex gap-4">

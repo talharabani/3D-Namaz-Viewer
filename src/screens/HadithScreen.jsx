@@ -45,10 +45,10 @@ class ErrorBoundary extends React.Component {
       return (
         <div className="w-full max-w-4xl mx-auto flex flex-col items-center gap-8 py-12">
           <div className="w-full relative glassmorph-card min-h-[220px] flex flex-col items-center justify-center">
-            <div className="text-center text-lg text-ivory font-body">
+            <div className="text-center text-lg text-gray-100 font-sans">
               <div className="text-2xl mb-4">📖</div>
               <div className="text-brass font-bold mb-2">{t('Something Went Wrong')}</div>
-              <div className="text-mocha">{t('Please Refresh Page')}</div>
+              <div className="text-gray-800">{t('Please Refresh Page')}</div>
             </div>
           </div>
         </div>

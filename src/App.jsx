@@ -123,7 +123,7 @@ function App() {
       <ToastProvider>
         <SettingsProvider>
           <Router>
-          <div className={`min-h-screen font-body text-gray-900 dark:text-gray-100 flex flex-col${childrenMode ? ' children' : ''} ${isRTL ? 'rtl' : 'ltr'}`}
+          <div className={`min-h-screen font-sans text-gray-900 dark:text-gray-100 flex flex-col${childrenMode ? ' children' : ''} ${isRTL ? 'rtl' : 'ltr'}`}
             style={{ transition: 'background 0.5s, color 0.5s' }}
             lang={currentLang}
             dir={isRTL ? 'rtl' : 'ltr'}>
