@@ -303,18 +303,18 @@ export default function FooterNavTabs({ onNavigate, className = '' }) {
         transition={{ duration: 0.5, ease: "easeOut" }}
         className={`
           fixed bottom-0 left-0 right-0 z-50
-          bg-gradient-to-t from-slate-900/95 to-slate-800/95 backdrop-blur-xl
-          border-t border-emerald-500/30
-          shadow-2xl shadow-emerald-900/20
+          bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl
+          border-t border-gray-200/60 dark:border-gray-700/60
+          shadow-lg dark:shadow-gray-900/30
           ${className}
         `}
         role="navigation"
         aria-label="Main navigation"
       >
         {/* Subtle gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-emerald-500/10 to-transparent pointer-events-none"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-gray-50/50 to-transparent dark:from-gray-800/50 pointer-events-none"></div>
         
-        <div className="relative flex items-center justify-around px-2 py-3">
+        <div className="relative flex items-center justify-around px-1 py-2">
           {visibleItems.map((item) => {
             const isActive = location.pathname === item.to;
             const IconComponent = item.icon;
@@ -326,13 +326,13 @@ export default function FooterNavTabs({ onNavigate, className = '' }) {
                 onClick={() => handleNavigate(item.key)}
                 className={({ isActive }) => `
                   flex flex-col items-center justify-center
-                  min-h-[64px] min-w-[64px] px-3 py-2
-                  rounded-xl transition-all duration-300
-                  focus:outline-none focus:ring-2 focus:ring-emerald-500/50
+                  min-h-[56px] min-w-[56px] px-2 py-1.5
+                  rounded-lg transition-all duration-200
+                  focus:outline-none focus:ring-2 focus:ring-blue-500/50
                   hover:scale-105 active:scale-95
                   ${isActive 
-                    ? `bg-gradient-to-br ${item.color} text-white shadow-lg shadow-${item.color.split('-')[1]}-500/30` 
-                    : 'text-gray-300 hover:bg-white/10 hover:text-white'
+                    ? `bg-blue-500 text-white shadow-md` 
+                    : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-200'
                   }
                 `}
                 aria-label={item.label}
@@ -348,9 +348,9 @@ export default function FooterNavTabs({ onNavigate, className = '' }) {
                 </motion.div>
                 <motion.span 
                   className={`
-                    text-xs font-medium text-center leading-tight
+                    text-[10px] font-medium text-center leading-tight
                     ${isNarrow ? 'hidden' : 'block'}
-                    ${isActive ? 'text-white' : 'text-gray-300'}
+                    ${isActive ? 'text-white' : 'text-gray-600 dark:text-gray-400'}
                   `}
                   animate={{ 
                     scale: isActive ? 1.05 : 1,
@@ -364,7 +364,7 @@ export default function FooterNavTabs({ onNavigate, className = '' }) {
                 {/* Active indicator dot */}
                 {isActive && (
                   <motion.div
-                    className="absolute -top-1 w-2 h-2 bg-white rounded-full shadow-lg"
+                    className="absolute -top-1 w-1.5 h-1.5 bg-blue-500 rounded-full shadow-sm"
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
                     transition={{ duration: 0.2 }}
@@ -381,13 +381,13 @@ export default function FooterNavTabs({ onNavigate, className = '' }) {
               onClick={() => setShowOverflow(!showOverflow)}
               className={`
                 flex flex-col items-center justify-center
-                min-h-[64px] min-w-[64px] px-3 py-2
-                rounded-xl transition-all duration-300
-                focus:outline-none focus:ring-2 focus:ring-emerald-500/50
+                min-h-[56px] min-w-[56px] px-2 py-1.5
+                rounded-lg transition-all duration-200
+                focus:outline-none focus:ring-2 focus:ring-blue-500/50
                 hover:scale-105 active:scale-95
                 ${showOverflow 
-                  ? 'bg-gradient-to-br from-emerald-500 to-green-500 text-white shadow-lg shadow-emerald-500/30' 
-                  : 'text-gray-300 hover:bg-white/10 hover:text-white'
+                  ? 'bg-blue-500 text-white shadow-md' 
+                  : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-200'
                 }
               `}
               whileHover={{ scale: 1.05 }}
@@ -403,9 +403,9 @@ export default function FooterNavTabs({ onNavigate, className = '' }) {
               </motion.div>
               <motion.span 
                 className={`
-                  text-xs font-medium text-center leading-tight
+                  text-[10px] font-medium text-center leading-tight
                   ${isNarrow ? 'hidden' : 'block'}
-                  ${showOverflow ? 'text-white' : 'text-gray-300'}
+                  ${showOverflow ? 'text-white' : 'text-gray-600 dark:text-gray-400'}
                 `}
                 animate={{ 
                   scale: showOverflow ? 1.05 : 1,
@@ -428,11 +428,11 @@ export default function FooterNavTabs({ onNavigate, className = '' }) {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 20, scale: 0.95 }}
               transition={{ duration: 0.2, ease: "easeOut" }}
-              className="absolute bottom-full mb-3 right-0 bg-white/98 dark:bg-gray-800/98 backdrop-blur-xl border border-gray-200/60 dark:border-gray-700/60 rounded-3xl shadow-2xl dark:shadow-gray-900/50 p-4 min-w-[280px] max-w-[320px]"
+              className="absolute bottom-full mb-2 right-0 bg-white dark:bg-gray-800 backdrop-blur-xl border border-gray-200 dark:border-gray-700 rounded-xl shadow-lg dark:shadow-gray-900/50 p-3 min-w-[240px] max-w-[280px]"
             >
               {/* Panel Header */}
-              <div className="flex items-center justify-between mb-3 pb-2 border-b border-gray-200/60 dark:border-gray-700/60">
-                <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-200">
+              <div className="flex items-center justify-between mb-2 pb-2 border-b border-gray-200 dark:border-gray-700">
+                <h3 className="text-xs font-semibold text-gray-800 dark:text-gray-200">
                   More Features
                 </h3>
                 <button
@@ -459,12 +459,12 @@ export default function FooterNavTabs({ onNavigate, className = '' }) {
                       onClick={() => handleNavigate(item.key)}
                       className={({ isActive }) => `
                         flex flex-col items-center justify-center
-                        p-3 rounded-xl transition-all duration-300
-                        focus:outline-none focus:ring-2 focus:ring-emerald-500/50
+                        p-2 rounded-lg transition-all duration-200
+                        focus:outline-none focus:ring-2 focus:ring-blue-500/50
                         hover:scale-105 active:scale-95
                         ${isActive 
-                          ? `bg-gradient-to-br ${item.color} text-white shadow-lg` 
-                          : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100/60 dark:hover:bg-gray-700/60'
+                          ? `bg-blue-500 text-white shadow-md` 
+                          : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
                         }
                       `}
                       aria-label={item.label}
@@ -476,7 +476,7 @@ export default function FooterNavTabs({ onNavigate, className = '' }) {
                       >
                         <IconComponent isActive={isActive} />
                       </motion.div>
-                      <span className="text-xs font-medium text-center leading-tight">
+                      <span className="text-[10px] font-medium text-center leading-tight">
                         {item.label}
                       </span>
                     </NavLink>

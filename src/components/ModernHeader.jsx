@@ -110,18 +110,18 @@ export default function ModernHeader({
   };
 
   return (
-    <header className="bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 border-b border-gray-700 shadow-2xl sticky top-0 z-50">
+    <header className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border-b border-gray-200 dark:border-gray-700 shadow-sm sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Top Bar */}
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <div className="flex items-center space-x-4">
-            <div className="w-12 h-12 bg-gradient-to-r from-amber-500 to-yellow-500 rounded-2xl flex items-center justify-center text-gray-900 font-bold text-xl shadow-lg">
+            <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-lg shadow-sm">
               🕌
             </div>
             <div>
-              <h1 className="text-xl font-bold text-white">Namaz Web</h1>
-              <p className="text-xs text-gray-400">Islamic Companion</p>
+              <h1 className="text-lg font-semibold text-gray-900 dark:text-white">Namaz Web</h1>
+              <p className="text-xs text-gray-600 dark:text-gray-400">Islamic Companion</p>
             </div>
           </div>
 
@@ -133,10 +133,10 @@ export default function ModernHeader({
                 placeholder={t('searchPlaceholder')}
                 value={searchQuery}
                 onChange={handleSearch}
-                className="w-full px-3 md:px-4 py-2 pl-10 md:pl-12 pr-3 md:pr-4 bg-gray-800 border border-gray-600 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all duration-200"
+                className="w-full px-3 md:px-4 py-2 pl-10 md:pl-12 pr-3 md:pr-4 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
               />
               <div className="absolute inset-y-0 left-0 pl-3 md:pl-4 flex items-center pointer-events-none">
-                <svg className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg className="h-4 w-4 text-gray-500 dark:text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
               </div>
@@ -298,14 +298,14 @@ export default function ModernHeader({
                 key={tab.path}
                 to={tab.path}
                 className={({ isActive }) =>
-                  `flex items-center space-x-1.5 md:space-x-2 px-3 md:px-4 py-2 text-sm font-medium rounded-lg md:rounded-t-xl transition-all duration-200 whitespace-nowrap ${
+                  `flex items-center space-x-1.5 md:space-x-2 px-3 md:px-4 py-2 text-xs font-medium rounded-lg transition-all duration-200 whitespace-nowrap ${
                     isActive
-                      ? 'bg-gradient-to-r from-amber-500 to-yellow-500 text-gray-900 shadow-lg'
-                      : 'text-gray-300 hover:text-white hover:bg-gray-800'
+                      ? 'bg-blue-500 text-white shadow-sm'
+                      : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800'
                   }`
                 }
               >
-                <span className="text-base md:text-lg">{tab.icon}</span>
+                <span className="text-sm md:text-base">{tab.icon}</span>
                 <span>{tab.label}</span>
               </NavLink>
             ))}
