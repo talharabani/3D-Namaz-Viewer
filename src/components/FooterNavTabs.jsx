@@ -1,10 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { useTranslation } from '../utils/translations';
-import IslamicIcon from './IslamicIcon';
 import { motion, AnimatePresence } from 'framer-motion';
 
-// Enhanced icons with better visual appeal
+// Professional SVG Icons
 const Icons = {
   Home: ({ isActive }) => (
     <motion.svg 
@@ -61,6 +60,28 @@ const Icons = {
       <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
     </motion.svg>
   ),
+  Trophy: ({ isActive }) => (
+    <motion.svg 
+      className={`w-6 h-6 transition-all duration-300 ${isActive ? 'scale-110' : 'scale-100'}`}
+      animate={{ scale: isActive ? 1.1 : 1 }}
+      transition={{ duration: 0.2 }}
+      fill="currentColor" 
+      viewBox="0 0 24 24"
+    >
+      <path d="M7 4V2c0-1.1.9-2 2-2h6c1.1 0 2 .9 2 2v2h4c1.1 0 2 .9 2 2v2c0 4.97-4.03 9-9 9s-9-4.03-9-9V6c0-1.1.9-2 2-2h4zM9 6H7v2c0 3.87 3.13 7 7 7s7-3.13 7-7V6h-2v2c0 2.76-2.24 5-5 5s-5-2.24-5-5V6z"/>
+    </motion.svg>
+  ),
+  AlertTriangle: ({ isActive }) => (
+    <motion.svg 
+      className={`w-6 h-6 transition-all duration-300 ${isActive ? 'scale-110' : 'scale-100'}`}
+      animate={{ scale: isActive ? 1.1 : 1 }}
+      transition={{ duration: 0.2 }}
+      fill="currentColor" 
+      viewBox="0 0 24 24"
+    >
+      <path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/>
+    </motion.svg>
+  ),
   EllipsisHorizontal: ({ isActive }) => (
     <motion.svg 
       className={`w-6 h-6 transition-all duration-300 ${isActive ? 'scale-110' : 'scale-100'}`}
@@ -115,28 +136,6 @@ const Icons = {
     >
       <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
     </motion.svg>
-  ),
-  Trophy: ({ isActive }) => (
-    <motion.svg 
-      className={`w-6 h-6 transition-all duration-300 ${isActive ? 'scale-110' : 'scale-100'}`}
-      animate={{ scale: isActive ? 1.1 : 1 }}
-      transition={{ duration: 0.2 }}
-      fill="currentColor" 
-      viewBox="0 0 24 24"
-    >
-      <path d="M7 4V2c0-1.1.9-2 2-2h6c1.1 0 2 .9 2 2v2h4c1.1 0 2 .9 2 2v2c0 4.97-4.03 9-9 9s-9-4.03-9-9V6c0-1.1.9-2 2-2h4zM9 6H7v2c0 3.87 3.13 7 7 7s7-3.13 7-7V6h-2v2c0 2.76-2.24 5-5 5s-5-2.24-5-5V6z"/>
-    </motion.svg>
-  ),
-  AlertTriangle: ({ isActive }) => (
-    <motion.svg 
-      className={`w-6 h-6 transition-all duration-300 ${isActive ? 'scale-110' : 'scale-100'}`}
-      animate={{ scale: isActive ? 1.1 : 1 }}
-      transition={{ duration: 0.2 }}
-      fill="currentColor" 
-      viewBox="0 0 24 24"
-    >
-      <path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/>
-    </motion.svg>
   )
 };
 
@@ -148,14 +147,27 @@ export default function FooterNavTabs({ onNavigate, className = '' }) {
   const [isNarrow, setIsNarrow] = useState(false);
   const overflowRef = useRef(null);
 
-  // Primary navigation items (always visible) - Most important features
+  // Check screen size
+  useEffect(() => {
+    const checkScreenSize = () => {
+      const mobile = window.innerWidth < 768;
+      const narrow = window.innerWidth < 480;
+      setIsMobile(mobile);
+      setIsNarrow(narrow);
+    };
+
+    checkScreenSize();
+    window.addEventListener('resize', checkScreenSize);
+    return () => window.removeEventListener('resize', checkScreenSize);
+  }, []);
+
+  // Primary navigation items - Most important features
   const primaryItems = [
     { 
       key: 'home', 
       to: '/dashboard', 
       label: t('home'), 
       icon: Icons.Home, 
-      primary: true,
       color: 'from-blue-500 to-blue-600'
     },
     { 
@@ -163,67 +175,90 @@ export default function FooterNavTabs({ onNavigate, className = '' }) {
       to: '/prayer-times', 
       label: t('prayerTimes'), 
       icon: Icons.Clock, 
-      primary: true,
       color: 'from-emerald-500 to-emerald-600'
+    },
+    { 
+      key: 'namaz', 
+      to: '/namaz', 
+      label: t('namaz'), 
+      icon: Icons.BookOpen, 
+      color: 'from-green-500 to-green-600'
     },
     { 
       key: 'qibla', 
       to: '/qibla', 
       label: t('qibla'), 
       icon: Icons.Compass, 
-      primary: true,
       color: 'from-amber-500 to-amber-600'
+    },
+    { 
+      key: 'learn', 
+      to: '/learn', 
+      label: t('learn'), 
+      icon: Icons.BookOpen, 
+      color: 'from-purple-500 to-purple-600'
+    }
+  ];
+
+  // Secondary navigation items - In overflow menu
+  const secondaryItems = [
+    { 
+      key: 'hadith', 
+      to: '/hadith', 
+      label: t('hadith'), 
+      icon: Icons.BookOpen, 
+      color: 'from-indigo-500 to-indigo-600'
+    },
+    { 
+      key: 'duas', 
+      to: '/duas', 
+      label: t('duas'), 
+      icon: Icons.BookOpen, 
+      color: 'from-teal-500 to-teal-600'
+    },
+    { 
+      key: 'tracker', 
+      to: '/tracker', 
+      label: t('tracker'), 
+      icon: Icons.History, 
+      color: 'from-orange-500 to-orange-600'
     },
     { 
       key: 'quiz', 
       to: '/quiz', 
       label: t('quiz'), 
       icon: Icons.Trophy, 
-      primary: true,
-      color: 'from-purple-500 to-purple-600'
+      color: 'from-pink-500 to-pink-600'
     },
     { 
       key: 'mistakes', 
       to: '/mistakes', 
       label: t('mistakes'), 
       icon: Icons.AlertTriangle, 
-      primary: true,
       color: 'from-red-500 to-red-600'
     },
+    { 
+      key: 'ai-assistant', 
+      to: '/ai-assistant', 
+      label: t('aiAssistant'), 
+      icon: Icons.Bot, 
+      color: 'from-cyan-500 to-cyan-600'
+    },
+    { 
+      key: 'progress', 
+      to: '/progress', 
+      label: t('progress'), 
+      icon: Icons.History, 
+      color: 'from-violet-500 to-violet-600'
+    },
+    { 
+      key: 'settings', 
+      to: '/settings', 
+      label: t('settings'), 
+      icon: Icons.Cog6Tooth, 
+      color: 'from-gray-500 to-gray-600'
+    }
   ];
-
-  // Secondary navigation items (in overflow menu)
-  const secondaryItems = [
-    { key: 'hadith', to: '/hadith', label: t('hadith'), icon: <IslamicIcon name="hadith" /> },
-    { key: 'duas', to: '/duas', label: t('duas'), icon: <IslamicIcon name="dua" /> },
-    { key: 'learn', to: '/learn', label: t('learn'), icon: Icons.BookOpen },
-    { key: 'daily-challenge', to: '/daily-challenge', label: t('dailyChallenge'), icon: ({ isActive }) => (
-      <motion.span 
-        className={`text-2xl transition-all duration-300 ${isActive ? 'scale-110' : 'scale-100'}`}
-        animate={{ scale: isActive ? 1.1 : 1 }}
-        transition={{ duration: 0.2 }}
-      >
-        🌟
-      </motion.span>
-    ) },
-    { key: 'tracker', to: '/tracker', label: t('tracker'), icon: <IslamicIcon name="tracker" /> },
-    { key: 'progress', to: '/progress', label: t('progress'), icon: <IslamicIcon name="tracker" /> },
-    { key: 'ai-assistant', to: '/ai-assistant', label: t('aiAssistant'), icon: Icons.Bot },
-    { key: 'settings', to: '/settings', label: t('settings'), icon: Icons.Cog6Tooth },
-  ];
-
-  // Responsive handling
-  useEffect(() => {
-    const handleResize = () => {
-      const width = window.innerWidth;
-      setIsMobile(width < 768);
-      setIsNarrow(width < 480);
-    };
-
-    handleResize();
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
 
   // Close overflow menu when clicking outside
   useEffect(() => {
@@ -249,12 +284,15 @@ export default function FooterNavTabs({ onNavigate, className = '' }) {
   // Get visible items based on screen size
   const getVisibleItems = () => {
     if (isNarrow) {
-      return primaryItems.slice(0, 5); // Show all 5 primary items on narrow screens
+      return primaryItems.slice(0, 4); // Show 4 items on very narrow screens
+    } else if (isMobile) {
+      return primaryItems.slice(0, 5); // Show 5 items on mobile
     }
-    return primaryItems;
+    return primaryItems; // Show all on desktop
   };
 
   const visibleItems = getVisibleItems();
+  const hasOverflow = primaryItems.length > visibleItems.length;
 
   return (
     <>
@@ -276,30 +314,29 @@ export default function FooterNavTabs({ onNavigate, className = '' }) {
         {/* Subtle gradient overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-emerald-500/10 to-transparent pointer-events-none"></div>
         
-        <div className="relative flex items-center justify-around px-1 py-2">
+        <div className="relative flex items-center justify-around px-2 py-3">
           {visibleItems.map((item) => {
             const isActive = location.pathname === item.to;
             const IconComponent = item.icon;
             
             return (
-            <NavLink
-              key={item.key}
-              to={item.to}
-              onClick={() => handleNavigate(item.key)}
-              className={({ isActive }) => `
-                flex flex-col items-center justify-center
-                  min-h-[60px] min-w-[60px] px-2 py-2
+              <NavLink
+                key={item.key}
+                to={item.to}
+                onClick={() => handleNavigate(item.key)}
+                className={({ isActive }) => `
+                  flex flex-col items-center justify-center
+                  min-h-[64px] min-w-[64px] px-3 py-2
                   rounded-xl transition-all duration-300
                   focus:outline-none focus:ring-2 focus:ring-emerald-500/50
                   hover:scale-105 active:scale-95
-                ${isActive 
-                    ? `bg-gradient-to-br from-emerald-500 to-green-500 text-white shadow-lg shadow-emerald-500/30` 
+                  ${isActive 
+                    ? `bg-gradient-to-br ${item.color} text-white shadow-lg shadow-${item.color.split('-')[1]}-500/30` 
                     : 'text-gray-300 hover:bg-white/10 hover:text-white'
-                }
-                ${isMobile && !isNarrow ? 'flex-1' : ''}
-              `}
-              aria-label={item.label}
-              role="tab"
+                  }
+                `}
+                aria-label={item.label}
+                role="tab"
                 aria-selected={isActive}
               >
                 <motion.div
@@ -328,179 +365,128 @@ export default function FooterNavTabs({ onNavigate, className = '' }) {
                 {isActive && (
                   <motion.div
                     className="absolute -top-1 w-2 h-2 bg-white rounded-full shadow-lg"
-                    initial={{ scale: 0, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    transition={{ duration: 0.3, ease: "easeOut" }}
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ duration: 0.2 }}
                   />
                 )}
-            </NavLink>
+              </NavLink>
             );
           })}
 
-          {/* Overflow Button */}
-          {(isNarrow || secondaryItems.length > 0) && (
-            <div className="relative" ref={overflowRef}>
-              <motion.button
-                onClick={() => setShowOverflow(!showOverflow)}
-                className={`
-                  flex flex-col items-center justify-center
-                  min-h-[56px] min-w-[56px] px-3 py-2
-                  rounded-2xl transition-all duration-300
-                  focus:outline-none focus:ring-2 focus:ring-emerald-500/50
-                  hover:scale-105 active:scale-95
-                  ${showOverflow 
-                    ? 'bg-gradient-to-br from-gray-600 to-gray-700 text-white shadow-lg' 
-                    : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100/60 dark:hover:bg-gray-800/60'
-                  }
-                  ${isMobile && !isNarrow ? 'flex-1' : ''}
-                `}
-                aria-label="More options"
-                aria-expanded={showOverflow}
-                aria-haspopup="true"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+          {/* Overflow Menu Button */}
+          {hasOverflow && (
+            <motion.button
+              ref={overflowRef}
+              onClick={() => setShowOverflow(!showOverflow)}
+              className={`
+                flex flex-col items-center justify-center
+                min-h-[64px] min-w-[64px] px-3 py-2
+                rounded-xl transition-all duration-300
+                focus:outline-none focus:ring-2 focus:ring-emerald-500/50
+                hover:scale-105 active:scale-95
+                ${showOverflow 
+                  ? 'bg-gradient-to-br from-emerald-500 to-green-500 text-white shadow-lg shadow-emerald-500/30' 
+                  : 'text-gray-300 hover:bg-white/10 hover:text-white'
+                }
+              `}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              aria-label="More features"
+            >
+              <motion.div
+                className="mb-1"
+                animate={{ rotate: showOverflow ? 180 : 0 }}
+                transition={{ duration: 0.3 }}
               >
-                <motion.div
-                  className="mb-1"
-                  animate={{ rotate: showOverflow ? 180 : 0 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  <Icons.EllipsisHorizontal isActive={showOverflow} />
-                </motion.div>
-                <motion.span 
-                  className={`
-                    text-xs font-semibold text-center leading-tight
+                <Icons.EllipsisHorizontal isActive={showOverflow} />
+              </motion.div>
+              <motion.span 
+                className={`
+                  text-xs font-medium text-center leading-tight
                   ${isNarrow ? 'hidden' : 'block'}
-                    ${showOverflow ? 'text-white' : 'text-gray-600 dark:text-gray-300'}
-                  `}
-                  animate={{ 
-                    scale: showOverflow ? 1.05 : 1,
-                    color: showOverflow ? '#ffffff' : undefined
-                  }}
-                  transition={{ duration: 0.2 }}
-                >
-                  {t('more')}
-                </motion.span>
-              </motion.button>
-
-              {/* Overflow Panel */}
-              <AnimatePresence>
-              {showOverflow && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 20, scale: 0.95 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: 20, scale: 0.95 }}
-                    transition={{ duration: 0.2, ease: "easeOut" }}
-                    className="
-                      absolute bottom-full mb-3 right-0
-                      bg-white/98 dark:bg-gray-800/98 backdrop-blur-xl
-                      border border-gray-200/60 dark:border-gray-700/60
-                      rounded-3xl shadow-2xl dark:shadow-gray-900/50
-                      p-3 min-w-[240px]
-                    "
-                  >
-                    {/* Panel header */}
-                    <div className="text-center mb-3 pb-2 border-b border-gray-200/50 dark:border-gray-700/50">
-                      <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                        {t('moreFeatures')}
-                      </span>
-                    </div>
-                    
-                    <div className="grid grid-cols-2 gap-2">
-                      {secondaryItems.map((item) => {
-                        const isActive = location.pathname === item.to;
-                        const IconComponent = item.icon;
-                        
-                        return (
-                      <NavLink
-                        key={item.key}
-                        to={item.to}
-                        onClick={() => handleNavigate(item.key)}
-                        className={({ isActive }) => `
-                          flex flex-col items-center justify-center
-                              min-h-[48px] px-2 py-2
-                              rounded-2xl transition-all duration-300
-                              focus:outline-none focus:ring-2 focus:ring-emerald-500/50
-                              hover:scale-105 active:scale-95
-                          ${isActive 
-                                ? 'bg-gradient-to-br from-emerald-500 to-emerald-600 text-white shadow-lg' 
-                                : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100/60 dark:hover:bg-gray-700/60'
-                          }
-                        `}
-                        aria-label={item.label}
-                      >
-                            <motion.div
-                              className="mb-1"
-                              whileHover={{ scale: 1.1 }}
-                              whileTap={{ scale: 0.9 }}
-                            >
-                              {typeof IconComponent === 'function' ? (
-                                <IconComponent isActive={isActive} />
-                              ) : (
-                                <span className="text-lg">{IconComponent}</span>
-                              )}
-                            </motion.div>
-                        <span className="text-xs font-medium text-center leading-tight">
-                          {item.label}
-                        </span>
-                      </NavLink>
-                        );
-                      })}
-                  </div>
-                  </motion.div>
-              )}
-              </AnimatePresence>
-            </div>
+                  ${showOverflow ? 'text-white' : 'text-gray-300'}
+                `}
+                animate={{ 
+                  scale: showOverflow ? 1.05 : 1,
+                  color: showOverflow ? '#ffffff' : undefined
+                }}
+                transition={{ duration: 0.2 }}
+              >
+                More
+              </motion.span>
+            </motion.button>
           )}
         </div>
-      </motion.nav>
 
-      {/* Bottom Spacing - Reduced to not impact UI */}
-      <div className="h-16"></div>
+        {/* Overflow Panel */}
+        <AnimatePresence>
+          {showOverflow && (
+            <motion.div
+              ref={overflowRef}
+              initial={{ opacity: 0, y: 20, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 20, scale: 0.95 }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
+              className="absolute bottom-full mb-3 right-0 bg-white/98 dark:bg-gray-800/98 backdrop-blur-xl border border-gray-200/60 dark:border-gray-700/60 rounded-3xl shadow-2xl dark:shadow-gray-900/50 p-4 min-w-[280px] max-w-[320px]"
+            >
+              {/* Panel Header */}
+              <div className="flex items-center justify-between mb-3 pb-2 border-b border-gray-200/60 dark:border-gray-700/60">
+                <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-200">
+                  More Features
+                </h3>
+                <button
+                  onClick={() => setShowOverflow(false)}
+                  className="p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                  aria-label="Close menu"
+                >
+                  <svg className="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              {/* Secondary Items Grid */}
+              <div className="grid grid-cols-2 gap-2">
+                {secondaryItems.map((item) => {
+                  const isActive = location.pathname === item.to;
+                  const IconComponent = item.icon;
+                  
+                  return (
+                    <NavLink
+                      key={item.key}
+                      to={item.to}
+                      onClick={() => handleNavigate(item.key)}
+                      className={({ isActive }) => `
+                        flex flex-col items-center justify-center
+                        p-3 rounded-xl transition-all duration-300
+                        focus:outline-none focus:ring-2 focus:ring-emerald-500/50
+                        hover:scale-105 active:scale-95
+                        ${isActive 
+                          ? `bg-gradient-to-br ${item.color} text-white shadow-lg` 
+                          : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100/60 dark:hover:bg-gray-700/60'
+                        }
+                      `}
+                      aria-label={item.label}
+                    >
+                      <motion.div
+                        className="mb-1"
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
+                      >
+                        <IconComponent isActive={isActive} />
+                      </motion.div>
+                      <span className="text-xs font-medium text-center leading-tight">
+                        {item.label}
+                      </span>
+                    </NavLink>
+                  );
+                })}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.nav>
     </>
   );
 }
-
-// Helper function to determine label visibility based on available width
-export const useLabelVisibility = (breakpoint = 480) => {
-  const [showLabels, setShowLabels] = useState(true);
-
-  useEffect(() => {
-    const handleResize = () => {
-      setShowLabels(window.innerWidth >= breakpoint);
-    };
-
-    handleResize();
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, [breakpoint]);
-
-  return showLabels;
-};
-
-// Framer Motion animation variants (if using Framer Motion)
-export const overflowAnimations = {
-  hidden: {
-    opacity: 0,
-    y: 10,
-    scale: 0.95,
-  },
-  visible: {
-    opacity: 1,
-    y: 0,
-    scale: 1,
-    transition: {
-      duration: 0.2,
-      ease: "easeOut",
-    },
-  },
-  exit: {
-    opacity: 0,
-    y: 10,
-    scale: 0.95,
-    transition: {
-      duration: 0.15,
-      ease: "easeIn",
-    },
-  },
-}; 
