@@ -684,6 +684,65 @@ export class ProgressTracker {
     return result;
   }
 
+  // NEW: Get week progress
+  getWeekProgress() {
+    const marked = this.prayerData.marked || {};
+    const PRAYERS = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
+    const PRAYER_COUNT = PRAYERS.length;
+    
+    let total = 0;
+    let completed = 0;
+    
+    // Get current week dates
+    const today = new Date();
+    const startOfWeek = new Date(today);
+    startOfWeek.setDate(today.getDate() - today.getDay()); // Start from Sunday
+    
+    for (let i = 0; i < 7; i++) {
+      const date = new Date(startOfWeek);
+      date.setDate(startOfWeek.getDate() + i);
+      const dateStr = date.toISOString().split('T')[0];
+      const prayers = marked[dateStr];
+      
+      if (prayers && Array.isArray(prayers)) {
+        total += PRAYER_COUNT;
+        completed += prayers.filter(Boolean).length;
+      } else {
+        total += PRAYER_COUNT; // Count as total even if not marked
+      }
+    }
+    
+    return { total, completed };
+  }
+
+  // NEW: Get year progress
+  getYearProgress(year) {
+    const marked = this.prayerData.marked || {};
+    const PRAYERS = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
+    const PRAYER_COUNT = PRAYERS.length;
+    
+    let total = 0;
+    let completed = 0;
+    
+    // Get all days in the year
+    const startDate = new Date(year, 0, 1);
+    const endDate = new Date(year, 11, 31);
+    
+    for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+      const dateStr = d.toISOString().split('T')[0];
+      const prayers = marked[dateStr];
+      
+      if (prayers && Array.isArray(prayers)) {
+        total += PRAYER_COUNT;
+        completed += prayers.filter(Boolean).length;
+      } else {
+        total += PRAYER_COUNT; // Count as total even if not marked
+      }
+    }
+    
+    return { total, completed };
+  }
+
   // Overall progress summary
   getProgressSummary() {
     const prayerStats = this.getPrayerStats();

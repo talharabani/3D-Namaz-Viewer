@@ -1,11 +1,9 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { duasByCategory, duaCategories } from '../data/duas';
+import { motion } from 'framer-motion';
 import { GlowCard } from '../components/nurui/spotlight-card';
 import { 
-  MotionDiv, 
-  MotionCard, 
-  MotionButton,
   fadeInUp, 
   staggerContainer, 
   staggerItem, 

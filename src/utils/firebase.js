@@ -1,21 +1,28 @@
-// Firebase configuration for hadith database
+// Firebase configuration for authentication and database
 import { initializeApp } from 'firebase/app';
+import { getAuth } from 'firebase/auth';
 import { getFirestore, collection, getDocs, query, where, orderBy, limit, startAfter } from 'firebase/firestore';
+import { getAnalytics } from 'firebase/analytics';
 
 // Your Firebase configuration
-// Replace these with your actual Firebase project credentials
 const firebaseConfig = {
-  apiKey: "AIzaSyD0ji6hpzQFABnVIBbXC59H_G8nkgTSEFc",
-  authDomain: "namaz-hadith-db.firebaseapp.com",
-  projectId: "namaz-hadith-db",
-  storageBucket: "namaz-hadith-db.firebasestorage.app",
-  messagingSenderId: "942434588018",
-  appId: "1:942434588018:web:0036b8fedf677d730679eb",
-  measurementId: "G-QCYLK59HEB"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyCM41n18V-EIP6rpKvLMY0fcbblPQZUi9o",
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "namaz-e9611.firebaseapp.com",
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "namaz-e9611",
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "namaz-e9611.firebasestorage.app",
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "471303185593",
+  appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:471303185593:web:191ad040efc2fcea052768",
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || "G-WZLM4TCJV1"
 };
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
+
+// Initialize Firebase Authentication and get a reference to the service
+export const auth = getAuth(app);
+
+// Export the app instance for use in other services
+export { app };
 
 // Initialize Firestore
 export const db = getFirestore(app);

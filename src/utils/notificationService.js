@@ -1,24 +1,43 @@
-// Enhanced notification service for prayer times
+
+import { auth } from './firebase';
+import { collection, doc, setDoc, getDoc } from 'firebase/firestore';
+import { db } from './firebase';
+import { duasByCategory } from '../data/duas';
+import authService from './authService';
+
 class NotificationService {
   constructor() {
-    this.isSupported = typeof window !== 'undefined' && 'Notification' in window;
-    this.permission = this.isSupported ? Notification.permission : 'denied';
-    this.notifications = new Map(); // Track active notifications
+    this.isSupported = 'Notification' in window && 'serviceWorker' in navigator;
+    this.permission = null;
+    this.registration = null;
   }
 
   // Request notification permission
   async requestPermission() {
     if (!this.isSupported) {
-      console.warn('Notifications not supported in this browser');
+      console.log('Notifications not supported');
       return false;
     }
 
     try {
-      const permission = await Notification.requestPermission();
-      this.permission = permission;
-      return permission === 'granted';
+      this.permission = await Notification.requestPermission();
+      return this.permission === 'granted';
     } catch (error) {
       console.error('Error requesting notification permission:', error);
+      return false;
+    }
+  }
+
+  // Register service worker
+  async registerServiceWorker() {
+    if (!this.isSupported) return false;
+
+    try {
+      this.registration = await navigator.serviceWorker.register('/sw.js');
+      console.log('Service Worker registered successfully');
+      return true;
+    } catch (error) {
+      console.error('Service Worker registration failed:', error);
       return false;
     }
   }
@@ -28,219 +47,319 @@ class NotificationService {
     return this.isSupported && this.permission === 'granted';
   }
 
-  // Play Allahu Akbar sound once
-  playAllahuAkbarOnce() {
-    const audio = new Audio();
-    
-    // Try to use a proper Islamic audio file
-    const audioSources = [
-      '/audio/takbir.mp3', // Primary source - existing file
-      '/audio/allahu-akbar.mp3',
-      'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav' // Fallback
-    ];
-    
-    let currentSourceIndex = 0;
-    
-    const playSound = () => {
-      if (currentSourceIndex < audioSources.length) {
-        audio.src = audioSources[currentSourceIndex];
-        audio.volume = 0.8;
-        
-        // Play the sound once
-        audio.play().catch(() => {
-          // If play fails, try next source
-          currentSourceIndex++;
-          if (currentSourceIndex < audioSources.length) {
-            playSound();
-          }
-        });
-      }
-    };
-    
-    playSound();
-    return audio;
-  }
-
-  // Show prayer time notification with enhanced features
-  showPrayerNotification(prayerName, time) {
-    if (!this.isEnabled()) {
-      console.log('Notifications not enabled');
-      return null;
+  // Check notification permission status
+  async checkPermissionStatus() {
+    if (!this.isSupported) {
+      this.permission = 'denied';
+      return false;
     }
-
-    // Enhanced message with "Allah is calling you"
-    const messages = {
-      'Fajr': `🕌 Allahu Akbar! Allah is calling you for Fajr prayer at ${time}`,
-      'Dhuhr': `🕌 Allahu Akbar! Allah is calling you for Dhuhr prayer at ${time}`,
-      'Asr': `🕌 Allahu Akbar! Allah is calling you for Asr prayer at ${time}`,
-      'Maghrib': `🕌 Allahu Akbar! Allah is calling you for Maghrib prayer at ${time}`,
-      'Isha': `🕌 Allahu Akbar! Allah is calling you for Isha prayer at ${time}`,
-    };
-
-    const message = messages[prayerName] || `🕌 Allahu Akbar! Allah is calling you for ${prayerName} prayer at ${time}`;
-
+    
     try {
-      // Close any existing prayer notifications
-      this.closePrayerNotifications();
-
-      // Play Allahu Akbar sound once
-      this.playAllahuAkbarOnce();
-
-      const notification = new Notification('🕌 Prayer Time - Allah is Calling You', {
-        body: message,
-        icon: '/favicon.ico',
-        badge: '/favicon.ico',
-        tag: 'prayer-notification',
-        requireInteraction: true,
-        silent: false,
-        data: {
-          prayer: prayerName,
-          time: time,
-          timestamp: Date.now()
-        }
-      });
-
-      // Add click handler
-      notification.onclick = () => {
-        window.focus();
-        notification.close();
-        // You can add navigation logic here
-        // window.location.href = '/prayer-times';
-      };
-
-      // Store notification reference
-      this.notifications.set(prayerName, notification);
-
-      // Auto-close after 5 minutes
-      setTimeout(() => {
-        this.closeNotification(prayerName);
-      }, 5 * 60 * 1000);
-
-      return notification;
+      this.permission = Notification.permission;
+      return this.permission === 'granted';
     } catch (error) {
-      console.error('Error showing notification:', error);
-      return null;
+      console.error('Error checking notification permission:', error);
+      this.permission = 'denied';
+      return false;
     }
   }
 
-  // Show reminder notification (5 minutes before prayer) with enhanced features
-  showPrayerReminder(prayerName, time) {
-    if (!this.isEnabled()) return null;
+  // Get daily dua based on date
+  getDailyDua() {
+    const today = new Date();
+    const dayOfYear = Math.floor((today - new Date(today.getFullYear(), 0, 0)) / (1000 * 60 * 60 * 24));
+    
+    const dailyDuas = duasByCategory.daily || [];
+    const duaIndex = dayOfYear % dailyDuas.length;
+    
+    return dailyDuas[duaIndex] || dailyDuas[0];
+  }
 
-    const message = `⏰ Prayer Reminder: Allah is calling you for ${prayerName} prayer in 5 minutes (${time})`;
+  // Schedule daily notification
+  async scheduleDailyNotification() {
+    if (!this.isSupported || this.permission !== 'granted') {
+      console.log('Notifications not available or not granted');
+      return false;
+    }
 
     try {
-      // Play Allahu Akbar sound once for reminder
-      this.playAllahuAkbarOnce();
+      // Clear existing notifications
+      if (this.registration) {
+        const notifications = await this.registration.getNotifications();
+        notifications.forEach(notification => notification.close());
+      }
 
-      const notification = new Notification('⏰ Prayer Reminder - Allah is Calling You', {
-        body: message,
+      // Schedule notification for 7:00 PM today
+      const now = new Date();
+      const notificationTime = new Date();
+      notificationTime.setHours(19, 0, 0, 0); // 7:00 PM
+
+      // If it's already past 7:00 PM today, schedule for tomorrow
+      if (now > notificationTime) {
+        notificationTime.setDate(notificationTime.getDate() + 1);
+      }
+
+      const timeUntilNotification = notificationTime.getTime() - now.getTime();
+
+      setTimeout(() => {
+        this.showDailyDuaNotification();
+      }, timeUntilNotification);
+
+      // Schedule recurring notification for every day at 7:00 PM
+      this.scheduleRecurringNotification();
+
+      return true;
+    } catch (error) {
+      console.error('Error scheduling notification:', error);
+      return false;
+    }
+  }
+
+  // Schedule recurring daily notification
+  scheduleRecurringNotification() {
+    const scheduleNext = () => {
+      const now = new Date();
+      const tomorrow = new Date(now);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      tomorrow.setHours(19, 0, 0, 0); // 7:00 PM tomorrow
+
+      const timeUntilTomorrow = tomorrow.getTime() - now.getTime();
+
+      setTimeout(() => {
+        this.showDailyDuaNotification();
+        scheduleNext(); // Schedule the next day
+      }, timeUntilTomorrow);
+    };
+
+    scheduleNext();
+  }
+
+  // Show prayer notification
+  async showPrayerNotification(prayerName, prayerTime) {
+    if (!this.isSupported || this.permission !== 'granted') return;
+
+    try {
+      const notification = new Notification(`🕌 ${prayerName} Prayer Time`, {
+        body: `Allahu Akbar! Time for ${prayerName} prayer at ${prayerTime}`,
         icon: '/favicon.ico',
         badge: '/favicon.ico',
-        tag: `reminder-${prayerName}`,
-        requireInteraction: false,
+        tag: `prayer-${prayerName.toLowerCase()}`,
+        requireInteraction: true,
         silent: false
       });
 
-      // Auto-close after 2 minutes
+      // Auto-close after 10 seconds
       setTimeout(() => {
         notification.close();
-      }, 2 * 60 * 1000);
+      }, 10000);
 
       return notification;
     } catch (error) {
-      console.error('Error showing reminder:', error);
-      return null;
+      console.error('Error showing prayer notification:', error);
     }
   }
 
-  // Close specific notification
-  closeNotification(prayerName) {
-    const notification = this.notifications.get(prayerName);
-    if (notification) {
-      notification.close();
-      this.notifications.delete(prayerName);
+  // Schedule prayer notifications
+  async schedulePrayerNotifications(prayerTimes) {
+    if (!this.isSupported || this.permission !== 'granted') {
+      console.log('Notifications not available or not granted');
+      return false;
     }
-  }
 
-  // Close all prayer notifications
-  closePrayerNotifications() {
-    this.notifications.forEach((notification, prayerName) => {
-      notification.close();
-    });
-    this.notifications.clear();
-  }
-
-  // Schedule prayer notifications for the day
-  schedulePrayerNotifications(prayerTimes) {
-    if (!this.isEnabled()) return;
-
-    const now = new Date();
-    const today = now.toISOString().slice(0, 10);
-
-    Object.entries(prayerTimes).forEach(([prayer, time]) => {
-      if (prayer === 'Sunrise') return; // Skip sunrise
-
-      const [hours, minutes] = time.split(':').map(Number);
-      const prayerTime = new Date(`${today}T${time}`);
-      
-      // Only schedule if prayer time is in the future
-      if (prayerTime > now) {
-        // Schedule main notification
-        const timeUntilPrayer = prayerTime.getTime() - now.getTime();
-        
-        setTimeout(() => {
-          this.showPrayerNotification(prayer, time);
-        }, timeUntilPrayer);
-
-        // Schedule reminder (5 minutes before)
-        const reminderTime = timeUntilPrayer - (5 * 60 * 1000);
-        if (reminderTime > 0) {
-          setTimeout(() => {
-            this.showPrayerReminder(prayer, time);
-          }, reminderTime);
-        }
+    try {
+      // Clear existing prayer notifications
+      if ('serviceWorker' in navigator && this.registration) {
+        const notifications = await this.registration.getNotifications();
+        notifications.forEach(notification => {
+          if (notification.tag && notification.tag.startsWith('prayer-')) {
+            notification.close();
+          }
+        });
       }
-    });
+
+      // Schedule notifications for each prayer time
+      const now = new Date();
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+      Object.entries(prayerTimes).forEach(([prayerName, prayerTime]) => {
+        if (prayerName === 'Sunrise') return; // Skip sunrise
+
+        const [hours, minutes] = prayerTime.split(':');
+        const prayerDateTime = new Date(today);
+        prayerDateTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+
+        // If the prayer time has passed today, schedule for tomorrow
+        if (prayerDateTime <= now) {
+          prayerDateTime.setDate(prayerDateTime.getDate() + 1);
+        }
+
+        const timeUntilPrayer = prayerDateTime.getTime() - now.getTime();
+
+        if (timeUntilPrayer > 0) {
+          setTimeout(() => {
+            this.showPrayerNotification(prayerName, prayerTime);
+          }, timeUntilPrayer);
+        }
+      });
+
+      return true;
+    } catch (error) {
+      console.error('Error scheduling prayer notifications:', error);
+      return false;
+    }
   }
 
-  // Show general notification
-  showNotification(title, message, options = {}) {
-    if (!this.isEnabled()) return null;
+  // Show daily dua notification
+  async showDailyDuaNotification() {
+    if (!this.isSupported || this.permission !== 'granted') return;
 
-    const defaultOptions = {
-      icon: '/favicon.ico',
-      badge: '/favicon.ico',
-      requireInteraction: false,
-      silent: false
+    const dailyDua = this.getDailyDua();
+    
+    const notificationOptions = {
+      body: dailyDua.translation,
+      icon: '/src/assets/logo.png', // You can add a logo
+      badge: '/src/assets/badge.png', // You can add a badge
+      tag: 'daily-dua',
+      requireInteraction: true,
+      actions: [
+        {
+          action: 'view',
+          title: 'View Dua',
+          icon: '/src/assets/view-icon.png'
+        },
+        {
+          action: 'bookmark',
+          title: 'Bookmark',
+          icon: '/src/assets/bookmark-icon.png'
+        }
+      ],
+      data: {
+        url: '/duas/daily',
+        dua: dailyDua
+      }
     };
 
     try {
-      const notification = new Notification(title, {
-        ...defaultOptions,
-        ...options,
-        body: message
-      });
-
-      return notification;
+      if (this.registration) {
+        await this.registration.showNotification(
+          `📿 Daily Dua - ${new Date().toLocaleDateString()}`,
+          notificationOptions
+        );
+      } else {
+        new Notification(
+          `📿 Daily Dua - ${new Date().toLocaleDateString()}`,
+          notificationOptions
+        );
+      }
     } catch (error) {
       console.error('Error showing notification:', error);
-      return null;
     }
   }
 
-  // Get notification status
-  getStatus() {
-    return {
-      supported: this.isSupported,
-      permission: this.permission,
-      enabled: this.isEnabled(),
-      activeNotifications: this.notifications.size
-    };
+  // Handle notification click
+  handleNotificationClick(event) {
+    event.notification.close();
+
+    if (event.action === 'view') {
+      window.open(event.notification.data.url, '_blank');
+    } else if (event.action === 'bookmark') {
+      // Handle bookmark action
+      this.bookmarkDua(event.notification.data.dua);
+    } else {
+      // Default action - open the app
+      window.focus();
+      window.location.href = event.notification.data.url;
+    }
+  }
+
+  // Bookmark dua
+  async bookmarkDua(dua) {
+    try {
+      const user = authService.getCurrentUser();
+      if (!user) return;
+
+      const bookmarksRef = doc(db, 'users', user.id, 'bookmarks', 'duas');
+      const bookmarksDoc = await getDoc(bookmarksRef);
+      
+      let bookmarks = [];
+      if (bookmarksDoc.exists()) {
+        bookmarks = bookmarksDoc.data().duas || [];
+      }
+
+      const duaId = `daily-${dua.arabic.substring(0, 20)}`;
+      if (!bookmarks.find(b => b.id === duaId)) {
+        bookmarks.push({
+          id: duaId,
+          ...dua,
+          category: 'daily',
+          bookmarkedAt: new Date().toISOString()
+        });
+
+        await setDoc(bookmarksRef, { duas: bookmarks });
+      }
+    } catch (error) {
+      console.error('Error bookmarking dua:', error);
+    }
+  }
+
+  // Save notification preferences to Firestore
+  async saveNotificationPreferences(enabled) {
+    try {
+      const user = authService.getCurrentUser();
+      if (!user) return;
+
+      const userRef = doc(db, 'users', user.id);
+      await setDoc(userRef, {
+        notificationPreferences: {
+          dailyDua: enabled,
+          time: '19:00', // 7:00 PM
+          lastUpdated: new Date().toISOString()
+        }
+      }, { merge: true });
+    } catch (error) {
+      console.error('Error saving notification preferences:', error);
+    }
+  }
+
+  // Get notification preferences
+  async getNotificationPreferences() {
+    try {
+      const user = authService.getCurrentUser();
+      if (!user) return { dailyDua: false, time: '19:00' };
+
+      const userRef = doc(db, 'users', user.id);
+      const userDoc = await getDoc(userRef);
+      
+      if (userDoc.exists()) {
+        return userDoc.data().notificationPreferences || { dailyDua: false, time: '19:00' };
+      }
+      
+      return { dailyDua: false, time: '19:00' };
+    } catch (error) {
+      console.error('Error getting notification preferences:', error);
+      return { dailyDua: false, time: '19:00' };
+    }
+  }
+
+  // Initialize notification service
+  async initialize() {
+    if (!this.isSupported) return false;
+
+    try {
+      // Register service worker
+      await this.registerServiceWorker();
+
+      // Set up notification click handler
+      if (this.registration) {
+        this.registration.addEventListener('notificationclick', this.handleNotificationClick.bind(this));
+      }
+
+      return true;
+    } catch (error) {
+      console.error('Error initializing notification service:', error);
+      return false;
+    }
   }
 }
 
-// Create singleton instance
-const notificationService = new NotificationService();
-
-export default notificationService; 
+export default new NotificationService();

@@ -2,91 +2,100 @@ import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import duaCategories, { duasByCategory } from '../data/duas';
 import { useTranslation } from '../utils/translations';
+import { motion } from 'framer-motion';
 import { GlowCard } from '../components/nurui/spotlight-card';
+import NotificationSettings from '../components/NotificationSettings';
+import authService from '../utils/authService';
 import { 
-  MotionDiv, 
-  MotionCard, 
-  MotionButton,
   fadeInUp, 
   staggerContainer, 
   staggerItem, 
   pageTransition,
   buttonPress,
-  transitions
+  transitions,
+  pulseAnimation
 } from '../utils/animations';
 
 export default function DuaScreen() {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const [user, setUser] = useState(null);
   const [search, setSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [showDailySuggestion, setShowDailySuggestion] = useState(true);
   const [bookmarkedDuas, setBookmarkedDuas] = useState([]);
   const [showBookmarks, setShowBookmarks] = useState(false);
+  const [showNotificationSettings, setShowNotificationSettings] = useState(false);
+
+  // Get current user from authService
+  useEffect(() => {
+    const currentUser = authService.getCurrentUser();
+    setUser(currentUser);
+  }, []);
 
   // Helper function to get translated title and description
   const getTranslatedCategory = (catKey) => {
     const titleMap = {
-      'daily': 'dailyDuas',
-      'prayer': 'prayerDuas',
-      'protection': 'protectionDuas',
-      'hardship': 'hardshipForgiveness',
-      'relationship': 'relationshipFamilyDuas',
-      'general': 'generalMiscellaneous',
-      'hajj': 'hajjUmrahDuas',
-      'ramadan': 'ramadanSpecialDuas',
-      'weather': 'weatherNature',
-      'sickness': 'sicknessDeath',
-      'social': 'socialCommunity',
-      'rizq': 'rizqWork',
-      'repentance': 'repentanceSelfImprovement',
-      'enemy': 'enemyDanger',
-      'business': 'businessDuas',
-      'success': 'successGuidance',
-      'love': 'loveAllah',
-      'prophetlove': 'prophetLove',
-      'imaan': 'strengthenImaan',
-      'dailybooster': 'dailyBooster',
-      'consistency': 'consistencyWorship',
-      'beforesalah': 'beforeSalah',
-      'aftersalah': 'afterSalah'
+      'daily': 'Daily Life Duas',
+      'prayer': 'Salah & Prayer Duas',
+      'protection': 'Protection & Safety',
+      'hardship': 'Hardship & Forgiveness',
+      'relationship': 'Family & Relationships',
+      'general': 'General Supplications',
+      'hajj': 'Hajj & Umrah Duas',
+      'ramadan': 'Ramadan Special',
+      'weather': 'Weather & Nature',
+      'sickness': 'Health & Healing',
+      'social': 'Community & Society',
+      'rizq': 'Sustenance & Work',
+      'repentance': 'Repentance & Growth',
+      'enemy': 'Protection from Enemies',
+      'business': 'Business & Success',
+      'success': 'Guidance & Success',
+      'love': 'Love of Allah',
+      'prophetlove': 'Love of Prophet ﷺ',
+      'imaan': 'Strengthen Faith',
+      'dailybooster': 'Daily Imaan Booster',
+      'consistency': 'Consistency in Worship',
+      'beforesalah': 'Before Salah',
+      'aftersalah': 'After Salah'
     };
 
     const descMap = {
-      'daily': 'dailyDuasDesc',
-      'prayer': 'prayerDuasDesc',
-      'protection': 'protectionDuasDesc',
-      'hardship': 'hardshipForgivenessDesc',
-      'relationship': 'relationshipFamilyDuasDesc',
-      'general': 'generalMiscellaneousDesc',
-      'hajj': 'hajjUmrahDuasDesc',
-      'ramadan': 'ramadanSpecialDuasDesc',
-      'weather': 'weatherNatureDesc',
-      'sickness': 'sicknessDeathDesc',
-      'social': 'socialCommunityDesc',
-      'rizq': 'rizqWorkDesc',
-      'repentance': 'repentanceSelfImprovementDesc',
-      'enemy': 'enemyDangerDesc',
-      'business': 'businessDuasDesc',
-      'success': 'successGuidanceDesc',
-      'love': 'loveAllahDesc',
-      'prophetlove': 'prophetLoveDesc',
-      'imaan': 'strengthenImaanDesc',
-      'dailybooster': 'dailyBoosterDesc',
-      'consistency': 'consistencyWorshipDesc',
-      'beforesalah': 'beforeSalahDesc',
-      'aftersalah': 'afterSalahDesc'
+      'daily': 'Supplications for daily routines and life',
+      'prayer': 'Duas to recite during and around prayer',
+      'protection': 'Seeking Allah\'s protection from harm',
+      'hardship': 'Duas for difficult times and seeking forgiveness',
+      'relationship': 'Supplications for family and relationships',
+      'general': 'Various beneficial supplications',
+      'hajj': 'Special duas for pilgrimage and Umrah',
+      'ramadan': 'Duas specific to the blessed month',
+      'weather': 'Supplications for natural events and weather',
+      'sickness': 'Duas for health, healing, and the deceased',
+      'social': 'Prayers for community and social well-being',
+      'rizq': 'Supplications for provision and livelihood',
+      'repentance': 'Seeking forgiveness and self-improvement',
+      'enemy': 'Protection from enemies and danger',
+      'business': 'Duas for business success and prosperity',
+      'success': 'Prayers for guidance and success in all matters',
+      'love': 'Supplications to earn Allah\'s love and nearness',
+      'prophetlove': 'Duas to express love for Prophet Muhammad ﷺ',
+      'imaan': 'Prayers to strengthen faith and belief',
+      'dailybooster': 'Daily routine to boost your faith',
+      'consistency': 'Duas for steadfastness in worship',
+      'beforesalah': 'Supplications before or during prayer',
+      'aftersalah': 'Dhikr and duas after completing prayer'
     };
 
     return {
-      title: t(titleMap[catKey] || 'duas'),
-      description: t(descMap[catKey] || 'duas')
+      title: titleMap[catKey] || 'Islamic Duas',
+      description: descMap[catKey] || 'Beneficial supplications'
     };
   };
 
   // Load bookmarks from localStorage
   useEffect(() => {
-    const saved = localStorage.getItem('bookmarkedDuas');
+    const saved = localStorage.getItem('Bookmarked Duas');
     if (saved) {
       setBookmarkedDuas(JSON.parse(saved));
     }
@@ -94,7 +103,7 @@ export default function DuaScreen() {
 
   // Save bookmarks to localStorage
   useEffect(() => {
-    localStorage.setItem('bookmarkedDuas', JSON.stringify(bookmarkedDuas));
+    localStorage.setItem('Bookmarked Duas', JSON.stringify(bookmarkedDuas));
   }, [bookmarkedDuas]);
 
   const filteredCategories = duaCategories.filter(cat => {
@@ -117,11 +126,11 @@ export default function DuaScreen() {
       // Show success message
       const toast = document.createElement('div');
       toast.className = 'fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg z-50';
-      toast.textContent = t('copiedToClipboard');
+      toast.textContent = t('Copied To Clipboard');
       document.body.appendChild(toast);
       setTimeout(() => document.body.removeChild(toast), 2000);
     } catch (err) {
-      console.error('Failed to copy: ', err);
+      console.error('Failed To Copy: ', err);
     }
   };
 
@@ -130,11 +139,11 @@ export default function DuaScreen() {
     if (navigator.share) {
       try {
         await navigator.share({
-          title: t('duaFromNamazLearning'),
+          title: t('Dua From Namaz Learning'),
           text: text,
         });
       } catch (err) {
-        console.error('Error sharing:', err);
+        console.error('Error Sharing:', err);
       }
     } else {
       copyToClipboard(text);
@@ -155,10 +164,17 @@ export default function DuaScreen() {
   };
 
   return (
-    <MotionDiv 
-      className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 relative"
+    <motion.div 
+      className="min-h-screen bg-gradient-to-br from-slate-900 via-emerald-900 to-slate-900 relative overflow-hidden"
       {...pageTransition}
     >
+      {/* Animated Background Elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-emerald-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-green-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse delay-1000"></div>
+        <div className="absolute top-40 left-40 w-60 h-60 bg-teal-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse delay-2000"></div>
+        <div className="absolute bottom-40 right-40 w-60 h-60 bg-emerald-600 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse delay-3000"></div>
+      </div>
       {/* Floating Islamic Calligraphy - Perfectly Positioned */}
       <div className="absolute top-4 left-4 sm:top-6 sm:left-6 md:top-8 md:left-8 z-30">
         <GlowCard className="group islamic-calligraphy bg-gradient-to-br from-white/95 to-white/80 dark:from-gray-800/95 dark:to-gray-800/80 rounded-2xl p-3 sm:p-4 border border-brass/30 shadow-2xl backdrop-blur-sm hover:shadow-3xl hover:scale-105 transition-all duration-500 max-w-[140px] sm:max-w-[160px] md:max-w-[180px]">
@@ -169,99 +185,124 @@ export default function DuaScreen() {
         </GlowCard>
       </div>
 
-      <div className="w-full max-w-7xl mx-auto py-8 px-4 pt-24 sm:pt-28">
-        {/* Beautiful Calligraphy Header - Perfectly Centered */}
-        <div className="text-center mb-16 flex flex-col items-center justify-center min-h-[40vh] px-4">
-          {/* Arabic Calligraphy - Perfectly Centered */}
-          <div className="mb-16 animate-fadeInScale text-center w-full max-w-5xl arabic-content">
-            <div className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-arabic text-brass mb-8 leading-none drop-shadow-2xl animate-pulse arabic-text-center font-bold tracking-wide">
-              📿 {t('duaCollection')}
-            </div>
-            <div className="text-sm md:text-base text-text dark:text-darktext opacity-80 italic text-center mx-auto max-w-2xl">
-              {t('discoverAndMemorize')}
-            </div>
-          </div>
-
-          {/* Enhanced Islamic Design - Perfectly Centered */}
-          <div className="relative mb-16 animate-fadeInUp text-center w-full max-w-5xl arabic-content">
-            {/* Decorative Islamic pattern */}
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-32 sm:w-48 h-1 bg-gradient-to-r from-transparent via-brass to-transparent opacity-40 animate-shimmer"></div>
+      <div className="relative z-10 w-full max-w-7xl mx-auto py-8 px-4 pt-24 sm:pt-28">
+        {/* Header Section */}
+        <motion.div 
+          className="text-center mb-16"
+          variants={fadeInUp}
+          initial="initial"
+          animate="animate"
+          transition={transitions.smooth}
+        >
+          <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-3xl p-8 md:p-12 shadow-2xl">
+            <motion.div 
+              className="text-5xl md:text-7xl font-black bg-gradient-to-r from-emerald-400 via-green-400 to-teal-400 bg-clip-text text-transparent mb-6"
+              variants={pulseAnimation}
+              animate="animate"
+            >
+              📿 {t('Dua Collection')}
+            </motion.div>
+            <div className="text-xl md:text-2xl text-gray-300 max-w-4xl mx-auto leading-relaxed mb-6">
+              {t('Discover And Memorize')}
             </div>
             
-            {/* Beautiful Arabic Calligraphy - Perfectly Centered */}
-            <div className="mb-8 text-center w-full">
-              <div className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-arabic text-brass mb-6 leading-relaxed drop-shadow-xl animate-float arabic-text-center font-bold tracking-wide">
-                دعاء
-              </div>
-              <p className="text-base sm:text-lg text-gray-700 dark:text-gray-300 max-w-2xl mx-auto text-center">
-                {t('collectionOfIslamicDuas')}
-              </p>
+            {/* Arabic Calligraphy */}
+            <div className="text-2xl md:text-3xl font-arabic text-white mb-4 leading-relaxed font-bold">
+              دعاء
             </div>
-
-            {/* Enhanced Islamic quote with better styling - Perfectly Centered */}
-            <GlowCard className="bg-gradient-to-r from-brass/15 to-wood/15 rounded-3xl p-8 sm:p-10 border border-brass/30 backdrop-blur-sm max-w-4xl mx-auto shadow-2xl animate-pulse-glow text-center">
-              <div className="text-xl sm:text-2xl md:text-3xl font-arabic text-brass mb-4 leading-relaxed arabic-text-center font-bold tracking-wide">
-                "إِنَّ اللَّهَ مَعَ الصَّابِرِينَ"
+            <div className="text-lg text-gray-300 mb-6">
+              {t('Collection Of Islamic Duas')}
+            </div>
+            
+            {/* Islamic Quote */}
+            <div className="bg-gradient-to-r from-emerald-500/20 to-green-500/20 rounded-2xl p-6 max-w-3xl mx-auto border border-emerald-400/30">
+              <div className="text-lg md:text-xl font-arabic text-white mb-3 leading-relaxed font-bold">
+                "وَقَالَ رَبُّكُمُ ادْعُونِي أَسْتَجِبْ لَكُمْ"
               </div>
-              <div className="text-sm sm:text-base md:text-lg text-text dark:text-darktext opacity-90 italic text-center mx-auto">
-                "Indeed, Allah is with the patient"
+              <div className="text-sm md:text-base text-gray-300 italic mb-2">
+                "And your Lord says, 'Call upon Me; I will respond to you'"
               </div>
-              <div className="text-xs sm:text-sm text-text dark:text-darktext opacity-70 mt-4 font-semibold text-center mx-auto">
-                Quran 2:153
+              <div className="text-xs text-emerald-400 font-semibold">
+                Quran 40:60
               </div>
-            </GlowCard>
+            </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* Search and Filter Bar */}
-        <div className="mb-8 flex flex-col md:flex-row gap-4 items-center justify-between">
-          <div className="flex-1 max-w-md">
-            <input
-              type="text"
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              placeholder={t('searchDuasOrCategories')}
-              className="w-full rounded-xl border border-brass/30 dark:border-brass/60 bg-white/80 dark:bg-gray-800/80 px-4 py-3 text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-brass focus:border-brass dark:focus:ring-brass/40 dark:focus:border-brass/40 placeholder:text-gray-500 dark:placeholder:text-gray-400 shadow-lg backdrop-blur-sm"
-            />
+        <motion.div 
+          className="mb-8"
+          variants={fadeInUp}
+          initial="initial"
+          animate="animate"
+          transition={{ delay: 0.2 }}
+        >
+          <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl p-6 shadow-2xl">
+            <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
+              <div className="flex-1 max-w-md">
+                <input
+                  type="text"
+                  value={search}
+                  onChange={e => setSearch(e.target.value)}
+                  placeholder={t('Search Duas Or Categories')}
+                  className="w-full rounded-xl border-2 border-white/20 bg-white/10 px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 placeholder:text-gray-400 transition-all"
+                />
+              </div>
+              
+              <div className="flex gap-3">
+                <motion.button
+                  onClick={() => setShowBookmarks(!showBookmarks)}
+                  className={`px-6 py-3 rounded-xl transition-all font-medium ${
+                    showBookmarks 
+                      ? 'bg-gradient-to-r from-emerald-600 to-green-600 text-white shadow-lg' 
+                      : 'bg-white/10 text-white hover:bg-white/20 border-2 border-white/20'
+                  }`}
+                  {...buttonPress}
+                >
+                  {t('Bookmarks')} ({getTotalBookmarkedCount()})
+                </motion.button>
+                
+                <motion.button
+                  onClick={() => setShowDailySuggestion(!showDailySuggestion)}
+                  className={`px-6 py-3 rounded-xl transition-all font-medium ${
+                    showDailySuggestion 
+                      ? 'bg-gradient-to-r from-green-500 to-teal-600 text-white shadow-lg' 
+                      : 'bg-white/10 text-white hover:bg-white/20 border-2 border-white/20'
+                  }`}
+                  {...buttonPress}
+                >
+                  {t('Daily Dua')}
+                </motion.button>
+
+                {user && (
+                  <motion.button
+                    onClick={() => setShowNotificationSettings(true)}
+                    className="px-6 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-green-600 text-white font-medium hover:from-emerald-500 hover:to-green-500 transition-all duration-300 shadow-lg hover:shadow-xl"
+                    {...buttonPress}
+                  >
+                    🔔 Notifications
+                  </motion.button>
+                )}
+              </div>
+            </div>
           </div>
-          
-          <div className="flex gap-2">
-            <MotionButton
-              onClick={() => setShowBookmarks(!showBookmarks)}
-              className={`px-4 py-2 rounded-xl transition-all font-medium ${
-                showBookmarks 
-                  ? 'bg-gradient-to-r from-brass to-wood text-white shadow-lg' 
-                  : 'bg-white/80 dark:bg-gray-800/80 text-gray-700 dark:text-gray-300 hover:bg-amber-50 dark:hover:bg-gray-700 border border-brass/30 dark:border-brass/60 backdrop-blur-sm'
-              }`}
-              {...buttonPress}
-            >
-              {t('bookmarks')} ({getTotalBookmarkedCount()})
-            </MotionButton>
-            
-            <MotionButton
-              onClick={() => setShowDailySuggestion(!showDailySuggestion)}
-              className={`px-4 py-2 rounded-xl transition-all font-medium ${
-                showDailySuggestion 
-                  ? 'bg-gradient-to-r from-brass to-wood text-white shadow-lg' 
-                  : 'bg-white/80 dark:bg-gray-800/80 text-gray-700 dark:text-gray-300 hover:bg-amber-50 dark:hover:bg-gray-700 border border-brass/30 dark:border-brass/60 backdrop-blur-sm'
-              }`}
-              {...buttonPress}
-            >
-              {t('dailyDua')}
-            </MotionButton>
-          </div>
-        </div>
+        </motion.div>
 
         {/* Daily Suggestion */}
         {showDailySuggestion && dailyDua && (
-          <MotionDiv className="mb-8" {...fadeInUp}>
-            <GlowCard className="bg-gradient-to-br from-amber-50 via-yellow-50 to-orange-50 dark:from-gray-800 dark:via-gray-700 dark:to-gray-800 rounded-2xl p-6 shadow-xl border border-brass/30 backdrop-blur-sm">
+          <motion.div 
+            className="mb-8" 
+            variants={fadeInUp}
+            initial="initial"
+            animate="animate"
+            transition={{ delay: 0.3 }}
+          >
+            <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-3xl p-8 shadow-2xl">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-xl font-bold text-brass dark:text-amber-200">{t('todaysDua')}</h3>
+                <h3 className="text-2xl font-bold text-white">{t('todaysDua')}</h3>
                 <button
                   onClick={() => setShowDailySuggestion(false)}
-                  className="text-gray-500 dark:text-gray-400 hover:text-brass dark:hover:text-amber-400 transition-colors"
+                  className="text-gray-400 hover:text-emerald-400 transition-colors text-2xl"
                 >
                   ✕
                 </button>
@@ -269,40 +310,40 @@ export default function DuaScreen() {
               
               <div className="space-y-4">
                 <div className="text-right">
-                  <p className="text-2xl font-arabic text-brass dark:text-amber-200 leading-loose">{dailyDua.arabic}</p>
+                  <p className="text-2xl font-arabic text-white leading-loose">{dailyDua.arabic}</p>
                 </div>
-                <div className="text-sm text-gray-600 dark:text-gray-400 italic">{dailyDua.transliteration}</div>
-                <div className="text-base text-gray-700 dark:text-gray-300">{dailyDua.translation}</div>
+                <div className="text-sm text-gray-300 italic">{dailyDua.transliteration}</div>
+                <div className="text-base text-gray-300">{dailyDua.translation}</div>
                 
                 <div className="flex gap-2 pt-2">
-                  <MotionButton
+                  <motion.button
                     onClick={() => copyToClipboard(dailyDua.arabic)}
-                    className="px-3 py-1 bg-gradient-to-r from-brass to-wood text-white rounded-lg text-sm hover:from-wood hover:to-brass transition-all font-medium"
+                    className="px-3 py-1 bg-gradient-to-r from-emerald-600 to-green-600 text-white rounded-lg text-sm hover:from-emerald-500 hover:to-green-500 transition-all font-medium"
                     {...buttonPress}
                   >
-                    {t('copy')}
-                  </MotionButton>
-                  <MotionButton
+                    {t('Copy')}
+                  </motion.button>
+                  <motion.button
                     onClick={() => shareDua(dailyDua)}
-                    className="px-3 py-1 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-lg text-sm hover:from-green-700 hover:to-green-800 transition-all font-medium"
+                    className="px-3 py-1 bg-gradient-to-r from-green-500 to-teal-600 text-white rounded-lg text-sm hover:from-teal-500 hover:to-green-500 transition-all font-medium"
                     {...buttonPress}
                   >
-                    {t('share')}
-                  </MotionButton>
+                    {t('Share')}
+                  </motion.button>
                 </div>
               </div>
-            </GlowCard>
-          </MotionDiv>
+            </div>
+          </motion.div>
         )}
 
         {/* Categories Grid */}
-        <MotionDiv className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" {...staggerContainer}>
+        <motion.div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" {...staggerContainer}>
           {filteredCategories.length === 0 ? (
-            <MotionDiv className="col-span-full text-center text-gray-600 dark:text-gray-400 text-lg py-8" {...fadeInUp}>
+            <motion.div className="col-span-full text-center text-gray-600 dark:text-gray-400 text-lg py-8" {...fadeInUp}>
               <div className="text-4xl mb-4">🔍</div>
-              <p>{t('noCategoriesFound')}</p>
-              <p className="text-sm mt-2">{t('tryDifferentKeywords')}</p>
-            </MotionDiv>
+              <p>{t('No Categories Found')}</p>
+              <p className="text-sm mt-2">{t('Try Different Keywords')}</p>
+            </motion.div>
           ) : (
             filteredCategories.map((cat, index) => {
               const categoryDuas = duasByCategory[cat.key] || [];
@@ -311,9 +352,9 @@ export default function DuaScreen() {
               ).length;
               
               return (
-                <MotionCard
+                <motion.div
                   key={cat.key}
-                  className="group relative bg-gradient-to-br from-white/95 to-white/80 dark:from-gray-800/95 dark:to-gray-800/80 rounded-2xl p-6 border border-brass/30 shadow-xl hover:shadow-2xl transition-all duration-500 cursor-pointer backdrop-blur-sm hover:scale-105 transform"
+                  className="group relative bg-white/10 backdrop-blur-lg border border-white/20 rounded-3xl p-6 shadow-xl hover:shadow-2xl transition-all duration-500 cursor-pointer hover:scale-105 transform hover:bg-white/20"
                   onClick={() => navigate(`/duas/${encodeURIComponent(cat.key)}`)}
                   {...staggerItem}
                   style={{
@@ -321,15 +362,15 @@ export default function DuaScreen() {
                   }}
                 >
                   {/* Enhanced decorative corner elements */}
-                  <div className="absolute top-0 left-0 w-8 h-8 border-l-2 border-t-2 border-brass/40 rounded-tl-xl"></div>
-                  <div className="absolute top-0 right-0 w-8 h-8 border-r-2 border-t-2 border-brass/40 rounded-tr-xl"></div>
-                  <div className="absolute bottom-0 left-0 w-8 h-8 border-l-2 border-b-2 border-brass/40 rounded-bl-xl"></div>
-                  <div className="absolute bottom-0 right-0 w-8 h-8 border-r-2 border-b-2 border-brass/40 rounded-br-xl"></div>
+                  <div className="absolute top-0 left-0 w-8 h-8 border-l-2 border-t-2 border-emerald-400/40 rounded-tl-xl"></div>
+                  <div className="absolute top-0 right-0 w-8 h-8 border-r-2 border-t-2 border-emerald-400/40 rounded-tr-xl"></div>
+                  <div className="absolute bottom-0 left-0 w-8 h-8 border-l-2 border-b-2 border-emerald-400/40 rounded-bl-xl"></div>
+                  <div className="absolute bottom-0 right-0 w-8 h-8 border-r-2 border-b-2 border-emerald-400/40 rounded-br-xl"></div>
 
                   <div className="text-center relative z-10">
                     {/* Category Icon */}
                     <div className="text-4xl mb-3 mt-2 group-hover:scale-125 transition-transform duration-500">
-                      {cat.key === 'daily' && '📅'}
+                      {cat.key === 'daily' && '🌅'}
                       {cat.key === 'prayer' && '🕌'}
                       {cat.key === 'protection' && '🛡️'}
                       {cat.key === 'hardship' && '💪'}
@@ -337,7 +378,7 @@ export default function DuaScreen() {
                       {cat.key === 'general' && '📚'}
                       {cat.key === 'hajj' && '🕋'}
                       {cat.key === 'ramadan' && '🌙'}
-                      {cat.key === 'weather' && '🌧️'}
+                      {cat.key === 'weather' && '⛈️'}
                       {cat.key === 'sickness' && '🏥'}
                       {cat.key === 'social' && '🤝'}
                       {cat.key === 'rizq' && '💰'}
@@ -355,48 +396,84 @@ export default function DuaScreen() {
                       {!['daily', 'prayer', 'protection', 'hardship', 'relationship', 'general', 'hajj', 'ramadan', 'weather', 'sickness', 'social', 'rizq', 'repentance', 'enemy', 'business', 'success', 'love', 'prophetlove', 'imaan', 'dailybooster', 'consistency', 'beforesalah', 'aftersalah'].includes(cat.key) && '📿'}
                     </div>
                     
-                    <h3 className="text-lg font-bold text-brass dark:text-amber-200 mb-2 text-center drop-shadow group-hover:text-amber-600 transition-colors duration-300">
+                    <h3 className="text-lg font-bold text-white mb-2 text-center drop-shadow group-hover:text-emerald-300 transition-colors duration-300">
                       {getTranslatedCategory(cat.key).title}
                     </h3>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 opacity-80 mb-3 line-clamp-2">
+                    <p className="text-sm text-gray-300 opacity-80 mb-3 line-clamp-2 group-hover:text-white transition-colors duration-300">
                       {getTranslatedCategory(cat.key).description}
                     </p>
                     
+                    {/* Sample Dua Preview */}
+                    {categoryDuas.length > 0 && (
+                      <div className="mb-3 p-3 bg-gradient-to-r from-emerald-500/20 to-green-500/20 rounded-lg border border-emerald-400/30">
+                        <div className="text-right mb-2">
+                          <p className="text-sm font-arabic text-white leading-relaxed">
+                            {categoryDuas[0].arabic.substring(0, 60)}...
+                          </p>
+                        </div>
+                        <p className="text-xs text-gray-300 italic line-clamp-2">
+                          "{categoryDuas[0].translation.substring(0, 70)}..."
+                        </p>
+                      </div>
+                    )}
+                    
                     {/* Stats */}
-                    <div className="flex justify-between items-center text-xs text-gray-500 dark:text-gray-400">
-                      <span>{categoryDuas.length} {t('duas')}</span>
+                    <div className="flex justify-between items-center text-xs text-gray-400">
+                      <span className="flex items-center gap-1">
+                        <span className="text-emerald-400">📿</span>
+                        {categoryDuas.length} {categoryDuas.length === 1 ? 'Dua' : 'Duas'}
+                      </span>
                       {bookmarkedCount > 0 && (
-                        <span className="text-amber-600 dark:text-amber-400">⭐ {bookmarkedCount}</span>
+                        <span className="text-emerald-400 flex items-center gap-1">
+                          <span>⭐</span>
+                          {bookmarkedCount}
+                        </span>
                       )}
                     </div>
                   </div>
                   
                   {/* Enhanced hover effect overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-brass/10 to-wood/10 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                </MotionCard>
+                  <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/20 via-green-500/20 to-teal-500/20 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                  <div className="absolute inset-0 border-2 border-transparent group-hover:border-emerald-400/50 rounded-3xl transition-colors duration-500"></div>
+                </motion.div>
               );
             })
           )}
-        </MotionDiv>
+        </motion.div>
 
         {/* Quick Stats */}
-        <MotionDiv className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-4" {...fadeInUp}>
-          <GlowCard className="bg-gradient-to-br from-white/95 to-white/80 dark:from-gray-800/95 dark:to-gray-800/80 rounded-xl p-4 text-center border border-brass/30 shadow-lg backdrop-blur-sm">
-            <div className="text-2xl font-bold text-brass dark:text-amber-200">{duaCategories.length}</div>
-            <div className="text-sm text-gray-600 dark:text-gray-400">{t('categories')}</div>
-          </GlowCard>
-          <GlowCard className="bg-gradient-to-br from-white/95 to-white/80 dark:from-gray-800/95 dark:to-gray-800/80 rounded-xl p-4 text-center border border-brass/30 shadow-lg backdrop-blur-sm">
-            <div className="text-2xl font-bold text-brass dark:text-amber-200">
+        <motion.div 
+          className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-4" 
+          variants={fadeInUp}
+          initial="initial"
+          animate="animate"
+          transition={{ delay: 0.4 }}
+        >
+          <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl p-6 text-center shadow-2xl">
+            <div className="text-3xl mb-2">📚</div>
+            <div className="text-2xl font-bold text-white">{duaCategories.length}</div>
+            <div className="text-sm text-gray-300">Dua Categories</div>
+          </div>
+          <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl p-6 text-center shadow-2xl">
+            <div className="text-3xl mb-2">📿</div>
+            <div className="text-2xl font-bold text-white">
               {Object.values(duasByCategory).reduce((total, duas) => total + duas.length, 0)}
             </div>
-            <div className="text-sm text-gray-600 dark:text-gray-400">{t('totalDuas')}</div>
-          </GlowCard>
-          <GlowCard className="bg-gradient-to-br from-white/95 to-white/80 dark:from-gray-800/95 dark:to-gray-800/80 rounded-xl p-4 text-center border border-brass/30 shadow-lg backdrop-blur-sm">
-            <div className="text-2xl font-bold text-brass dark:text-amber-200">{getTotalBookmarkedCount()}</div>
-            <div className="text-sm text-gray-600 dark:text-gray-400">{t('bookmarked')}</div>
-          </GlowCard>
-        </MotionDiv>
+            <div className="text-sm text-gray-300">Total Duas</div>
+          </div>
+          <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl p-6 text-center shadow-2xl">
+            <div className="text-3xl mb-2">⭐</div>
+            <div className="text-2xl font-bold text-white">{getTotalBookmarkedCount()}</div>
+            <div className="text-sm text-gray-300">Bookmarked</div>
+          </div>
+        </motion.div>
       </div>
-    </MotionDiv>
+
+      {/* Notification Settings Modal */}
+      <NotificationSettings 
+        isOpen={showNotificationSettings}
+        onClose={() => setShowNotificationSettings(false)}
+      />
+    </motion.div>
   );
 } 

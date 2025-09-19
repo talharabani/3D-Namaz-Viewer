@@ -2,10 +2,8 @@ import { useState, useRef, useEffect } from 'react';
 import niyyahIcon from '../assets/icons/niyyah.svg';
 import { progressTracker } from '../utils/progressTracker';
 import { GlowCard } from '../components/nurui/spotlight-card';
+import { motion } from 'framer-motion';
 import { 
-  MotionDiv, 
-  MotionCard, 
-  MotionButton,
   fadeInUp, 
   staggerContainer, 
   staggerItem, 

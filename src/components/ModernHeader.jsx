@@ -1,6 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from '../utils/translations';
+import { useSettings } from '../contexts/SettingsContext';
+import ThemeToggle from './ThemeToggle';
+import LanguageToggle from './LanguageToggle';
 
 export default function ModernHeader({ 
   currentLang, 
@@ -11,6 +14,7 @@ export default function ModernHeader({
   onLogout 
 }) {
   const { t } = useTranslation();
+  const { settings, updateTheme } = useSettings();
   const location = useLocation();
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
@@ -37,24 +41,25 @@ export default function ModernHeader({
     { path: '/settings', label: t('settings'), icon: '⚙️' }
   ];
 
-  // Search functionality
+  // Enhanced search functionality
   const searchItems = [
-    { type: 'dua', label: t('duas'), path: '/duas', icon: '🤲', description: t('searchDuasDesc') },
-    { type: 'hadith', label: t('hadith'), path: '/hadith', icon: '📜', description: t('searchHadithDesc') },
-    { type: 'learn', label: t('learn'), path: '/learn', icon: '📚', description: t('searchLearnDesc') },
-    { type: 'prayer', label: t('namaz'), path: '/namaz', icon: '🕌', description: t('searchPrayerDesc') },
-    { type: 'qibla', label: t('qibla'), path: '/qibla', icon: '🧭', description: t('searchQiblaDesc') },
-    { type: 'tracker', label: t('tracker'), path: '/tracker', icon: '📈', description: t('searchTrackerDesc') },
-    { type: 'quiz', label: t('quiz'), path: '/quiz', icon: '🏆', description: t('searchQuizDesc') },
-    { type: 'ai', label: t('aiAssistant'), path: '/ai-assistant', icon: '🤖', description: t('searchAIDesc') },
-    { type: 'times', label: t('prayerTimes'), path: '/prayer-times', icon: '🕐', description: t('searchTimesDesc') },
-    { type: 'settings', label: t('settings'), path: '/settings', icon: '⚙️', description: t('searchSettingsDesc') }
+    { type: 'dua', label: t('duas'), path: '/duas', icon: '🤲', description: t('searchDuasDesc'), keywords: ['dua', 'prayer', 'supplication', 'دعا', 'مناجات'] },
+    { type: 'hadith', label: t('hadith'), path: '/hadith', icon: '📜', description: t('searchHadithDesc'), keywords: ['hadith', 'sunnah', 'prophet', 'حدیث', 'سنت'] },
+    { type: 'learn', label: t('learn'), path: '/learn', icon: '📚', description: t('searchLearnDesc'), keywords: ['learn', 'education', 'guide', 'سیکھیں', 'تعلیم'] },
+    { type: 'prayer', label: t('namaz'), path: '/namaz', icon: '🕌', description: t('searchPrayerDesc'), keywords: ['namaz', 'salah', 'prayer', 'نماز', 'صلوۃ'] },
+    { type: 'qibla', label: t('qibla'), path: '/qibla', icon: '🧭', description: t('searchQiblaDesc'), keywords: ['qibla', 'direction', 'kaaba', 'قبلہ', 'سمت'] },
+    { type: 'tracker', label: t('tracker'), path: '/tracker', icon: '📈', description: t('searchTrackerDesc'), keywords: ['track', 'progress', 'record', 'ٹریکر', 'نگرانی'] },
+    { type: 'quiz', label: t('quiz'), path: '/quiz', icon: '🏆', description: t('searchQuizDesc'), keywords: ['quiz', 'test', 'knowledge', 'کوئز', 'امتحان'] },
+    { type: 'ai', label: t('aiAssistant'), path: '/ai-assistant', icon: '🤖', description: t('searchAIDesc'), keywords: ['ai', 'assistant', 'help', 'اے آئی', 'مدد'] },
+    { type: 'times', label: t('prayerTimes'), path: '/prayer-times', icon: '🕐', description: t('searchTimesDesc'), keywords: ['times', 'schedule', 'وقت', 'اوقات'] },
+    { type: 'settings', label: t('settings'), path: '/settings', icon: '⚙️', description: t('searchSettingsDesc'), keywords: ['settings', 'preferences', 'ترتیبات', 'اختیارات'] }
   ];
 
   const filteredSearchResults = searchItems.filter(item =>
     item.label.toLowerCase().includes(searchQuery.toLowerCase()) ||
     item.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    item.type.toLowerCase().includes(searchQuery.toLowerCase())
+    item.type.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    item.keywords.some(keyword => keyword.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
   // Handle search
@@ -137,38 +142,55 @@ export default function ModernHeader({
               </div>
             </div>
 
-            {/* Search Results Dropdown */}
-            {showSearchResults && filteredSearchResults.length > 0 && (
+            {/* Enhanced Search Results Dropdown */}
+            {showSearchResults && (
               <div className="absolute top-full left-0 right-0 mt-2 bg-gray-800 border border-gray-600 rounded-xl shadow-2xl z-50 max-h-96 overflow-y-auto">
+                {filteredSearchResults.length > 0 ? (
+                  <>
+                    <div className="px-4 py-2 border-b border-gray-700">
+                      <div className="text-xs text-gray-400 font-medium">
+                        {filteredSearchResults.length} {filteredSearchResults.length === 1 ? 'result' : 'results'} found
+                      </div>
+                    </div>
                 {filteredSearchResults.map((item, index) => (
                   <button
                     key={index}
                     onClick={() => handleSearchResultClick(item.path)}
-                    className="w-full flex items-center space-x-4 px-4 py-3 text-left hover:bg-gray-700 transition-colors duration-200 first:rounded-t-xl last:rounded-b-xl"
-                  >
-                    <span className="text-xl">{item.icon}</span>
-                    <div className="flex-1">
-                      <div className="text-white font-medium">{item.label}</div>
-                      <div className="text-sm text-gray-400">{item.description}</div>
+                        className="w-full flex items-center space-x-4 px-4 py-3 text-left hover:bg-gray-700 transition-all duration-200 group"
+                      >
+                        <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-r from-amber-500 to-yellow-500 rounded-lg flex items-center justify-center text-gray-900 text-lg group-hover:scale-110 transition-transform duration-200">
+                          {item.icon}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="text-white font-medium truncate">{item.label}</div>
+                          <div className="text-sm text-gray-400 truncate">{item.description}</div>
+                          <div className="flex flex-wrap gap-1 mt-1">
+                            {item.keywords.slice(0, 3).map((keyword, idx) => (
+                              <span key={idx} className="text-xs bg-gray-700 text-gray-300 px-2 py-0.5 rounded-full">
+                                {keyword}
+                              </span>
+                            ))}
+                          </div>
                     </div>
-                    <svg className="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg className="w-5 h-5 text-gray-400 group-hover:text-white transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                     </svg>
                   </button>
                 ))}
+                  </>
+                ) : (
+                  <div className="px-4 py-8 text-center">
+                    <div className="text-4xl mb-2">🔍</div>
+                    <div className="text-gray-400 text-sm">No results found for "{searchQuery}"</div>
+                    <div className="text-gray-500 text-xs mt-1">Try different keywords</div>
+                  </div>
+                )}
               </div>
             )}
           </div>
 
           {/* Right Side Controls */}
           <div className="flex items-center space-x-2 md:space-x-4">
-            {/* Language Toggle */}
-            <button
-              onClick={onLanguageChange}
-              className="px-3 md:px-4 py-2 bg-gradient-to-r from-amber-500 to-yellow-500 text-gray-900 rounded-xl font-medium hover:from-amber-600 hover:to-yellow-600 transition-all duration-200 shadow-lg"
-            >
-              {currentLang === 'en' ? 'اردو' : 'EN'}
-            </button>
 
             {/* User Menu */}
             {isAuthenticated ? (

@@ -103,17 +103,27 @@ export const SettingsProvider = ({ children }) => {
     if (theme === 'dark') {
       root.classList.add('dark');
       root.classList.remove('light');
+      localStorage.setItem('theme', 'dark');
     } else if (theme === 'light') {
       root.classList.remove('dark');
       root.classList.add('light');
+      localStorage.setItem('theme', 'light');
     } else {
       // Auto theme - check system preference
       root.classList.remove('dark', 'light');
-      if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      if (systemPrefersDark) {
         root.classList.add('dark');
       } else {
         root.classList.add('light');
       }
+      localStorage.setItem('theme', 'auto');
+    }
+    
+    // Update meta theme-color for mobile browsers
+    const metaThemeColor = document.querySelector('meta[name="theme-color"]');
+    if (metaThemeColor) {
+      metaThemeColor.content = theme === 'dark' ? '#0f172a' : '#ffffff';
     }
   };
 

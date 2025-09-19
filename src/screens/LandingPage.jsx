@@ -88,14 +88,13 @@ export default function LandingPage() {
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 lg:py-32">
           <div className="text-center">
             <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
-              Your Complete
+              {t('homeTitle')}
               <span className="block bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                Islamic Companion
+                {t('comprehensiveIslamicPrayerCompanion')}
               </span>
             </h1>
             <p className="text-xl md:text-2xl text-gray-600 mb-8 max-w-3xl mx-auto">
-              Stay connected with your faith through accurate prayer times, comprehensive learning, 
-              and spiritual guidance - all in one beautiful, user-friendly platform.
+              {t('beginYourSpiritualJourney')}
             </p>
             
             {/* Current Time Display */}
@@ -122,13 +121,13 @@ export default function LandingPage() {
                 to="/dashboard"
                 className="px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 shadow-lg"
               >
-                Get Started Free
+                {t('getStartedFree')}
               </Link>
               <Link
                 to="/prayer-times"
                 className="px-8 py-4 bg-white text-gray-700 font-semibold rounded-lg border border-gray-300 hover:bg-gray-50 transition-all duration-300 transform hover:scale-105 shadow-lg"
               >
-                View Prayer Times
+                {t('viewPrayerTimes')}
               </Link>
             </div>
           </div>

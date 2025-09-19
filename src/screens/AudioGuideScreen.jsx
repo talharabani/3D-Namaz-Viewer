@@ -1,9 +1,7 @@
 import { useRef, useState } from 'react';
 import { GlowCard } from '../components/nurui/spotlight-card';
+import { motion } from 'framer-motion';
 import { 
-  MotionDiv, 
-  MotionCard, 
-  MotionButton,
   fadeInUp, 
   staggerContainer, 
   staggerItem, 

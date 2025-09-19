@@ -1,90 +1,151 @@
-// Service Worker for Namaz App offline functionality
-
-const CACHE_NAME = 'namaz-app-v1';
+// Service Worker for Daily Dua Notifications
+const CACHE_NAME = 'namaz-web-v1';
 const urlsToCache = [
   '/',
-  '/index.html',
-  '/manifest.json',
-  '/favicon.ico',
-  // Add other important assets here
+  '/static/js/bundle.js',
+  '/static/css/main.css',
+  '/manifest.json'
 ];
 
-// Install event - cache resources
+// Install event
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME)
-      .then((cache) => {
-        console.log('Opened cache');
-        return cache.addAll(urlsToCache).catch((error) => {
-          console.warn('Some resources failed to cache:', error);
-          // Continue with installation even if some resources fail to cache
-          return Promise.resolve();
+      .then((cache) => cache.addAll(urlsToCache))
+  );
+});
+
+// Fetch event
+self.addEventListener('fetch', (event) => {
+  // Only handle GET requests
+  if (event.request.method !== 'GET') {
+    return;
+  }
+
+  event.respondWith(
+    caches.match(event.request)
+      .then((response) => {
+        // Return cached version or fetch from network
+        if (response) {
+          return response;
+        }
+        
+        return fetch(event.request)
+          .then((fetchResponse) => {
+            // Clone the response before caching
+            const responseToCache = fetchResponse.clone();
+            
+            // Cache the response for future use
+            caches.open(CACHE_NAME)
+              .then((cache) => {
+                cache.put(event.request, responseToCache);
+              });
+            
+            return fetchResponse;
+          })
+          .catch((error) => {
+            console.error('Fetch failed:', error);
+            // Return a basic response for failed requests
+            return new Response('Network error', {
+              status: 408,
+              statusText: 'Request Timeout',
+              headers: {
+                'Content-Type': 'text/plain'
+              }
+            });
+          });
+      })
+      .catch((error) => {
+        console.error('Cache match failed:', error);
+        // Return a basic response for cache errors
+        return new Response('Cache error', {
+          status: 500,
+          statusText: 'Internal Server Error',
+          headers: {
+            'Content-Type': 'text/plain'
+          }
         });
       })
   );
 });
 
-// Fetch event - serve from cache when offline
-self.addEventListener('fetch', (event) => {
-  event.respondWith(
-    caches.match(event.request)
-      .then((response) => {
-        // Return cached version or fetch from network
-        return response || fetch(event.request);
-      })
-      .catch(() => {
-        // Return offline page if both cache and network fail
-        if (event.request.destination === 'document') {
-          return caches.match('/index.html');
+// Notification click event
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+
+  const action = event.action;
+  const data = event.notification.data;
+
+  if (action === 'view') {
+    // Open the app to the specific dua
+    event.waitUntil(
+      clients.openWindow(data.url || '/duas/daily')
+    );
+  } else if (action === 'bookmark') {
+    // Handle bookmark action
+    event.waitUntil(
+      clients.matchAll().then((clients) => {
+        if (clients.length > 0) {
+          clients[0].postMessage({
+            type: 'BOOKMARK_DUA',
+            dua: data.dua
+          });
         }
       })
-  );
-});
-
-// Activate event - clean up old caches
-self.addEventListener('activate', (event) => {
-  event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames.map((cacheName) => {
-          if (cacheName !== CACHE_NAME) {
-            console.log('Deleting old cache:', cacheName);
-            return caches.delete(cacheName);
-          }
-        })
-      );
-    })
-  );
-});
-
-// Background sync for prayer notifications
-self.addEventListener('sync', (event) => {
-  if (event.tag === 'prayer-notification') {
-    event.waitUntil(handlePrayerNotification());
+    );
+  } else {
+    // Default action - open the app
+    event.waitUntil(
+      clients.openWindow('/')
+    );
   }
 });
 
-// Handle prayer notifications
-async function handlePrayerNotification() {
+// Background sync for notifications
+self.addEventListener('sync', (event) => {
+  if (event.tag === 'daily-dua-sync') {
+    event.waitUntil(
+      // Handle background sync for daily dua notifications
+      handleDailyDuaSync()
+    );
+  }
+});
+
+// Handle daily dua sync
+async function handleDailyDuaSync() {
   try {
-    // This would handle background prayer notifications
-    console.log('Handling prayer notification in background');
+    // This would typically fetch the daily dua from your API
+    // For now, we'll just log it
+    console.log('Syncing daily dua notification');
   } catch (error) {
-    console.error('Error handling prayer notification:', error);
+    console.error('Error syncing daily dua:', error);
   }
 }
 
-// Push notification handling
+// Push event for push notifications
 self.addEventListener('push', (event) => {
   if (event.data) {
     const data = event.data.json();
+    
     const options = {
       body: data.body,
-      icon: '/favicon.ico',
-      badge: '/favicon.ico',
-      tag: data.tag || 'prayer-notification',
-      requireInteraction: false,
-      silent: false
+      icon: data.icon || '/src/assets/logo.png',
+      badge: data.badge || '/src/assets/badge.png',
+      tag: data.tag || 'daily-dua',
+      requireInteraction: true,
+      actions: data.actions || [
+        {
+          action: 'view',
+          title: 'View Dua',
+          icon: '/src/assets/view-icon.png'
+        },
+        {
+          action: 'bookmark',
+          title: 'Bookmark',
+          icon: '/src/assets/bookmark-icon.png'
+        }
+      ],
+      data: data.data || {}
     };
 
     event.waitUntil(
@@ -92,12 +153,3 @@ self.addEventListener('push', (event) => {
     );
   }
 });
-
-// Notification click handling
-self.addEventListener('notificationclick', (event) => {
-  event.notification.close();
-  
-  event.waitUntil(
-    clients.openWindow('/')
-  );
-}); 

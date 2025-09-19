@@ -48,6 +48,134 @@
   justify-content: center;
 }
 
+/* Enhanced Arabic calligraphy with beautiful styling */
+.arabic-calligraphy-beautiful {
+  font-family: 'Amiri', serif;
+  text-align: center;
+  text-align-last: center;
+  -webkit-text-align-last: center;
+  -moz-text-align-last: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  line-height: 1.2;
+  letter-spacing: 0.1em;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+}
+
+/* Beautiful gradient text for Arabic calligraphy */
+.arabic-gradient-text {
+  background: linear-gradient(135deg, #fbbf24, #f59e0b, #d97706, #92400e);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: none;
+}
+
+/* Enhanced Arabic text with glow effect */
+.arabic-glow {
+  text-shadow: 
+    0 0 10px rgba(251, 191, 36, 0.5),
+    0 0 20px rgba(251, 191, 36, 0.3),
+    0 0 30px rgba(251, 191, 36, 0.2);
+}
+
+/* Beautiful Arabic calligraphy container */
+.calligraphy-container {
+  position: relative;
+  padding: 2rem;
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.05));
+  border-radius: 2rem;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(251, 191, 36, 0.2);
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  animation: float 6s ease-in-out infinite;
+}
+
+/* Enhanced calligraphy animations */
+@keyframes calligraphyGlow {
+  0%, 100% {
+    text-shadow: 
+      0 0 10px rgba(251, 191, 36, 0.5),
+      0 0 20px rgba(251, 191, 36, 0.3),
+      0 0 30px rgba(251, 191, 36, 0.2);
+  }
+  50% {
+    text-shadow: 
+      0 0 20px rgba(251, 191, 36, 0.8),
+      0 0 40px rgba(251, 191, 36, 0.5),
+      0 0 60px rgba(251, 191, 36, 0.3);
+  }
+}
+
+.arabic-calligraphy-beautiful {
+  animation: calligraphyGlow 3s ease-in-out infinite;
+}
+
+/* Beautiful entrance animation for calligraphy */
+@keyframes calligraphyEntrance {
+  0% {
+    opacity: 0;
+    transform: translateY(50px) scale(0.8);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.calligraphy-container > div {
+  animation: calligraphyEntrance 1s ease-out forwards;
+}
+
+.calligraphy-container > div:nth-child(1) {
+  animation-delay: 0.2s;
+}
+
+.calligraphy-container > div:nth-child(2) {
+  animation-delay: 0.4s;
+}
+
+.calligraphy-container > div:nth-child(3) {
+  animation-delay: 0.6s;
+}
+
+/* Decorative star animations */
+@keyframes starTwinkle {
+  0%, 100% {
+    opacity: 0.3;
+    transform: scale(1) rotate(0deg);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.2) rotate(180deg);
+  }
+}
+
+.calligraphy-container .absolute {
+  animation: starTwinkle 4s ease-in-out infinite;
+}
+
+.calligraphy-container .absolute:nth-child(1) {
+  animation-delay: 0s;
+}
+
+.calligraphy-container .absolute:nth-child(2) {
+  animation-delay: 1s;
+}
+
+.calligraphy-container .absolute:nth-child(3) {
+  animation-delay: 2s;
+}
+
+.calligraphy-container .absolute:nth-child(4) {
+  animation-delay: 3s;
+}
+
 /* Enhanced Arabic text styling */
 .arabic-text-center {
   text-align: center;
@@ -76,6 +204,30 @@
 
 body {
   @apply bg-background text-text font-body min-h-screen antialiased;
+  word-spacing: 0.1em;
+  letter-spacing: 0.02em;
+}
+
+/* Enhanced Responsive Design */
+@media (max-width: 640px) {
+  body {
+    font-size: 14px;
+    line-height: 1.5;
+  }
+}
+
+@media (min-width: 641px) and (max-width: 768px) {
+  body {
+    font-size: 15px;
+    line-height: 1.6;
+  }
+}
+
+@media (min-width: 769px) {
+  body {
+    font-size: 16px;
+    line-height: 1.7;
+  }
 }
 .dark body {
   @apply bg-dark text-darktext;
@@ -94,6 +246,33 @@ a:hover {
 
 .card {
   @apply bg-white/80 dark:bg-darkcard/90 border border-brass/20 dark:border-brass/30 rounded-xl shadow-card p-6 mb-6 backdrop-blur-sm;
+  word-spacing: 0.15em;
+  line-height: 1.6;
+}
+
+/* Responsive Card Design */
+@media (max-width: 640px) {
+  .card {
+    @apply p-4 mb-4;
+    word-spacing: 0.1em;
+    line-height: 1.5;
+  }
+}
+
+@media (min-width: 641px) and (max-width: 768px) {
+  .card {
+    @apply p-5 mb-5;
+    word-spacing: 0.12em;
+    line-height: 1.55;
+  }
+}
+
+@media (min-width: 769px) {
+  .card {
+    @apply p-6 mb-6;
+    word-spacing: 0.15em;
+    line-height: 1.6;
+  }
 }
 
 button, .btn {
@@ -103,13 +282,160 @@ button, .btn {
   pointer-events: auto;
 }
 
+/* Responsive Button Design */
+@media (max-width: 640px) {
+  button, .btn {
+    @apply px-4 py-2 text-sm;
+  }
+}
+
+@media (min-width: 641px) and (max-width: 768px) {
+  button, .btn {
+    @apply px-5 py-2 text-base;
+  }
+}
+
+@media (min-width: 769px) {
+  button, .btn {
+    @apply px-6 py-3 text-lg;
+  }
+}
+
 input, textarea {
   @apply bg-card dark:bg-darkcard border border-border dark:border-darkborder rounded-xl px-4 py-2 text-text dark:text-darktext font-body focus:outline-none focus:ring-2 focus:ring-brass transition;
+}
+
+/* Responsive Input Design */
+@media (max-width: 640px) {
+  input, textarea {
+    @apply px-3 py-2 text-sm;
+  }
+}
+
+@media (min-width: 641px) and (max-width: 768px) {
+  input, textarea {
+    @apply px-4 py-2 text-base;
+  }
+}
+
+@media (min-width: 769px) {
+  input, textarea {
+    @apply px-5 py-3 text-lg;
+  }
 }
 
 /* Glass morphism card utility */
 .glassmorph-card {
   @apply bg-white/60 dark:bg-darkcard/70 backdrop-blur-lg border border-brass/30 dark:border-brass/40 rounded-2xl shadow-glassmorph;
+}
+
+/* Responsive Grid Utilities */
+.responsive-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 640px) {
+  .responsive-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .responsive-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .responsive-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2.5rem;
+  }
+}
+
+/* Responsive Text Sizes */
+.responsive-text-xs {
+  font-size: 0.75rem;
+}
+
+@media (min-width: 640px) {
+  .responsive-text-xs {
+    font-size: 0.875rem;
+  }
+}
+
+.responsive-text-sm {
+  font-size: 0.875rem;
+}
+
+@media (min-width: 640px) {
+  .responsive-text-sm {
+    font-size: 1rem;
+  }
+}
+
+.responsive-text-base {
+  font-size: 1rem;
+}
+
+@media (min-width: 640px) {
+  .responsive-text-base {
+    font-size: 1.125rem;
+  }
+}
+
+.responsive-text-lg {
+  font-size: 1.125rem;
+}
+
+@media (min-width: 640px) {
+  .responsive-text-lg {
+    font-size: 1.25rem;
+  }
+}
+
+.responsive-text-xl {
+  font-size: 1.25rem;
+}
+
+@media (min-width: 640px) {
+  .responsive-text-xl {
+    font-size: 1.5rem;
+  }
+}
+
+.responsive-text-2xl {
+  font-size: 1.5rem;
+}
+
+@media (min-width: 640px) {
+  .responsive-text-2xl {
+    font-size: 1.875rem;
+  }
+}
+
+.responsive-text-3xl {
+  font-size: 1.875rem;
+}
+
+@media (min-width: 640px) {
+  .responsive-text-3xl {
+    font-size: 2.25rem;
+  }
+}
+
+.responsive-text-4xl {
+  font-size: 2.25rem;
+}
+
+@media (min-width: 640px) {
+  .responsive-text-4xl {
+    font-size: 3rem;
+  }
 }
 
 nav, .footer-nav {
@@ -493,10 +819,164 @@ nav .active, .footer-nav .active {
 /* Theme Support */
 .light {
   color-scheme: light;
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8fafc;
+  --bg-tertiary: #f1f5f9;
+  --text-primary: #1e293b;
+  --text-secondary: #64748b;
+  --text-tertiary: #94a3b8;
+  --border-primary: #e2e8f0;
+  --border-secondary: #cbd5e1;
+  --accent-primary: #3b82f6;
+  --accent-secondary: #1d4ed8;
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
 }
 
 .dark {
   color-scheme: dark;
+  --bg-primary: #0f172a;
+  --bg-secondary: #1e293b;
+  --bg-tertiary: #334155;
+  --text-primary: #f8fafc;
+  --text-secondary: #cbd5e1;
+  --text-tertiary: #94a3b8;
+  --border-primary: #334155;
+  --border-secondary: #475569;
+  --accent-primary: #60a5fa;
+  --accent-secondary: #3b82f6;
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.3);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.3), 0 4px 6px -4px rgb(0 0 0 / 0.3);
+}
+
+/* Smooth theme transitions */
+* {
+  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Enhanced glassmorphism effects */
+.glassmorph {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+}
+
+.dark .glassmorph {
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Modern button styles */
+.btn-modern {
+  @apply relative overflow-hidden px-6 py-3 rounded-xl font-semibold text-white transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  box-shadow: 0 4px 15px 0 rgba(102, 126, 234, 0.4);
+}
+
+.btn-modern:hover {
+  box-shadow: 0 6px 20px 0 rgba(102, 126, 234, 0.6);
+}
+
+.btn-modern:active {
+  transform: scale(0.98);
+}
+
+/* Enhanced card styles */
+.card-modern {
+  @apply bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-modern:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.dark .card-modern:hover {
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.1);
+}
+
+/* Improved spacing utilities */
+.space-y-modern > * + * {
+  margin-top: 1.5rem;
+}
+
+.space-x-modern > * + * {
+  margin-left: 1.5rem;
+}
+
+/* Enhanced focus styles */
+.focus-modern:focus {
+  outline: none;
+  ring: 2px;
+  ring-color: #3b82f6;
+  ring-offset: 2px;
+  ring-offset-color: white;
+}
+
+.dark .focus-modern:focus {
+  ring-offset-color: #1e293b;
+}
+
+/* Loading states */
+.loading {
+  position: relative;
+  overflow: hidden;
+}
+
+.loading::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+/* Improved scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--text-tertiary);
+  border-radius: 4px;
+  transition: background 0.3s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary);
+}
+
+/* Selection styles */
+::selection {
+  background: var(--accent-primary);
+  color: white;
+}
+
+::-moz-selection {
+  background: var(--accent-primary);
+  color: white;
 }
 
 /* Responsive adjustments for large text */
@@ -593,6 +1073,7 @@ nav .active, .footer-nav .active {
 .rtl {
   direction: rtl;
   text-align: right;
+  font-family: 'Noto Nastaliq Urdu', 'Jameel Noori Nastaleeq', 'Alvi Nastaleeq', serif;
 }
 
 .rtl .flex {
@@ -641,9 +1122,38 @@ nav .active, .footer-nav .active {
   border-left: 1px solid;
 }
 
-/* RTL specific font adjustments for Urdu */
-.rtl {
-  font-family: 'Noto Nastaliq Urdu', 'Jameel Noori Nastaleeq', 'Alvi Nastaleeq', serif;
+/* RTL specific spacing improvements */
+.rtl .space-x-4 > * + * {
+  margin-left: 0;
+  margin-right: 1rem;
+}
+
+.rtl .space-x-2 > * + * {
+  margin-left: 0;
+  margin-right: 0.5rem;
+}
+
+.rtl .space-x-6 > * + * {
+  margin-left: 0;
+  margin-right: 1.5rem;
+}
+
+/* RTL form elements */
+.rtl input,
+.rtl textarea,
+.rtl select {
+  text-align: right;
+}
+
+/* RTL navigation adjustments */
+.rtl nav .flex {
+  flex-direction: row-reverse;
+}
+
+/* RTL button groups */
+.rtl .flex .space-x-2 > * + * {
+  margin-left: 0;
+  margin-right: 0.5rem;
 }
 
 /* Ensure proper text direction for mixed content */
@@ -665,4 +1175,32 @@ nav .active, .footer-nav .active {
 .rtl table th:last-child,
 .rtl table td:last-child {
   text-align: left;
+}
+
+/* RTL modal and dropdown adjustments */
+.rtl .absolute.right-0 {
+  right: auto;
+  left: 0;
+}
+
+.rtl .absolute.left-0 {
+  left: auto;
+  right: 0;
+}
+
+/* RTL search input adjustments */
+.rtl input[type="search"],
+.rtl input[type="text"] {
+  text-align: right;
+}
+
+/* RTL icon positioning */
+.rtl .relative .absolute.inset-y-0.left-0 {
+  left: auto;
+  right: 0;
+}
+
+.rtl .relative .absolute.inset-y-0.right-0 {
+  right: auto;
+  left: 0;
 }

@@ -1,6 +1,40 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { useTranslation } from '../utils/translations';
+
+// Animation variants
+const fadeInUp = {
+  initial: { opacity: 0, y: 30 },
+  animate: { opacity: 1, y: 0 },
+  transition: { duration: 0.6 }
+};
+
+const staggerContainer = {
+  initial: {},
+  animate: {
+    transition: {
+      staggerChildren: 0.1
+    }
+  }
+};
+
+const staggerItem = {
+  initial: { opacity: 0, y: 20 },
+  animate: { opacity: 1, y: 0 },
+  transition: { duration: 0.5 }
+};
+
+const pulseAnimation = {
+  animate: {
+    scale: [1, 1.05, 1],
+    transition: {
+      duration: 2,
+      repeat: Infinity,
+      ease: "easeInOut"
+    }
+  }
+};
 
 export default function HomeScreen() {
   const { t } = useTranslation();
@@ -108,130 +142,185 @@ export default function HomeScreen() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-emerald-900 to-slate-900 relative overflow-hidden">
+      {/* Animated Background Elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-emerald-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-green-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse delay-1000"></div>
+        <div className="absolute top-40 left-40 w-60 h-60 bg-teal-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse delay-2000"></div>
+        <div className="absolute bottom-40 right-40 w-60 h-60 bg-emerald-600 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse delay-3000"></div>
+      </div>
+
       {/* Hero Section */}
-      <div className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-amber-500/10 to-yellow-500/10"></div>
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-          <div className="text-center">
-            <h1 className="text-5xl md:text-7xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-yellow-400 mb-6">
-              {t('homeTitle')}
-            </h1>
-            <p className="text-xl md:text-2xl text-gray-300 mb-8 max-w-3xl mx-auto">
-              {t('comprehensiveIslamicPrayerCompanion')}
-            </p>
+      <div className="relative z-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+          <motion.div 
+            className="text-center"
+            variants={fadeInUp}
+            initial="initial"
+            animate="animate"
+          >
+            {/* Beautiful Bismillah Section */}
+            <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-3xl p-8 md:p-12 shadow-2xl mb-12">
+              {/* Decorative elements */}
+              <div className="absolute -top-4 -left-4 text-4xl text-emerald-400/30">✦</div>
+              <div className="absolute -top-4 -right-4 text-4xl text-emerald-400/30">✦</div>
+              <div className="absolute -bottom-4 -left-4 text-4xl text-emerald-400/30">✦</div>
+              <div className="absolute -bottom-4 -right-4 text-4xl text-emerald-400/30">✦</div>
+              
+              {/* Main Bismillah */}
+              <motion.div 
+                className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-arabic text-white mb-6 leading-relaxed"
+                variants={pulseAnimation}
+                animate="animate"
+              >
+                بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
+              </motion.div>
+              
+              <div className="text-xl md:text-2xl text-gray-300 mb-6 italic">
+                {t('bismillah')}
+              </div>
+              
+              {/* Secondary Arabic Text */}
+              <div className="text-2xl sm:text-3xl md:text-4xl font-arabic text-emerald-400 mb-4">
+                الصلاة نور المؤمن
+              </div>
+              <div className="text-lg text-gray-300">
+                "Prayer is the light of the believer"
+              </div>
+            </div>
             
             {/* Current Time Display */}
-            <div className="bg-gray-800/50 backdrop-blur-sm rounded-3xl p-8 mb-12 max-w-md mx-auto border border-gray-700 shadow-2xl">
-              <div className="text-amber-400 text-2xl font-bold mb-2">
+            <motion.div 
+              className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-3xl p-8 mb-12 max-w-md mx-auto shadow-2xl"
+              variants={fadeInUp}
+              initial="initial"
+              animate="animate"
+              transition={{ delay: 0.2 }}
+            >
+              <div className="text-emerald-400 text-2xl font-bold mb-2">
                 {t('currentTime')}
               </div>
               <div className="text-4xl md:text-5xl font-bold text-white mb-2">
                 {formatTime(currentTime)}
               </div>
-              <div className="text-gray-400 text-lg">
+              <div className="text-gray-300 text-lg">
                 {formatDate(currentTime)}
               </div>
-            </div>
-
-            {/* Bismillah */}
-            <div className="text-center mb-12">
-              <p className="text-2xl md:text-3xl text-amber-400 font-arabic mb-4">
-                بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
-              </p>
-              <p className="text-lg text-gray-300 italic">
-                {t('bismillah')}
-              </p>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
         </div>
       </div>
 
       {/* Features Grid */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <motion.div 
+          className="text-center mb-16"
+          variants={fadeInUp}
+          initial="initial"
+          animate="animate"
+          transition={{ delay: 0.3 }}
+        >
+          <h2 className="text-4xl md:text-5xl font-black bg-gradient-to-r from-emerald-400 via-green-400 to-teal-400 bg-clip-text text-transparent mb-6">
             {t('quickActions')}
           </h2>
-          <p className="text-xl text-gray-400 max-w-2xl mx-auto">
+          <p className="text-xl text-gray-300 max-w-2xl mx-auto">
             Discover all the features to enhance your Islamic journey
           </p>
-        </div>
+        </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <motion.div 
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8"
+          variants={staggerContainer}
+          initial="initial"
+          animate="animate"
+        >
           {menuItems.map((item, index) => (
-            <Link
+            <motion.div
               key={index}
-              to={item.path}
-              className="group relative overflow-hidden bg-gray-800/50 backdrop-blur-sm rounded-2xl p-8 border border-gray-700 hover:border-gray-600 transition-all duration-300 hover:scale-105 hover:shadow-2xl"
+              variants={staggerItem}
+              whileHover={{ scale: 1.05, y: -5 }}
+              whileTap={{ scale: 0.95 }}
             >
-              <div className="absolute inset-0 bg-gradient-to-r opacity-0 group-hover:opacity-10 transition-opacity duration-300 ${item.gradient}"></div>
-              
-              <div className="relative z-10">
-                <div className={`w-16 h-16 bg-gradient-to-r ${item.gradient} rounded-2xl flex items-center justify-center text-2xl mb-6 group-hover:scale-110 transition-transform duration-300`}>
-                  {item.icon}
+              <Link
+                to={item.path}
+                className="group relative overflow-hidden bg-white/10 backdrop-blur-lg border border-white/20 rounded-3xl p-6 lg:p-8 hover:bg-white/20 transition-all duration-500 hover:shadow-2xl block"
+              >
+                <div className={`absolute inset-0 bg-gradient-to-br from-emerald-500/20 via-green-500/20 to-teal-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500`}></div>
+                <div className="relative z-10">
+                  <div className="text-4xl sm:text-5xl mb-4 group-hover:scale-110 transition-transform duration-300">{item.icon}</div>
+                  <h3 className="text-xl sm:text-2xl font-bold text-white mb-3 group-hover:text-emerald-300 transition-colors">{item.title}</h3>
+                  <p className="text-gray-300 text-sm sm:text-base leading-relaxed group-hover:text-white transition-colors">{item.description}</p>
                 </div>
-                
-                <h3 className="text-2xl font-bold text-white mb-4 group-hover:text-amber-400 transition-colors duration-300">
-                  {item.title}
-                </h3>
-                
-                <p className="text-gray-400 text-lg leading-relaxed">
-                  {item.description}
-                </p>
-                
-                <div className="mt-6 flex items-center text-amber-400 group-hover:text-amber-300 transition-colors duration-300">
-                  <span className="text-sm font-medium">Learn More</span>
-                  <svg className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
-                </div>
-              </div>
-            </Link>
+                <div className="absolute inset-0 border-2 border-transparent group-hover:border-emerald-400/50 rounded-3xl transition-colors duration-500"></div>
+              </Link>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       </div>
 
       {/* Islamic Quote Section */}
-      <div className="bg-gradient-to-r from-gray-800/50 to-gray-700/50 backdrop-blur-sm border-t border-gray-700">
+      <div className="relative z-10 bg-white/10 backdrop-blur-lg border-t border-white/20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-          <div className="text-center">
-            <div className="text-6xl text-amber-400 mb-6">"</div>
+          <motion.div 
+            className="text-center"
+            variants={fadeInUp}
+            initial="initial"
+            animate="animate"
+            transition={{ delay: 0.4 }}
+          >
+            <div className="text-6xl text-emerald-400 mb-6">"</div>
             <blockquote className="text-2xl md:text-3xl text-white font-medium mb-6 max-w-4xl mx-auto leading-relaxed">
               {t('prayerVerse')}
             </blockquote>
-            <cite className="text-lg text-amber-400 font-medium">
+            <cite className="text-lg text-emerald-400 font-medium">
               {t('quranReference')}
             </cite>
-          </div>
+          </motion.div>
         </div>
       </div>
 
       {/* Call to Action */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="text-center">
-          <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <motion.div 
+          className="text-center"
+          variants={fadeInUp}
+          initial="initial"
+          animate="animate"
+          transition={{ delay: 0.5 }}
+        >
+          <h2 className="text-4xl md:text-5xl font-black bg-gradient-to-r from-emerald-400 via-green-400 to-teal-400 bg-clip-text text-transparent mb-6">
             Start Your Journey Today
           </h2>
-          <p className="text-xl text-gray-400 mb-8 max-w-2xl mx-auto">
+          <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
             Begin your spiritual journey with our comprehensive Islamic companion
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link
-              to="/prayer-times"
-              className="px-8 py-4 bg-gradient-to-r from-amber-500 to-yellow-500 text-gray-900 font-bold rounded-xl hover:from-amber-600 hover:to-yellow-600 transition-all duration-300 shadow-lg hover:shadow-xl"
+          <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-md sm:max-w-none mx-auto">
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
             >
-              View Prayer Times
-            </Link>
-            <Link
-              to="/learn"
-              className="px-8 py-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-bold rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all duration-300 shadow-lg hover:shadow-xl"
+              <Link
+                to="/prayer-times"
+                className="px-8 py-4 bg-gradient-to-r from-emerald-600 to-green-600 text-white font-bold rounded-xl hover:from-emerald-500 hover:to-green-500 transition-all duration-300 shadow-lg hover:shadow-xl text-base"
+              >
+                {t('viewPrayerTimes')}
+              </Link>
+            </motion.div>
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
             >
-              Learn to Pray
-            </Link>
+              <Link
+                to="/learn"
+                className="px-8 py-4 bg-gradient-to-r from-green-500 to-teal-600 text-white font-bold rounded-xl hover:from-teal-500 hover:to-green-500 transition-all duration-300 shadow-lg hover:shadow-xl text-base"
+              >
+                {t('learnToPray')}
+              </Link>
+            </motion.div>
           </div>
-        </div>
+        </motion.div>
       </div>
     </div>
   );
-} 
+}

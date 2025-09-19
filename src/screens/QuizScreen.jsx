@@ -1,17 +1,16 @@
 import { useState, useEffect, useRef } from 'react';
+import { motion } from 'framer-motion';
 import { useSettings } from '../contexts/SettingsContext';
-import { GlowCard } from '../components/nurui/spotlight-card';
 import { useTranslation } from '../utils/translations';
 import { 
-  MotionDiv, 
-  MotionCard, 
-  MotionButton,
   fadeInUp, 
   staggerContainer, 
   staggerItem, 
   pageTransition,
   buttonPress,
-  transitions
+  transitions,
+  pulseAnimation,
+  mosqueGlow
 } from '../utils/animations';
 
 // Enhanced achievement system
@@ -20,43 +19,43 @@ import {
 const getTranslatedAchievements = (t) => ({
   firstQuiz: {
     id: 'firstQuiz',
-    title: t('firstSteps'),
-    description: t('completeYourFirstQuiz'),
+    title: t('First Steps'),
+    description: t('Complete Your First Quiz'),
     icon: '🎯',
     points: 50
   },
   perfectScore: {
     id: 'perfectScore',
-    title: t('perfectScholar'),
-    description: t('getAPerfectScoreInAnyQuiz'),
+    title: t('Perfect Scholar'),
+    description: t('Get A Perfect Score In Any Quiz'),
     icon: '🏆',
     points: 100
   },
   streakMaster: {
     id: 'streakMaster',
-    title: t('streakMaster'),
-    description: t('answerQuestionsCorrectlyInARow'),
+    title: t('Streak Master'),
+    description: t('Answer Questions Correctly In A Row'),
     icon: '🔥',
     points: 75
   },
   speedDemon: {
     id: 'speedDemon',
-    title: t('speedDemon'),
-    description: t('completeAQuizInUnderMinutes'),
+    title: t('Speed Demon'),
+    description: t('Complete A Quiz In Under Minutes'),
     icon: '⚡',
     points: 50
   },
   categoryMaster: {
     id: 'categoryMaster',
-    title: t('categoryMaster'),
-    description: t('completeAllQuestionsInACategory'),
+    title: t('Category Master'),
+    description: t('Complete All Questions In A Category'),
     icon: '👑',
     points: 150
   },
   dailyChampion: {
     id: 'dailyChampion',
-    title: t('dailyChampionAchievement'),
-    description: t('completeDailyChallenges'),
+    title: t('Daily Champion Achievement'),
+    description: t('Complete Daily Challenges'),
     icon: '📅',
     points: 200
   }
@@ -100,10 +99,10 @@ export default function QuizScreen() {
   // Helper function to get translated quiz categories
   const getTranslatedQuizCategories = () => ({
   basics: {
-      title: t('basicPrayerKnowledge'),
-      description: t('fundamentalConceptsOfIslamicPrayer'),
+      title: t('Basic Prayer Knowledge'),
+      description: t('Fundamental Concepts Of Islamic Prayer'),
     icon: '📚',
-      difficulty: t('beginner'),
+      difficulty: t('Beginner'),
     questions: [
       {
         q: 'What is the first step of Salah?',
@@ -143,10 +142,10 @@ export default function QuizScreen() {
     ]
   },
   steps: {
-      title: t('prayerStepsActions'),
-      description: t('stepByStepPrayerGuidanceAndMovements'),
+      title: t('Prayer Steps Actions'),
+      description: t('Step By Step Prayer Guidance And Movements'),
     icon: '🕌',
-      difficulty: t('intermediate'),
+      difficulty: t('Intermediate'),
     questions: [
       {
         q: 'Which step involves bowing?',
@@ -186,10 +185,10 @@ export default function QuizScreen() {
     ]
   },
   wudu: {
-      title: t('wuduPurification'),
-      description: t('ritualPurificationAndAblution'),
+      title: t('Wudu Purification'),
+      description: t('Ritual Purification And Ablution'),
     icon: '💧',
-      difficulty: t('beginner'),
+      difficulty: t('Beginner'),
     questions: [
       {
         q: 'What is the first step of Wudu?',
@@ -229,10 +228,10 @@ export default function QuizScreen() {
     ]
   },
   times: {
-      title: t('prayerTimesQibla'),
-      description: t('prayerTimingsAndDirection'),
+      title: t('Prayer Times Qibla'),
+      description: t('Prayer Timings And Direction'),
     icon: '🕐',
-      difficulty: t('intermediate'),
+      difficulty: t('Intermediate'),
     questions: [
       {
         q: 'When does Fajr prayer time begin?',
@@ -272,10 +271,10 @@ export default function QuizScreen() {
     ]
   },
   advanced: {
-      title: t('advancedPrayerKnowledge'),
-      description: t('complexPrayerScenariosAndRulings'),
+      title: t('Advanced Prayer Knowledge'),
+      description: t('Complex Prayer Scenarios And Rulings'),
     icon: '🎯',
-      difficulty: t('advanced'),
+      difficulty: t('Advanced'),
     questions: [
       {
         q: 'What should you do if you miss a prayer?',
@@ -315,10 +314,10 @@ export default function QuizScreen() {
     ]
   },
   daily: {
-      title: t('dailyChallenges'),
-      description: t('dailyRotatingQuestionsToTestYourKnowledge'),
+      title: t('Daily Challenges'),
+      description: t('Daily Rotating Questions To Test Your Knowledge'),
     icon: '🌟',
-      difficulty: t('mixed'),
+      difficulty: t('Mixed'),
     questions: [
       {
         q: 'What is the meaning of "Salah"?',
@@ -619,7 +618,7 @@ export default function QuizScreen() {
 
           <div className="text-center mb-8">
             <h1 className="text-3xl md:text-4xl font-heading text-amber-800 dark:text-amber-200 font-bold mb-4 drop-shadow">
-              🎉 {t('quizComplete')}
+              🎉 {t('Quiz Complete')}
             </h1>
             <p className="text-gray-700 dark:text-gray-300 text-lg">
               {categoryTitle}
@@ -633,13 +632,13 @@ export default function QuizScreen() {
                   {isPerfect ? '🏆' : '🌟'}
                 </div>
                 <h2 className="text-2xl font-bold text-amber-800 dark:text-amber-200 mb-2">
-                  {isPerfect ? t('perfectScore') : t('greatJob')}
+                  {isPerfect ? t('Perfect Score') : t('Great Job')}
                 </h2>
                 <div className="text-3xl font-bold text-amber-800 dark:text-amber-200 mb-4">
-                  {score} / {totalPoints} {t('points')}
+                  {score} / {totalPoints} {t('Points')}
                 </div>
                 <div className="text-lg text-gray-700 dark:text-gray-300 mb-4">
-                  {percentage}% - {isPerfect ? t('outstanding') : t('wellDone')}
+                  {percentage}% - {isPerfect ? t('Outstanding') : t('WellDone')}
                 </div>
                 
                 {/* Quiz Stats */}
@@ -660,13 +659,13 @@ export default function QuizScreen() {
                   onClick={handleRestartQuiz}
                   className="px-6 py-3 rounded-lg font-semibold bg-amber-600 text-white hover:bg-amber-700 hover:scale-105 transition-all duration-300 shadow-lg"
                 >
-                  🔄 {t('tryAgain')}
+                  🔄 {t('Try Again')}
                 </button>
                 <button
                   onClick={handleBackToCategories}
                   className="px-6 py-3 rounded-lg font-semibold bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-amber-50 dark:hover:bg-gray-700 border border-amber-300 dark:border-amber-600 transition-all duration-300 shadow-lg"
                 >
-                  📚 {t('otherCategories')}
+                  📚 {t('Other Categories')}
                 </button>
               </div>
             </div>
@@ -697,13 +696,13 @@ export default function QuizScreen() {
     const currentQ = questions[currentQuestion];
     const progress = ((currentQuestion + 1) / questions.length) * 100;
     const categoryTitle = selectedCategory === 'daily' 
-      ? t('dailyChallenge') 
+      ? t('Daily Challenge') 
       : quizCategories[selectedCategory].title;
     const categoryIcon = selectedCategory === 'daily' 
       ? '🌟' 
       : quizCategories[selectedCategory].icon;
     const categoryDescription = selectedCategory === 'daily' 
-      ? t('dailyRotatingQuestionsToTestYourKnowledge') 
+      ? t('Daily Rotating Questions To Test Your Knowledge') 
       : quizCategories[selectedCategory].description;
 
     return (
@@ -732,17 +731,17 @@ export default function QuizScreen() {
               <div className="flex justify-between items-center mb-4">
                 <div className="flex items-center gap-4">
                   <span className="text-sm text-gray-600 dark:text-gray-400">
-                    {t('question')} {currentQuestion + 1} {t('of')} {questions.length}
+                    {t('Question')} {currentQuestion + 1} {t('Of')} {questions.length}
                   </span>
                   <span className="text-sm font-semibold text-amber-600 dark:text-amber-400">
-                    {t('score')}: {score} {t('points')}
+                    {t('Score')}: {score} {t('Points')}
                   </span>
                   <span className="text-sm font-semibold text-amber-600 dark:text-amber-400">
-                    {t('streak')}: {streak}
+                    {t('Streak')}: {streak}
                   </span>
                 </div>
                 <div className="text-sm text-gray-600 dark:text-gray-400">
-                  {t('time')}: {formatTime(quizTime)}
+                  {t('Time')}: {formatTime(quizTime)}
                 </div>
               </div>
               <div className="w-full bg-amber-200 dark:bg-amber-800/30 rounded-full h-3">
@@ -788,7 +787,7 @@ export default function QuizScreen() {
                     : 'bg-red-100 border border-red-200 text-red-800'
                 }`}>
                   <div className="font-bold mb-2">
-                    {isCorrect ? `✅ ${t('correct')}` : `❌ ${t('incorrect')}`}
+                    {isCorrect ? `✅ ${t('Correct')}` : `❌ ${t('Incorrect')}`}
                   </div>
                   <div className="text-sm">{currentQ.explanation}</div>
                 </div>
@@ -800,7 +799,7 @@ export default function QuizScreen() {
                   onClick={handleNextQuestion}
                   className="w-full px-6 py-3 rounded-lg font-semibold bg-amber-600 text-white hover:bg-amber-700 hover:scale-105 transition-all duration-300 shadow-lg"
                 >
-                  {currentQuestion === questions.length - 1 ? t('finishQuiz') : t('nextQuestion')}
+                  {currentQuestion === questions.length - 1 ? t('Finish Quiz') : t('Next Question')}
                 </button>
               )}
             </div>
@@ -811,180 +810,258 @@ export default function QuizScreen() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-      <div className="w-full max-w-6xl mx-auto py-8 px-2 md:px-4 relative">
-        {/* Decorative pattern */}
-        <div className="absolute inset-0 -z-10 opacity-5 dark:opacity-10 pointer-events-none select-none">
-          <div className="w-full h-full" style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23956D37' fill-opacity='0.1'%3E%3Cpath d='M30 30c0-11.046-8.954-20-20-20s-20 8.954-20 20 8.954 20 20 20 20-8.954 20-20zm0 0c0 11.046 8.954 20 20 20s20-8.954 20-20-8.954-20-20-20-20 8.954-20 20z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-            backgroundSize: '60px 60px'
-          }} />
-        </div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-emerald-900 to-slate-900 relative overflow-hidden">
+      {/* Animated Background Elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-emerald-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-green-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse delay-1000"></div>
+        <div className="absolute top-40 left-40 w-60 h-60 bg-teal-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse delay-2000"></div>
+        <div className="absolute bottom-40 right-40 w-60 h-60 bg-emerald-600 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse delay-3000"></div>
+      </div>
 
+      <div className="relative z-10 w-full max-w-6xl mx-auto py-6 sm:py-8 px-3 sm:px-4">
         {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-3xl md:text-4xl font-heading text-amber-800 dark:text-amber-200 font-bold mb-4 drop-shadow">
-            🏆 {t('namazQuizCenter')}
-          </h1>
-          <p className="text-gray-700 dark:text-gray-300 text-lg max-w-2xl mx-auto">
-            {t('testYourKnowledgeOfIslamicPrayer')}
-          </p>
-        </div>
+        <motion.div 
+          className="text-center mb-12 sm:mb-16"
+          variants={fadeInUp}
+          initial="initial"
+          animate="animate"
+          transition={transitions.smooth}
+        >
+          <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl sm:rounded-3xl p-6 sm:p-8 md:p-12 shadow-2xl">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-black bg-gradient-to-r from-emerald-400 via-green-400 to-teal-400 bg-clip-text text-transparent mb-4 sm:mb-6">
+              🏆 {t('Namaz Quiz')}
+            </h1>
+            <p className="text-lg sm:text-xl md:text-2xl text-gray-300 max-w-4xl mx-auto leading-relaxed px-2">
+              {t('Test Your Knowledge Of Islamic Prayer')}
+            </p>
+          </div>
+        </motion.div>
 
         {/* Stats Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-          <div className="bg-white dark:bg-gray-800 rounded-xl p-4 text-center border border-gray-200 dark:border-gray-700 shadow-lg">
-            <div className="text-2xl font-bold text-amber-800 dark:text-amber-200">{quizProgress.totalQuizzes || 0}</div>
-            <div className="text-sm text-gray-600 dark:text-gray-400">{t('quizzesTaken')}</div>
-          </div>
-          <div className="bg-white dark:bg-gray-800 rounded-xl p-4 text-center border border-gray-200 dark:border-gray-700 shadow-lg">
-            <div className="text-2xl font-bold text-amber-800 dark:text-amber-200">{quizProgress.totalScore || 0}</div>
-            <div className="text-sm text-gray-600 dark:text-gray-400">{t('totalPoints')}</div>
-          </div>
-          <div className="bg-white dark:bg-gray-800 rounded-xl p-4 text-center border border-gray-200 dark:border-gray-700 shadow-lg">
-            <div className="text-2xl font-bold text-amber-800 dark:text-amber-200">{quizProgress.completedCategories ? quizProgress.completedCategories.length : 0}</div>
-            <div className="text-sm text-gray-600 dark:text-gray-400">{t('categoriesCompleted')}</div>
-          </div>
-          <div className="bg-white dark:bg-gray-800 rounded-xl p-4 text-center border border-gray-200 dark:border-gray-700 shadow-lg">
-            <div className="text-2xl font-bold text-amber-800 dark:text-amber-200">{quizProgress.achievements ? quizProgress.achievements.length : 0}</div>
-            <div className="text-sm text-gray-600 dark:text-gray-400">{t('achievements')}</div>
-          </div>
-        </div>
+        <motion.div 
+          className="w-full max-w-6xl mb-12"
+          variants={staggerContainer}
+          initial="initial"
+          animate="animate"
+        >
+          <motion.div 
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6"
+            variants={staggerContainer}
+          >
+            <motion.div 
+              className="p-6 bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl text-center shadow-xl hover:shadow-2xl hover:bg-white/20 transition-all duration-300"
+              variants={staggerItem}
+              whileHover={{ scale: 1.05, y: -5 }}
+            >
+              <div className="text-4xl mb-3">📊</div>
+              <div className="text-3xl font-bold text-slate-800 dark:text-slate-200 mb-2">{quizProgress.totalQuizzes || 0}</div>
+              <div className="text-slate-600 dark:text-slate-300 font-semibold">{t('quizzesTaken')}</div>
+            </motion.div>
+            
+            <motion.div 
+              className="p-6 bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl text-center shadow-xl hover:shadow-2xl hover:bg-white/20 transition-all duration-300"
+              variants={staggerItem}
+              whileHover={{ scale: 1.05, y: -5 }}
+            >
+              <div className="text-4xl mb-3">⭐</div>
+              <div className="text-3xl font-bold text-slate-800 dark:text-slate-200 mb-2">{quizProgress.totalScore || 0}</div>
+              <div className="text-slate-600 dark:text-slate-300 font-semibold">{t('totalPoints')}</div>
+            </motion.div>
+            
+            <motion.div 
+              className="p-6 bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl text-center shadow-xl hover:shadow-2xl hover:bg-white/20 transition-all duration-300"
+              variants={staggerItem}
+              whileHover={{ scale: 1.05, y: -5 }}
+            >
+              <div className="text-4xl mb-3">🎯</div>
+              <div className="text-3xl font-bold text-slate-800 dark:text-slate-200 mb-2">{quizProgress.completedCategories ? quizProgress.completedCategories.length : 0}</div>
+              <div className="text-slate-600 dark:text-slate-300 font-semibold">{t('Categories Completed')}</div>
+            </motion.div>
+            
+            <motion.div 
+              className="p-6 bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl text-center shadow-xl hover:shadow-2xl hover:bg-white/20 transition-all duration-300"
+              variants={staggerItem}
+              whileHover={{ scale: 1.05, y: -5 }}
+            >
+              <div className="text-4xl mb-3">🎖️</div>
+              <div className="text-3xl font-bold text-slate-800 dark:text-slate-200 mb-2">{quizProgress.achievements ? quizProgress.achievements.length : 0}</div>
+              <div className="text-slate-600 dark:text-slate-300 font-semibold">{t('Achievements')}</div>
+            </motion.div>
+          </motion.div>
+        </motion.div>
 
         {/* Daily Challenge Card */}
-        <div className="bg-gradient-to-br from-amber-50 via-yellow-50 to-orange-50 dark:from-gray-800 dark:via-gray-700 dark:to-gray-800 rounded-2xl p-6 shadow-xl border border-amber-200 dark:border-amber-700 mb-8">
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-xl font-bold text-amber-800 dark:text-amber-200 mb-2">🌟 {t('dailyChallenge')}</h3>
-              <p className="text-gray-700 dark:text-gray-300">{t('testYourKnowledgeWithRandomQuestions')}</p>
-              <div className="flex items-center gap-2 mt-2">
-                <span className="text-sm text-amber-600 dark:text-amber-400">{t('completed')}: {(quizProgress.categoryCompletions && quizProgress.categoryCompletions['daily']) || 0} {t('times')}</span>
+        <motion.div 
+          className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-3xl p-8 shadow-2xl mb-12"
+          variants={fadeInUp}
+          initial="initial"
+          animate="animate"
+          transition={transitions.smooth}
+        >
+          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+            <div className="flex-1">
+              <h3 className="text-3xl font-bold text-slate-800 dark:text-slate-200 mb-3">🌟 {t('Daily Challenge')}</h3>
+              <p className="text-slate-600 dark:text-slate-300 text-lg mb-4">{t('Test Your Knowledge With Random Questions')}</p>
+              <div className="flex items-center gap-4">
+                <span className="text-sm text-blue-600 dark:text-blue-400 font-semibold bg-blue-100 dark:bg-blue-900/30 px-3 py-1 rounded-full">
+                  {t('completed')}: {(quizProgress.categoryCompletions && quizProgress.categoryCompletions['daily']) || 0} {t('Times')}
+                </span>
                 {(quizProgress.categoryCompletions && quizProgress.categoryCompletions['daily'] >= 7) && (
-                  <span className="text-sm text-green-500">🏆 {t('dailyChampion')}</span>
+                  <span className="text-sm text-green-600 dark:text-green-400 font-semibold bg-green-100 dark:bg-green-900/30 px-3 py-1 rounded-full">
+                    🏆 {t('dailyChampion')}
+                  </span>
                 )}
               </div>
             </div>
-            <button
+            <motion.button
               onClick={handleDailyChallenge}
-              className="px-6 py-3 rounded-lg font-semibold bg-amber-600 text-white hover:bg-amber-700 hover:scale-105 transition-all duration-300 shadow-lg"
+              className="px-8 py-4 rounded-xl font-bold bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:from-purple-500 hover:to-blue-500 hover:scale-105 transition-all duration-300 shadow-lg text-lg"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
             >
-              {t('startChallenge')}
-            </button>
+              {t('Start Challenge')}
+            </motion.button>
           </div>
-        </div>
+        </motion.div>
 
         {/* Quiz Categories */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
-          {Object.entries(quizCategories).map(([key, category]) => {
-            const isCompleted = quizProgress.completedCategories && quizProgress.completedCategories.includes(key);
-            const bestScore = quizProgress.bestScores && quizProgress.bestScores[key] || 0;
-            const totalPoints = category.questions.reduce((sum, q) => sum + q.points, 0);
-            const percentage = totalPoints > 0 ? Math.round((bestScore / totalPoints) * 100) : 0;
-            const completions = (quizProgress.categoryCompletions && quizProgress.categoryCompletions[key]) || 0;
+        <motion.div 
+          className="w-full max-w-6xl mx-auto mb-12"
+          variants={staggerContainer}
+          initial="initial"
+          animate="animate"
+        >
+          <h2 className="text-3xl md:text-4xl font-black bg-gradient-to-r from-slate-800 via-blue-600 to-purple-600 dark:from-slate-200 dark:via-blue-400 dark:to-purple-400 bg-clip-text text-transparent mb-8 text-center">
+            {t('Quiz Categories')}
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
+            {Object.entries(quizCategories).map(([key, category]) => {
+              const isCompleted = quizProgress.completedCategories && quizProgress.completedCategories.includes(key);
+              const bestScore = quizProgress.bestScores && quizProgress.bestScores[key] || 0;
+              const totalPoints = category.questions.reduce((sum, q) => sum + q.points, 0);
+              const percentage = totalPoints > 0 ? Math.round((bestScore / totalPoints) * 100) : 0;
+              const completions = (quizProgress.categoryCompletions && quizProgress.categoryCompletions[key]) || 0;
 
-            return (
-              <div
-                key={key}
-                className={`bg-white dark:bg-gray-800 text-center transition-all duration-300 cursor-pointer rounded-2xl group hover:bg-amber-50 dark:hover:bg-gray-700 active:bg-amber-100 dark:active:bg-gray-600 focus:bg-amber-50 dark:focus:bg-gray-700 hover:scale-105 active:scale-100 hover:border-amber-300 dark:hover:border-amber-600 focus:border-amber-300 dark:focus:border-amber-600 hover:shadow-2xl focus:shadow-2xl active:shadow-2xl border border-gray-200 dark:border-gray-700 relative overflow-hidden ${
-                  isCompleted ? 'border-green-500/30 bg-green-50/50 dark:bg-green-900/20' : ''
-                }`}
-                onClick={() => handleCategorySelect(key)}
-              >
-                {/* Category Icon */}
-                <div className="text-4xl mb-3 mt-4">
-                  {category.icon}
-                      </div>
-                
-                <div className="p-4">
-                  <h3 className="text-lg font-bold text-amber-800 dark:text-amber-200 mb-2 text-center drop-shadow">{category.title}</h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 opacity-80 mb-3 line-clamp-2">{category.description}</p>
-                  
-                  {/* Stats */}
-                  <div className="flex justify-between items-center text-xs text-gray-500 dark:text-gray-400 mb-2">
-                    <span>{category.questions.length} {t('questions')}</span>
-                    <span className="text-amber-600 dark:text-amber-400">{totalPoints} {t('points')}</span>
+              return (
+                <motion.div
+                  key={key}
+                  className={`bg-white/10 backdrop-blur-lg text-center transition-all duration-300 cursor-pointer rounded-2xl sm:rounded-3xl group hover:shadow-2xl focus:shadow-2xl border relative overflow-hidden hover:bg-white/20 ${
+                    isCompleted 
+                      ? 'border-emerald-400/50 bg-emerald-500/20' 
+                      : 'border-white/20 hover:border-emerald-400/50'
+                  }`}
+                  onClick={() => handleCategorySelect(key)}
+                  variants={staggerItem}
+                  whileHover={{ scale: 1.05, y: -5 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  {/* Category Icon */}
+                  <div className="text-5xl mb-4 mt-6">
+                    {category.icon}
                   </div>
                   
-                  {/* Difficulty */}
-                <div className="flex items-center justify-between mb-3">
-                    <span className="text-xs px-2 py-1 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300">
-                    {category.difficulty}
-                  </span>
-                  {bestScore > 0 && (
-                      <span className="text-sm font-semibold text-amber-600 dark:text-amber-400">
-                      {percentage}%
-                    </span>
-                  )}
-                </div>
-                  
-                  {/* Progress Bar */}
-                {bestScore > 0 && (
-                  <div className="mb-3">
-                      <div className="w-full bg-amber-200 dark:bg-amber-800/30 rounded-full h-2">
-                      <div 
-                          className="bg-amber-600 dark:bg-amber-400 h-2 rounded-full transition-all duration-300"
-                        style={{ width: `${percentage}%` }}
-                      ></div>
+                  <div className="p-6">
+                    <h3 className="text-xl font-bold text-slate-800 dark:text-slate-200 mb-3 text-center">{category.title}</h3>
+                    <p className="text-sm text-slate-600 dark:text-slate-400 mb-4 line-clamp-2 leading-relaxed">{category.description}</p>
+                    
+                    {/* Stats */}
+                    <div className="flex justify-between items-center text-sm text-slate-500 dark:text-slate-400 mb-3">
+                      <span className="font-semibold">{category.questions.length} {t('Questions')}</span>
+                      <span className="text-blue-600 dark:text-blue-400 font-semibold">{totalPoints} {t('Points')}</span>
+                    </div>
+                    
+                    {/* Difficulty */}
+                    <div className="flex items-center justify-between mb-4">
+                      <span className="text-xs px-3 py-1 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 font-semibold">
+                        {category.difficulty}
+                      </span>
+                      {bestScore > 0 && (
+                        <span className="text-lg font-bold text-blue-600 dark:text-blue-400">
+                          {percentage}%
+                        </span>
+                      )}
+                    </div>
+                    
+                    {/* Progress Bar */}
+                    {bestScore > 0 && (
+                      <div className="mb-4">
+                        <div className="w-full bg-slate-200 dark:bg-slate-600 rounded-full h-3">
+                          <div 
+                            className="bg-gradient-to-r from-blue-500 to-purple-500 h-3 rounded-full transition-all duration-300"
+                            style={{ width: `${percentage}%` }}
+                          ></div>
+                        </div>
+                      </div>
+                    )}
+                    
+                    {/* Completion Status */}
+                    <div className="flex items-center justify-center gap-2">
+                      {isCompleted && (
+                        <div className="text-green-500 text-2xl">✅</div>
+                      )}
+                      {completions > 0 && (
+                        <div className="text-sm text-blue-600 dark:text-blue-400 font-semibold">
+                          {completions}x {t('Completed')}
+                        </div>
+                      )}
                     </div>
                   </div>
-                )}
                   
-                  {/* Completion Status */}
-                  {isCompleted && (
-                    <div className="text-green-500 text-2xl mb-2">✅</div>
-                  )}
-                  {completions > 0 && (
-                    <div className="text-sm text-amber-600 dark:text-amber-400 font-semibold">
-                      {completions}x {t('completed')}
-                </div>
-                  )}
-                </div>
-                
-                {/* Hover effect */}
-                <div className="absolute inset-0 bg-gradient-to-t from-amber-100/20 dark:from-amber-900/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-              </div>
+                  {/* Hover effect */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-blue-100/20 dark:from-blue-900/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                </motion.div>
             );
           })}
-        </div>
+          </div>
+        </motion.div>
 
         {/* Action Buttons */}
-        <div className="flex flex-wrap gap-4 justify-center">
-          <button
+        <motion.div 
+          className="flex flex-wrap gap-4 justify-center"
+          variants={fadeInUp}
+          initial="initial"
+          animate="animate"
+          transition={transitions.smooth}
+        >
+          <motion.button
             onClick={() => setShowStats(true)}
-            className="px-6 py-3 rounded-lg font-semibold bg-amber-600 text-white hover:bg-amber-700 hover:scale-105 transition-all duration-300 shadow-lg"
+            className="px-8 py-4 rounded-xl font-bold bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:from-purple-500 hover:to-blue-500 hover:scale-105 transition-all duration-300 shadow-lg text-lg"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
           >
-            📊 {t('viewStatistics')}
-          </button>
-        </div>
+            📊 {t('View Statistics')}
+          </motion.button>
+        </motion.div>
 
         {/* Statistics Modal */}
         {showStats && (
           <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
             <div className="card p-8 max-w-2xl w-full relative bg-gradient-to-br from-card/90 to-card/80 backdrop-blur-sm border border-brass/20">
               <button className="absolute top-4 right-4 text-2xl text-brass hover:text-wood transition-all duration-300" onClick={() => setShowStats(false)}>✕</button>
-              <div className="text-2xl font-heading text-brass font-bold mb-6 text-center">📊 {t('quizStatistics')}</div>
+              <div className="text-2xl font-heading text-brass font-bold mb-6 text-center">📊 {t('Quiz Statistics')}</div>
               
               <div className="grid grid-cols-2 gap-6 mb-6">
                 <div className="p-4 bg-gradient-to-r from-brass/10 to-wood/10 rounded-lg border border-brass/20">
                   <div className="text-2xl font-bold text-brass">{quizProgress.totalQuizzes || 0}</div>
-                    <div className="text-sm text-text dark:text-darktext">{t('totalQuizzes')}</div>
+                    <div className="text-sm text-text dark:text-darktext">{t('Total Quizzes')}</div>
                 </div>
                 <div className="p-4 bg-gradient-to-r from-brass/10 to-wood/10 rounded-lg border border-brass/20">
                   <div className="text-2xl font-bold text-brass">{quizProgress.totalScore || 0}</div>
-                    <div className="text-sm text-text dark:text-darktext">{t('totalPoints')}</div>
+                    <div className="text-sm text-text dark:text-darktext">{t('Total Points')}</div>
                 </div>
                 <div className="p-4 bg-gradient-to-r from-brass/10 to-wood/10 rounded-lg border border-brass/20">
                   <div className="text-2xl font-bold text-brass">{formatTime(quizProgress.totalTime || 0)}</div>
-                    <div className="text-sm text-text dark:text-darktext">{t('totalTime')}</div>
+                    <div className="text-sm text-text dark:text-darktext">{t('Total Time')}</div>
                 </div>
                 <div className="p-4 bg-gradient-to-r from-brass/10 to-wood/10 rounded-lg border border-brass/20">
                   <div className="text-2xl font-bold text-brass">{quizProgress.achievements ? quizProgress.achievements.length : 0}</div>
-                    <div className="text-sm text-text dark:text-darktext">{t('achievements')}</div>
+                    <div className="text-sm text-text dark:text-darktext">{t('Achievements')}</div>
                 </div>
               </div>
 
               <div className="space-y-4">
-                <h3 className="text-lg font-bold text-brass">{t('bestScoresByCategory')}</h3>
+                <h3 className="text-lg font-bold text-brass">{t('Best Scores By Category')}</h3>
                 {Object.entries(quizCategories).map(([key, category]) => {
                   const bestScore = (quizProgress.bestScores && quizProgress.bestScores[key]) || 0;
                   const totalPoints = category.questions.reduce((sum, q) => sum + q.points, 0);
@@ -996,7 +1073,7 @@ export default function QuizScreen() {
                         <span className="text-xl">{category.icon}</span>
                         <div>
                           <div className="font-semibold text-brass">{category.title}</div>
-                          <div className="text-sm text-text dark:text-darktext">{bestScore}/{totalPoints} {t('points')}</div>
+                          <div className="text-sm text-text dark:text-darktext">{bestScore}/{totalPoints} {t('Points')}</div>
                         </div>
                       </div>
                       <div className="text-lg font-bold text-brass">{percentage}%</div>
@@ -1013,7 +1090,7 @@ export default function QuizScreen() {
           <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
             <div className="card p-8 max-w-4xl w-full relative bg-gradient-to-br from-card/90 to-card/80 backdrop-blur-sm border border-brass/20">
               <button className="absolute top-4 right-4 text-2xl text-brass hover:text-wood transition-all duration-300" onClick={() => setShowDailyChallenge(false)}>✕</button>
-              <div className="text-2xl font-heading text-brass font-bold mb-6 text-center">🌟 {t('dailyChallenge')}</div>
+              <div className="text-2xl font-heading text-brass font-bold mb-6 text-center">🌟 {t('Daily Challenge')}</div>
               
               <div className="space-y-6">
                 {dailyQuestions.map((question, index) => (

@@ -1,5 +1,5 @@
 // Animation utilities and presets for the Namaz app
-import { motion } from 'motion/react';
+import { motion } from 'framer-motion';
 
 // Common animation variants
 export const fadeInUp = {

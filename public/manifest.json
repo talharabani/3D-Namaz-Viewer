@@ -10,6 +10,11 @@
   "scope": "/",
   "lang": "en",
   "categories": ["education", "religion", "lifestyle"],
+  "permissions": ["notifications"],
+  "notification": {
+    "action": "view",
+    "title": "Daily Dua Reminder"
+  },
   "icons": [
     {
       "src": "/vite.svg",

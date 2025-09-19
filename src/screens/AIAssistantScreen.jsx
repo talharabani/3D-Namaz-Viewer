@@ -1,17 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import AIChatComponent from '../components/AIChatComponent';
 import { useTranslation } from '../utils/translations';
-import { GlowCard } from '../components/nurui/spotlight-card';
+import { motion } from 'framer-motion';
 import { 
-  MotionDiv, 
-  MotionCard, 
-  MotionButton,
   fadeInUp, 
   staggerContainer, 
   staggerItem, 
   pageTransition,
   buttonPress,
-  transitions
+  transitions,
+  pulseAnimation,
+  mosqueGlow
 } from '../utils/animations';
 
 const AIAssistantScreen = () => {
@@ -22,150 +21,245 @@ const AIAssistantScreen = () => {
   const aiFeatures = [
     {
       icon: '🕌',
-      title: t('prayerGuidance'),
-      description: t('prayerGuidanceDesc'),
+      title: t('prayer Guidance'),
+      description: t('prayer Guidance Desc'),
       action: () => setShowChat(true),
       color: 'from-brass to-wood'
     },
     {
       icon: '📖',
-      title: t('islamicKnowledge'),
-      description: t('islamicKnowledgeDesc'),
+      title: t('islamic Knowledge'),
+      description: t('islamic Knowledge Desc'),
       action: () => setShowChat(true),
       color: 'from-wood to-brass'
     },
     {
       icon: '🤲',
-      title: t('duasAndSupplications'),
-      description: t('duasAndSupplicationsDesc'),
+      title: t('duas And Supplications'),
+      description: t('duas And Supplications Desc'),
       action: () => setShowChat(true),
       color: 'from-brass to-wood'
     },
     {
       icon: '🧭',
-      title: t('spiritualAdvice'),
-      description: t('spiritualAdviceDesc'),
+      title: t('spiritual Advice'),
+      description: t('spiritual Advice Desc'),
       action: () => setShowChat(true),
       color: 'from-wood to-brass'
     },
     {
       icon: '📚',
-      title: t('hadithExplanations'),
-      description: t('hadithExplanationsDesc'),
+      title: t('hadith Explanations'),
+      description: t('hadith Explanations Desc'),
       action: () => setShowChat(true),
       color: 'from-brass to-wood'
     },
     {
       icon: '🌟',
-      title: t('islamicEtiquette'),
-      description: t('islamicEtiquetteDesc2'),
+      title: t('islamic Etiquette'),
+      description: t('islamic Etiquette Desc'),
       action: () => setShowChat(true),
       color: 'from-wood to-brass'
     }
   ];
 
   const commonQuestions = [
-    t('howToPray'),
-    t('prayerBenefits'),
+    t('how To Pray'),
+    t('prayer Benefits'),
     t('concentration'),
-    t('missedPrayer'),
-    t('makeUpPrayers'),
-    t('prayerVirtues'),
+    t('missed Prayer'),
+    t('make Up Prayers'),
+    t('prayer Virtues'),
     t('khushu'),
     t('supplications'),
     t('istikhara'),
     t('tahajjud'),
-    t('mosqueBehavior'),
-    t('quranEtiquette')
+    t('mosque Behavior'),
+    t('quran Etiquette')
   ];
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[#44403c] via-[#78716c] to-[#d6d3d1]">
-      <div className="w-full max-w-7xl mx-auto flex flex-col items-center gap-8 py-8 px-4">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-emerald-900 to-slate-900 relative overflow-hidden">
+      {/* Animated Background Elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-emerald-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-green-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse delay-1000"></div>
+        <div className="absolute top-40 left-40 w-60 h-60 bg-teal-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse delay-2000"></div>
+        <div className="absolute bottom-40 right-40 w-60 h-60 bg-emerald-600 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse delay-3000"></div>
+      </div>
+
+      <div className="relative z-10 w-full max-w-7xl mx-auto flex flex-col items-center gap-12 py-12 px-4">
         {/* Header Section */}
-        <div className="w-full text-center mb-8">
-          <div className="text-5xl font-heading text-brass font-bold drop-shadow-2xl mb-4 bg-gradient-to-r from-brass to-wood bg-clip-text text-transparent">
-            {t('islamicAiAssistantTitle')}
+        <motion.div 
+          className="w-full text-center mb-12"
+          variants={fadeInUp}
+          initial="initial"
+          animate="animate"
+          transition={transitions.smooth}
+        >
+          <div className="relative">
+            <motion.div 
+              className="text-6xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 bg-clip-text text-transparent"
+              variants={pulseAnimation}
+              animate="animate"
+            >
+              {t('islamic AiAssistant Title')}
+            </motion.div>
+            <div className="text-xl md:text-2xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
+              {t('islamic AiAssistant Subtitle')}
+            </div>
           </div>
-          <div className="text-lg text-text dark:text-darktext opacity-90 max-w-2xl mx-auto">
-            {t('islamicAiAssistantSubtitle')}
-          </div>
-        </div>
+        </motion.div>
 
         {/* Quick Start Button */}
-        <div className="w-full max-w-4xl text-center">
-          <button
+        <motion.div 
+          className="w-full max-w-4xl text-center"
+          variants={fadeInUp}
+          initial="initial"
+          animate="animate"
+          transition={{ ...transitions.smooth, delay: 0.2 }}
+        >
+          <motion.button
             onClick={() => setShowChat(true)}
-            className="bg-gradient-to-r from-brass to-wood text-white px-8 py-4 rounded-2xl text-xl font-bold shadow-2xl hover:shadow-3xl transform hover:scale-105 transition-all duration-300 border border-wood"
+            className="group relative px-12 py-6 bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 text-white rounded-2xl text-2xl font-bold shadow-2xl hover:shadow-purple-500/25 transform hover:scale-105 transition-all duration-500 border border-purple-400/30 overflow-hidden"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
           >
-            🚀 {t('startChattingWithAssistant')}
-          </button>
-        </div>
+            <div className="absolute inset-0 bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 opacity-0 group-hover:opacity-20 transition-opacity duration-500"></div>
+            <div className="relative flex items-center gap-3">
+              <span className="text-3xl group-hover:animate-bounce">🚀</span>
+              {t('start Chatting With Assistant')}
+            </div>
+          </motion.button>
+        </motion.div>
 
         {/* AI Features Grid */}
-        <div className="w-full max-w-6xl">
-          <div className="text-center mb-8">
-            <h2 className="text-2xl font-heading text-brass font-bold">{t('whatICanHelpWith')}</h2>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <motion.div 
+          className="w-full max-w-7xl"
+          variants={staggerContainer}
+          initial="initial"
+          animate="animate"
+        >
+          <motion.div 
+            className="text-center mb-12"
+            variants={staggerItem}
+          >
+            <h2 className="text-4xl font-bold text-white mb-4 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+              {t('what I Can Help With')}
+            </h2>
+            <div className="w-24 h-1 bg-gradient-to-r from-purple-400 to-pink-400 mx-auto rounded-full"></div>
+          </motion.div>
+          
+          <motion.div 
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+            variants={staggerContainer}
+          >
             {aiFeatures.map((feature, index) => (
-              <div
+              <motion.div
                 key={index}
                 onClick={feature.action}
-                className="group relative card p-6 hover:shadow-2xl transition-all duration-500 hover:scale-105 bg-gradient-to-br from-card/80 to-card/60 backdrop-blur-sm border border-brass/20 overflow-hidden cursor-pointer"
+                className="group relative p-8 bg-white/10 backdrop-blur-lg border border-white/20 rounded-3xl hover:bg-white/20 transition-all duration-500 hover:scale-105 cursor-pointer overflow-hidden"
+                variants={staggerItem}
+                whileHover={{ y: -10, rotateY: 5 }}
+                whileTap={{ scale: 0.95 }}
               >
-                {/* Background Pattern */}
-                <div className="absolute inset-0 opacity-5 bg-gradient-to-br from-brass to-wood pointer-events-none"></div>
+                {/* Background Gradient */}
+                <div className="absolute inset-0 bg-gradient-to-br from-purple-500/20 via-pink-500/20 to-blue-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                 
+                {/* Icon */}
                 <div className="relative text-center">
-                  <div className="text-4xl mb-4 group-hover:scale-110 transition-transform duration-300">{feature.icon}</div>
-                  <h3 className="text-lg font-bold text-brass mb-2">{feature.title}</h3>
-                  <p className="text-sm text-text dark:text-darktext leading-relaxed">{feature.description}</p>
+                  <motion.div 
+                    className="text-6xl mb-6 group-hover:scale-110 transition-transform duration-300"
+                    whileHover={{ rotate: 10 }}
+                  >
+                    {feature.icon}
+                  </motion.div>
+                  <h3 className="text-xl font-bold text-white mb-4 group-hover:text-purple-300 transition-colors duration-300">
+                    {feature.title}
+                  </h3>
+                  <p className="text-gray-300 leading-relaxed group-hover:text-white transition-colors duration-300">
+                    {feature.description}
+                  </p>
                 </div>
-              </div>
+
+                {/* Hover Effect */}
+                <div className="absolute inset-0 border-2 border-transparent group-hover:border-purple-400/50 rounded-3xl transition-colors duration-500"></div>
+              </motion.div>
             ))}
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
 
         {/* Common Questions */}
-        <div className="w-full max-w-4xl">
-          <div className="card p-6 bg-gradient-to-r from-brass/10 to-wood/10 border border-brass/20 backdrop-blur-sm">
-            <div className="text-center mb-6">
-              <h3 className="text-xl font-heading text-brass font-bold">{t('commonQuestions')}</h3>
-              <p className="text-text dark:text-darktext">{t('clickAnyQuestionToStart')}</p>
+        <motion.div 
+          className="w-full max-w-6xl"
+          variants={fadeInUp}
+          initial="initial"
+          animate="animate"
+          transition={{ ...transitions.smooth, delay: 0.4 }}
+        >
+          <div className="p-8 bg-white/10 backdrop-blur-lg border border-white/20 rounded-3xl">
+            <div className="text-center mb-8">
+              <h3 className="text-3xl font-bold text-white mb-4 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                {t('common Questions')}
+              </h3>
+              <p className="text-gray-300 text-lg">{t('click Any Question To Start')}</p>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {commonQuestions.map((question, index) => (
-                <button
+                <motion.button
                   key={index}
                   onClick={() => setShowChat(true)}
-                  className="text-left p-3 rounded-lg bg-gradient-to-r from-brass/10 to-wood/10 border border-brass/20 hover:from-brass/20 hover:to-wood/20 transition-all duration-300 hover:scale-102"
+                  className="group text-left p-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/20 hover:border-purple-400/50 transition-all duration-300 hover:scale-102 backdrop-blur-sm"
+                  whileHover={{ x: 5 }}
+                  whileTap={{ scale: 0.98 }}
                 >
-                  <span className="text-text dark:text-darktext text-sm">{question}</span>
-                </button>
+                  <span className="text-white group-hover:text-purple-300 transition-colors duration-300 font-medium">
+                    {question}
+                  </span>
+                </motion.button>
               ))}
             </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* AI Chat Modal */}
         {showChat && (
-          <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
-            <div className="bg-card dark:bg-darkcard rounded-2xl shadow-2xl max-w-4xl w-full h-[80vh] border border-brass/20">
-              <div className="flex items-center justify-between p-4 border-b border-brass/20">
-                <h2 className="text-xl font-heading text-brass font-bold">{t('islamicAiAssistantTitle')}</h2>
-                <button
+          <motion.div 
+            className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 backdrop-blur-sm"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={transitions.smooth}
+          >
+            <motion.div 
+              className="bg-gray-900 rounded-3xl shadow-2xl max-w-5xl w-full h-[85vh] border border-purple-400/30 overflow-hidden"
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              transition={transitions.spring}
+            >
+              <div className="flex items-center justify-between p-6 border-b border-white/10 bg-gradient-to-r from-purple-600/20 to-pink-600/20">
+                <div className="flex items-center gap-4">
+                  <div className="text-3xl">🤖</div>
+                  <div>
+                    <h2 className="text-2xl font-bold text-white">{t('islamic Ai Assistant Title')}</h2>
+                    <p className="text-gray-400">AI-powered Islamic guidance</p>
+                  </div>
+                </div>
+                <motion.button
                   onClick={() => setShowChat(false)}
-                  className="text-3xl text-brass hover:text-wood transition-all duration-300 hover:scale-110"
+                  className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors duration-300"
+                  whileHover={{ scale: 1.1, rotate: 90 }}
+                  whileTap={{ scale: 0.9 }}
                 >
                   ✕
-                </button>
+                </motion.button>
               </div>
               <div className="h-full">
-                <AIChatComponent />
+                <AIChatComponent onClose={() => setShowChat(false)} />
               </div>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
         )}
       </div>
     </div>

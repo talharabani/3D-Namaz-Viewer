@@ -1,19 +1,18 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { MapContainer, TileLayer, Marker, Polyline, Popup, useMap, ZoomControl } from 'react-leaflet';
+import { motion } from 'framer-motion';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { useTranslation } from '../utils/translations';
-import { GlowCard } from '../components/nurui/spotlight-card';
 import { 
-  MotionDiv, 
-  MotionCard, 
-  MotionButton,
   fadeInUp, 
   staggerContainer, 
   staggerItem, 
   pageTransition,
   buttonPress,
-  transitions
+  transitions,
+  pulseAnimation,
+  mosqueGlow
 } from '../utils/animations';
 
 // Simple Error Boundary Component
@@ -176,15 +175,15 @@ function QiblaMap({ userLatLng, kaabaLatLng, isAligned, isDark, distance, onMapC
         url={getTileLayerUrl(isDark)}
       />
       <Marker position={userLatLng} icon={userIcon}>
-        <Popup>{t('youAreHere')}</Popup>
+        <Popup>{t('you Are Here')}</Popup>
       </Marker>
       <Marker position={kaabaLatLng} icon={kaabaIcon}>
         <Popup>{t('kaaba')}</Popup>
       </Marker>
       <Polyline positions={[userLatLng, kaabaLatLng]} color={isAligned ? '#10B981' : '#B5A642'} weight={5} opacity={0.8} />
       <FitBounds userLatLng={userLatLng} kaabaLatLng={kaabaLatLng} />
-      <ZoomControl position="bottomright" />
-      <RecenterButton userLatLng={userLatLng} label={t('center')} title={t('reCenterOnYourLocation')} />
+      <ZoomControl position="bottom right" />
+      <RecenterButton userLatLng={userLatLng} label={t('center')} title={t('re Center On Your Location')} />
     </MapContainer>
   );
 }
@@ -244,7 +243,7 @@ export default function QiblaDirectionScreen() {
 
   // Get user location
   useEffect(() => {
-    if ('geolocation' in navigator) {
+    if ('geo location' in navigator) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const { latitude, longitude, accuracy: acc } = position.coords;
@@ -257,8 +256,8 @@ export default function QiblaDirectionScreen() {
           setIsLoading(false);
         },
         (error) => {
-          console.error('Geolocation error:', error);
-          setError(t('unableToGetLocation'));
+          console.error('Geol ocation error:', error);
+          setError(t('unable To Get Location'));
           setIsLoading(false);
         },
         {
@@ -268,15 +267,15 @@ export default function QiblaDirectionScreen() {
         }
       );
     } else {
-      setError(t('geolocationNotSupportedBrowser'));
+      setError(t('geo location Not Supported Browser'));
       setIsLoading(false);
     }
   }, [t]);
 
   // Request orientation permission
   const requestOrientationPermission = () => {
-    if ('DeviceOrientationEvent' in window) {
-      if ('requestPermission' in DeviceOrientationEvent) {
+    if ('Device Orientation Event' in window) {
+      if ('request Permission' in DeviceOrientationEvent) {
         DeviceOrientationEvent.requestPermission()
           .then((permission) => {
             setOrientationPermission(permission);
@@ -335,8 +334,8 @@ export default function QiblaDirectionScreen() {
       }
     }
 
-    if ('DeviceOrientationEvent' in window) {
-      window.addEventListener('deviceorientation', handleOrientation);
+    if ('Device Orientation Event' in window) {
+      window.addEventListener('device orientation', handleOrientation);
       orientationRef.current = handleOrientation;
     }
   };
@@ -345,7 +344,7 @@ export default function QiblaDirectionScreen() {
   useEffect(() => {
     return () => {
       if (orientationRef.current) {
-        window.removeEventListener('deviceorientation', orientationRef.current);
+        window.removeEventListener('device orientation', orientationRef.current);
       }
       cleanupAllMaps();
     };
@@ -362,10 +361,10 @@ export default function QiblaDirectionScreen() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-emerald-900 to-slate-900 flex items-center justify-center">
         <div className="text-center">
           <div className="text-4xl mb-4">🧭</div>
-          <div className="text-xl text-amber-800 dark:text-amber-200 font-bold">{t('loadingQiblaDirection')}</div>
+          <div className="text-xl text-amber-800 dark:text-amber-200 font-bold">{t('loading Qibla Direction')}</div>
         </div>
       </div>
     );
@@ -373,7 +372,7 @@ export default function QiblaDirectionScreen() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-emerald-900 to-slate-900 flex items-center justify-center">
         <div className="text-center">
           <div className="text-4xl mb-4">⚠️</div>
           <div className="text-xl text-red-600 dark:text-red-400 font-bold">{error}</div>
@@ -383,44 +382,65 @@ export default function QiblaDirectionScreen() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-      <div className="w-full max-w-7xl mx-auto flex flex-col items-center gap-8 py-8 px-4 relative">
-        {/* Decorative pattern */}
-        <div className="absolute inset-0 -z-10 opacity-5 dark:opacity-10 pointer-events-none select-none">
-          <div className="w-full h-full" style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23956D37' fill-opacity='0.1'%3E%3Cpath d='M30 30c0-11.046-8.954-20-20-20s-20 8.954-20 20 8.954 20 20 20 20-8.954 20-20zm0 0c0 11.046 8.954 20 20 20s20-8.954 20-20-8.954-20-20-20-20 8.954-20 20z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-            backgroundSize: '60px 60px'
-          }} />
-        </div>
-        {/* Header Section */}
-        <div className="w-full text-center mb-8">
-          <div className="text-3xl md:text-4xl font-heading text-amber-800 dark:text-amber-200 font-bold drop-shadow mb-4">
-            🧭 {t('qiblaDirectionHeader')}
-          </div>
-          <div className="text-gray-700 dark:text-gray-300 text-lg max-w-2xl mx-auto">
-            {t('findDirectionOfKaaba')}
-          </div>
-        </div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-emerald-900 to-slate-900 relative overflow-hidden">
+      {/* Animated Background Elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-emerald-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-green-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse delay-1000"></div>
+        <div className="absolute top-40 left-40 w-60 h-60 bg-teal-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse delay-2000"></div>
+        <div className="absolute bottom-40 right-40 w-60 h-60 bg-emerald-600 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse delay-3000"></div>
+      </div>
 
-        {/* Qibla Information */}
-        <div className="w-full max-w-4xl">
-          <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-xl border border-gray-200 dark:border-gray-700">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
-              <div className="p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-700">
-                <div className="text-3xl text-amber-800 dark:text-amber-200 font-bold">{bearing.toFixed(1)}°</div>
-                <div className="text-sm text-gray-700 dark:text-gray-300">{t('qiblaBearingLabel')}</div>
-              </div>
-              <div className="p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-700">
-                <div className="text-3xl text-amber-800 dark:text-amber-200 font-bold">{distance} km</div>
-                <div className="text-sm text-gray-700 dark:text-gray-300">{t('distanceToKaabaLabel')}</div>
-              </div>
-              <div className="p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-700">
-                <div className="text-3xl text-amber-800 dark:text-amber-200 font-bold">{getAccuracyStatus()}</div>
-                <div className="text-sm text-gray-700 dark:text-gray-300">{t('locationAccuracyLabel')}</div>
-              </div>
+      <div className="relative z-10 w-full max-w-7xl mx-auto flex flex-col items-center gap-8 sm:gap-12 py-6 sm:py-12 px-3 sm:px-4">
+        {/* Header Section */}
+        <motion.div 
+          className="w-full text-center mb-8 sm:mb-12"
+          variants={fadeInUp}
+          initial="initial"
+          animate="animate"
+          transition={transitions.smooth}
+        >
+          <div className="relative">
+            <motion.div 
+              className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-4 sm:mb-6 bg-gradient-to-r from-sky-400 via-blue-400 to-cyan-400 bg-clip-text text-transparent"
+              variants={pulseAnimation}
+              animate="animate"
+            >
+              🧭 {t('qibla Direction Header')}
+            </motion.div>
+            <div className="text-lg sm:text-xl md:text-2xl text-gray-300 max-w-3xl mx-auto leading-relaxed px-2">
+              {t('find Direction Of Kaaba')}
             </div>
           </div>
-        </div>
+        </motion.div>
+
+        {/* Qibla Information */}
+        <motion.div 
+          className="w-full max-w-6xl"
+          variants={staggerContainer}
+          initial="initial"
+          animate="animate"
+        >
+          <motion.div 
+            className="p-4 sm:p-6 md:p-8 bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl sm:rounded-3xl shadow-2xl"
+            variants={staggerItem}
+          >
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 text-center">
+              <div className="p-3 sm:p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-700">
+                <div className="text-2xl sm:text-3xl text-amber-800 dark:text-amber-200 font-bold">{bearing.toFixed(1)}°</div>
+                <div className="text-xs sm:text-sm text-gray-700 dark:text-gray-300">{t('qibla Bearing Label')}</div>
+              </div>
+              <div className="p-3 sm:p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-700">
+                <div className="text-2xl sm:text-3xl text-amber-800 dark:text-amber-200 font-bold">{distance} km</div>
+                <div className="text-xs sm:text-sm text-gray-700 dark:text-gray-300">{t('distance To Kaaba Label')}</div>
+              </div>
+              <div className="p-3 sm:p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-700">
+                <div className="text-2xl sm:text-3xl text-amber-800 dark:text-amber-200 font-bold">{getAccuracyStatus()}</div>
+                <div className="text-xs sm:text-sm text-gray-700 dark:text-gray-300">{t('location Accuracy Label')}</div>
+              </div>
+            </div>
+          </motion.div>
+        </motion.div>
 
         {/* Enable Compass Button */}
         {orientationPermission === 'denied' && (
@@ -429,18 +449,18 @@ export default function QiblaDirectionScreen() {
               onClick={requestOrientationPermission}
               className="bg-gradient-to-r from-brass to-wood text-mocha font-bold rounded-full px-8 py-4 text-lg shadow-xl border-2 border-wood hover:from-wood hover:to-brass hover:text-mocha transition-all duration-300 transform hover:scale-105 mb-4"
             >
-              <span role="img" aria-label="Compass">🧭</span> {t('enableCompass')}
+              <span role="img" aria-label="Compass">🧭</span> {t('enable Compass')}
             </button>
             <div className="text-secondary text-sm text-center max-w-md">
-              {t('enableCompassHelp')}
-              {!('DeviceOrientationEvent' in window) && (
+              {t('enable Compass Help')}
+              {!('Device Orientation Event' in window) && (
                 <div className="mt-2 text-red-500 font-semibold">
-                  {t('compassMobileOnly')}
+                  {t('compass Mobile Only')}
                 </div>
               )}
               {orientationPermission === 'denied' && (
                 <div className="mt-2 text-red-500 font-semibold">
-                  {t('noCompassData')}
+                  {t('no Compass Data')}
                 </div>
               )}
             </div>
@@ -451,7 +471,7 @@ export default function QiblaDirectionScreen() {
         {isAligned && (
           <div className="w-full bg-highlight/20 border border-highlight rounded-2xl p-6 animate-fadeIn shadow-lg">
             <div className="text-center">
-              <div className="text-3xl mb-3 font-bold text-green-500">🎯 {t('perfectDirection')}</div>
+              <div className="text-3xl mb-3 font-bold text-green-500">🎯 {t('perfect Direction')}</div>
               <div className="text-brass font-arabic text-lg italic">"{QIBLA_QUOTES[currentQuote]}"</div>
             </div>
           </div>
@@ -462,10 +482,10 @@ export default function QiblaDirectionScreen() {
           <div className="card p-8 bg-gradient-to-r from-brass/10 to-wood/10 border border-brass/20 backdrop-blur-sm">
             <div className="text-center mb-8">
               <div className="text-2xl font-heading text-brass font-bold mb-4">
-                {isAligned ? `🎯 ${t('perfectFacingQibla')}` : `📱 ${t('rotateToAlignQibla')}`}
+                {isAligned ? `🎯 ${t('perfectFacingQibla')}` : `📱 ${t('rotate To Align Qibla')}`}
               </div>
               <div className="text-text dark:text-darktext">
-                {error ? error : t('liveCompass')}
+                {error ? error : t('live Compass')}
               </div>
             </div>
 
@@ -498,10 +518,10 @@ export default function QiblaDirectionScreen() {
             </div>
 
             {/* Demo mode label */}
-            {!('DeviceOrientationEvent' in window) && (
+            {!('Device Orientation Event' in window) && (
               <div className="text-center">
                 <div className="bg-gradient-to-r from-brass/20 to-wood/20 px-4 py-2 rounded-full text-xs font-bold border border-brass/30">
-                  {t('demoModeCompassNotSupported')}
+                  {t('demo Mode Compass Not Supported')}
                 </div>
               </div>
             )}
@@ -520,8 +540,8 @@ export default function QiblaDirectionScreen() {
                   <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-r from-card/80 to-card/60 text-text dark:text-darktext p-4">
                     <div className="text-4xl mb-4">🗺️</div>
                     <div className="text-center">
-                      <div className="font-semibold mb-2">{t('mapUnavailable')}</div>
-                      <div className="text-sm mb-4">{t('distanceLabel')} {distance} km</div>
+                      <div className="font-semibold mb-2">{t('map Unavailable')}</div>
+                      <div className="text-sm mb-4">{t('distance Label')} {distance} km</div>
                       <button 
                         onClick={() => {
                           setShowMap(false);
@@ -534,7 +554,7 @@ export default function QiblaDirectionScreen() {
                         }}
                         className="bg-brass text-white px-4 py-2 rounded-xl text-sm hover:bg-wood transition-all duration-300"
                       >
-                        {t('tryLoadingMapAgain')}
+                        {t('try Loading Map Again')}
                       </button>
                     </div>
                   </div>
@@ -550,7 +570,7 @@ export default function QiblaDirectionScreen() {
                       setShowMap(true);
                     }}
                     onMapError={(error) => {
-                      setError(t('mapUnavailable'));
+                      setError(t('map Unavailable'));
                       setShowMap(false);
                     }}
                     t={t}
@@ -559,7 +579,7 @@ export default function QiblaDirectionScreen() {
                 {/* Distance label positioned on the map */}
                 <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-[1000]">
                   <span className="bg-gradient-to-r from-brass to-wood text-white rounded-full px-6 py-2 text-base font-bold shadow-lg border border-wood">
-                    {t('distanceLabel')} {distance} km
+                    {t('distance Label')} {distance} km
                   </span>
                 </div>
               </div>
@@ -571,30 +591,30 @@ export default function QiblaDirectionScreen() {
         <div className="w-full max-w-4xl">
           <div className="card p-6 bg-gradient-to-r from-brass/10 to-wood/10 border border-brass/20 backdrop-blur-sm">
             <div className="text-center">
-              <h3 className="text-xl font-heading text-brass font-bold mb-4">📱 {t('calibrateCompassTitle')}</h3>
+              <h3 className="text-xl font-heading text-brass font-bold mb-4">📱 {t('calibrate Compass Title')}</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
                     <span className="text-brass font-bold">1.</span>
-                    <span className="text-text dark:text-darktext">{t('stepHoldDeviceFlat')}</span>
+                    <span className="text-text dark:text-darktext">{t('step Hold Device Flat')}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-brass font-bold">2.</span>
-                    <span className="text-text dark:text-darktext">{t('stepMoveFigureEight')}</span>
+                    <span className="text-text dark:text-darktext">{t('step Move Figure Eight')}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-brass font-bold">3.</span>
-                    <span className="text-text dark:text-darktext">{t('stepRotate360')}</span>
+                    <span className="text-text dark:text-darktext">{t('step Rotate 360')}</span>
                   </div>
                 </div>
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
                     <span className="text-brass font-bold">4.</span>
-                    <span className="text-text dark:text-darktext">{t('stepStayAwayMetal')}</span>
+                    <span className="text-text dark:text-darktext">{t('step Stay Away Metal')}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-brass font-bold">5.</span>
-                    <span className="text-text dark:text-darktext">{t('stepWaitCompassStabilize')}</span>
+                    <span className="text-text dark:text-darktext">{t('step Wait Compass Stabilize')}</span>
                   </div>
                 </div>
               </div>

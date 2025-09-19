@@ -24,52 +24,16 @@ import AIAssistantScreen from './screens/AIAssistantScreen';
 import QuizScreen from './screens/QuizScreen';
 import { useTranslation, setLanguage, getCurrentLanguage } from './utils/translations';
 import { SettingsProvider } from './contexts/SettingsContext';
-import SplashCursor from './components/nurui/splash-cursor';
+import SplashCursor from './components/nurui/splash-cursor.jsx';
 
 import ModernHeader from './components/ModernHeader';
 import WebsiteFooter from './components/WebsiteFooter';
 import LandingPage from './screens/LandingPage';
 import AuthModal from './components/AuthModal';
+import ErrorBoundary from './components/ErrorBoundary';
+import { ToastProvider } from './components/Toast';
 import authService from './utils/authService';
 
-// Global Error Boundary Component
-class GlobalErrorBoundary extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = { hasError: false, error: null };
-  }
-
-  static getDerivedStateFromError(error) {
-    return { hasError: true, error };
-  }
-
-  componentDidCatch(error, errorInfo) {
-    console.error('Global Error Boundary caught an error:', error, errorInfo);
-  }
-
-  render() {
-    if (this.state.hasError) {
-      return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4">
-          <div className="max-w-md w-full bg-white rounded-2xl p-8 shadow-2xl border border-gray-200 text-center">
-            <div className="text-4xl mb-4">🕌</div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-4">Something went wrong</h1>
-            <p className="text-gray-600 mb-6">
-              We encountered an unexpected error. Please refresh the page to continue.
-            </p>
-            <button
-              onClick={() => window.location.reload()}
-              className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-xl font-bold hover:from-blue-700 hover:to-purple-700 transition-all duration-300"
-            >
-              Refresh Page
-            </button>
-          </div>
-        </div>
-      );
-    }
-    return this.props.children;
-  }
-}
 
 function App() {
   const { t, currentLang, setLanguage } = useTranslation();
@@ -84,6 +48,7 @@ function App() {
   useEffect(() => {
     setIsRTL(currentLang === 'ur');
   }, [currentLang]);
+  
   const [childrenMode, setChildrenMode] = useState(() => {
     const saved = localStorage.getItem('childrenMode');
     return saved ? JSON.parse(saved) : false;
@@ -154,9 +119,10 @@ function App() {
   };
 
   return (
-    <GlobalErrorBoundary>
-      <SettingsProvider>
-        <Router>
+    <ErrorBoundary>
+      <ToastProvider>
+        <SettingsProvider>
+          <Router>
           <div className={`min-h-screen font-body text-text flex flex-col${childrenMode ? ' children' : ''} ${isRTL ? 'rtl' : 'ltr'}`}
             style={{ transition: 'background 0.5s, color 0.5s' }}
             lang={currentLang}
@@ -174,7 +140,7 @@ function App() {
 
             {/* Main Content */}
             <main className="flex-1 flex flex-col min-h-0">
-              <div className="flex-1">
+              <div className={`flex-1 ${isMobile ? 'pb-16' : ''}`}>
                 <Routes>
                   <Route path="/" element={<LandingPage />} />
                   <Route path="/dashboard" element={<HomeScreen />} />
@@ -214,9 +180,10 @@ function App() {
               onSuccess={handleAuthSuccess}
             />
           </div>
-        </Router>
-      </SettingsProvider>
-    </GlobalErrorBoundary>
+          </Router>
+        </SettingsProvider>
+      </ToastProvider>
+    </ErrorBoundary>
   );
 }
 

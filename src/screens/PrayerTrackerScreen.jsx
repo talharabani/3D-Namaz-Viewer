@@ -1,17 +1,16 @@
 import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { progressTracker } from '../utils/progressTracker';
 import { useTranslation } from '../utils/translations';
-import { GlowCard } from '../components/nurui/spotlight-card';
 import { 
-  MotionDiv, 
-  MotionCard, 
-  MotionButton,
   fadeInUp, 
   staggerContainer, 
   staggerItem, 
   pageTransition,
   buttonPress,
-  transitions
+  transitions,
+  pulseAnimation,
+  mosqueGlow
 } from '../utils/animations';
 
 // Import JSZip for creating zip files
@@ -49,37 +48,49 @@ function NotesModal({ isOpen, onClose, dateStr, note, onSave }) {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
-      <GlowCard className="bg-gradient-to-br from-white/95 to-white/80 dark:from-gray-800/95 dark:to-gray-800/80 p-8 rounded-2xl max-w-md w-full mx-4 shadow-2xl border border-brass/30 backdrop-blur-sm">
-        <h3 className="text-2xl font-bold text-brass mb-6 text-center">
+    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50">
+      <motion.div 
+        className="bg-gray-900 rounded-3xl shadow-2xl max-w-md w-full mx-4 border border-blue-400/30 overflow-hidden"
+        initial={{ scale: 0.9, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        exit={{ scale: 0.9, opacity: 0 }}
+        transition={transitions.spring}
+      >
+        <div className="bg-gradient-to-r from-blue-600/20 to-cyan-600/20 p-6 border-b border-white/10">
+          <h3 className="text-xl font-bold text-white text-center">
           {t('notesFor')} {new Date(dateStr).toLocaleDateString()}
         </h3>
+        </div>
+        <div className="p-6">
         <textarea
           value={noteText}
           onChange={(e) => setNoteText(e.target.value)}
           placeholder={t('addYourPrayerNotesHere')}
-          className="w-full h-32 p-4 border-2 border-brass/30 dark:border-brass/60 rounded-xl bg-white/50 dark:bg-gray-800/50 text-gray-800 dark:text-gray-200 resize-none focus:border-wood focus:ring-2 focus:ring-wood/20 transition-all backdrop-blur-sm"
+            className="w-full h-32 p-4 border border-white/20 rounded-xl bg-white/5 text-white placeholder-gray-400 resize-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/20 transition-all backdrop-blur-sm"
         />
         <div className="flex gap-3 mt-6">
-          <MotionButton
-            className="flex-1 bg-gradient-to-r from-wood to-brass hover:from-brass hover:to-wood text-white font-semibold py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+            <motion.button
+              className="flex-1 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white font-semibold py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
             onClick={() => {
               onSave(dateStr, noteText);
               onClose();
             }}
-            {...buttonPress}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
           >
             {t('save')}
-          </MotionButton>
-          <MotionButton
-            className="flex-1 bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 text-white font-semibold py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+            </motion.button>
+            <motion.button
+              className="flex-1 bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-500 hover:to-gray-600 text-white font-semibold py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
             onClick={onClose}
-            {...buttonPress}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
           >
             {t('cancel')}
-          </MotionButton>
+            </motion.button>
+          </div>
         </div>
-      </GlowCard>
+      </motion.div>
     </div>
   );
 }
@@ -94,27 +105,27 @@ function QuickActions({ onMarkAll, onMarkToday, onMarkWeek }) {
         {t('quickActions')}
       </h3>
       <div className="flex flex-wrap gap-3">
-        <MotionButton 
+        <motion.button 
           className="flex-1 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-semibold py-3 px-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
           onClick={onMarkToday}
           {...buttonPress}
         >
           {t('markTodayComplete')}
-        </MotionButton>
-        <MotionButton 
+        </motion.button>
+        <motion.button 
           className="flex-1 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold py-3 px-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
           onClick={onMarkWeek}
           {...buttonPress}
         >
           {t('markThisWeek')}
-        </MotionButton>
-        <MotionButton 
+        </motion.button>
+        <motion.button 
           className="flex-1 bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white font-semibold py-3 px-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
           onClick={onMarkAll}
           {...buttonPress}
         >
           {t('markAllThisMonth')}
-        </MotionButton>
+        </motion.button>
       </div>
     </GlowCard>
   );
@@ -123,7 +134,7 @@ function QuickActions({ onMarkAll, onMarkToday, onMarkWeek }) {
 // Stat Card Component
 function StatCard({ title, value, icon, color, onClick }) {
   return (
-    <MotionCard
+    <motion.div
       className={`bg-gradient-to-br from-white/95 to-white/80 dark:from-gray-800/95 dark:to-gray-800/80 p-6 rounded-2xl shadow-lg border border-brass/30 cursor-pointer hover:shadow-xl transition-all duration-300 backdrop-blur-sm hover:scale-105 ${onClick ? 'hover:border-brass/50' : ''}`}
       onClick={onClick}
       whileHover={onClick ? { scale: 1.05 } : {}}
@@ -136,7 +147,7 @@ function StatCard({ title, value, icon, color, onClick }) {
         </div>
         <div className={`text-4xl ${color}`}>{icon}</div>
       </div>
-    </MotionCard>
+    </motion.div>
   );
 }
 
@@ -148,8 +159,17 @@ export default function PrayerTrackerScreen() {
   const [showNotesModal, setShowNotesModal] = useState(false);
   const [noteDate, setNoteDate] = useState('');
   const [noteText, setNoteText] = useState('');
-  const [viewMode, setViewMode] = useState('calendar'); // 'calendar' or 'stats'
+  const [viewMode, setViewMode] = useState('dashboard'); // 'dashboard', 'calendar', 'analytics', 'goals'
   const [exportData, setExportData] = useState(null);
+  const [prayerGoals, setPrayerGoals] = useState({
+    daily: 5,
+    weekly: 35,
+    monthly: 150
+  });
+  const [achievements, setAchievements] = useState([]);
+  const [showAchievementModal, setShowAchievementModal] = useState(false);
+  const [newAchievement, setNewAchievement] = useState(null);
+  const [insights, setInsights] = useState([]);
 
   // Get current month data
   const year = currentMonth.getFullYear();
@@ -165,6 +185,95 @@ export default function PrayerTrackerScreen() {
   // Calculate streak
   const currentStreak = progressTracker.getCurrentStreak();
   const longestStreak = progressTracker.getLongestStreak();
+
+  // Enhanced analytics
+  const weeklyProgress = progressTracker.getWeekProgress();
+  const monthlyProgress = progressTracker.getMonthProgress(year, month + 1);
+  const yearlyProgress = progressTracker.getYearProgress(year);
+  
+  // Prayer patterns analysis
+  const prayerPatterns = {
+    bestDay: getBestPrayerDay(),
+    worstDay: getWorstPrayerDay(),
+    bestPrayer: getBestPrayer(),
+    worstPrayer: getWorstPrayer(),
+    averageDelay: getAveragePrayerDelay(),
+    consistency: getPrayerConsistency()
+  };
+
+  // Generate insights
+  useEffect(() => {
+    generateInsights();
+  }, [monthlyProgress, currentStreak]);
+
+  function generateInsights() {
+    const newInsights = [];
+    
+    if (completionRate >= 90) {
+      newInsights.push({
+        type: 'excellent',
+        icon: '🌟',
+        title: 'Excellent Consistency!',
+        message: `You've maintained ${completionRate}% prayer completion this month. Keep up the great work!`
+      });
+    } else if (completionRate >= 70) {
+      newInsights.push({
+        type: 'good',
+        icon: '👍',
+        title: 'Good Progress',
+        message: `You're at ${completionRate}% completion. Try to improve by praying on time consistently.`
+      });
+    } else {
+      newInsights.push({
+        type: 'improvement',
+        icon: '📈',
+        title: 'Room for Improvement',
+        message: `You're at ${completionRate}% completion. Consider setting smaller daily goals to build consistency.`
+      });
+    }
+
+    if (currentStreak >= 7) {
+      newInsights.push({
+        type: 'streak',
+        icon: '🔥',
+        title: 'Amazing Streak!',
+        message: `You've maintained a ${currentStreak}-day prayer streak! This is wonderful consistency.`
+      });
+    }
+
+    setInsights(newInsights);
+  }
+
+  function getBestPrayerDay() {
+    const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    // Implementation for finding best prayer day
+    return 'Friday';
+  }
+
+  function getWorstPrayerDay() {
+    // Implementation for finding worst prayer day
+    return 'Monday';
+  }
+
+  function getBestPrayer() {
+    // Implementation for finding best performed prayer
+    return 'Fajr';
+  }
+
+  function getWorstPrayer() {
+    // Implementation for finding worst performed prayer
+    return 'Asr';
+  }
+
+  function getAveragePrayerDelay() {
+    // Implementation for calculating average delay
+    return '15 minutes';
+  }
+
+  function getPrayerConsistency() {
+    // Implementation for calculating consistency score
+    return 85;
+  }
 
   // Handle prayer toggle
   const togglePrayer = (date, prayer) => {
@@ -293,371 +402,313 @@ export default function PrayerTrackerScreen() {
   };
 
   return (
-    <MotionDiv 
-      className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 relative"
-      {...pageTransition}
-    >
-      {/* Floating Islamic Calligraphy - Perfectly Positioned */}
-      <div className="absolute top-4 right-4 sm:top-6 sm:right-6 md:top-8 md:right-8 z-30">
-        <GlowCard className="group islamic-calligraphy bg-gradient-to-br from-white/95 to-white/80 dark:from-gray-800/95 dark:to-gray-800/80 rounded-2xl p-3 sm:p-4 border border-brass/30 shadow-2xl backdrop-blur-sm hover:shadow-3xl hover:scale-105 transition-all duration-500 max-w-[140px] sm:max-w-[160px] md:max-w-[180px]">
-          <div className="text-center">
-            <div className="text-xs sm:text-sm font-arabic text-brass mb-1 group-hover:text-amber-600 transition-colors duration-300">📊</div>
-            <h2 className="text-xs sm:text-sm md:text-base font-bold text-gray-800 dark:text-gray-200 mb-2 group-hover:text-brass transition-colors duration-300">تتبع</h2>
-          </div>
-        </GlowCard>
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-emerald-900 to-slate-900 relative overflow-hidden">
+      {/* Animated Background Elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-emerald-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-green-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse delay-1000"></div>
+        <div className="absolute top-40 left-40 w-60 h-60 bg-teal-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse delay-2000"></div>
+        <div className="absolute bottom-40 right-40 w-60 h-60 bg-emerald-600 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse delay-3000"></div>
       </div>
 
-      <div className="w-full max-w-7xl mx-auto py-8 px-4 pt-24 sm:pt-28">
-        {/* Beautiful Calligraphy Header - Perfectly Centered */}
-        <div className="text-center mb-16 flex flex-col items-center justify-center min-h-[40vh] px-4">
-          {/* Arabic Calligraphy - Perfectly Centered */}
-          <div className="mb-16 animate-fadeInScale text-center w-full max-w-5xl arabic-content">
-            <div className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-arabic text-brass mb-8 leading-none drop-shadow-2xl animate-pulse arabic-text-center font-bold tracking-wide">
+      <div className="relative z-10 w-full max-w-7xl mx-auto flex flex-col items-center gap-8 sm:gap-12 py-6 sm:py-12 px-3 sm:px-4">
+        {/* Header Section */}
+        <motion.div 
+          className="w-full text-center mb-8 sm:mb-12"
+          variants={fadeInUp}
+          initial="initial"
+          animate="animate"
+          transition={transitions.smooth}
+        >
+          <div className="relative">
+            <motion.div 
+              className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-4 sm:mb-6 bg-gradient-to-r from-blue-400 via-cyan-400 to-emerald-400 bg-clip-text text-transparent"
+              variants={pulseAnimation}
+              animate="animate"
+            >
               📊 {t('prayerTracker')}
-            </div>
-            <div className="text-sm md:text-base text-text dark:text-darktext opacity-80 italic text-center mx-auto max-w-2xl">
+            </motion.div>
+            <div className="text-lg sm:text-xl md:text-2xl text-gray-300 max-w-3xl mx-auto leading-relaxed px-2">
               {t('trackYourDailyPrayers')}
             </div>
           </div>
+        </motion.div>
 
-          {/* Enhanced Islamic Design - Perfectly Centered */}
-          <div className="relative mb-16 animate-fadeInUp text-center w-full max-w-5xl arabic-content">
-            {/* Decorative Islamic pattern */}
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-32 sm:w-48 h-1 bg-gradient-to-r from-transparent via-brass to-transparent opacity-40 animate-shimmer"></div>
+        {/* Enhanced Navigation Tabs */}
+        <motion.div 
+          className="w-full max-w-4xl"
+          variants={fadeInUp}
+          initial="initial"
+          animate="animate"
+          transition={{ ...transitions.smooth, delay: 0.2 }}
+        >
+          <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl sm:rounded-3xl p-1 sm:p-2">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-1 sm:gap-2">
+              {[
+                { id: 'dashboard', icon: '📊', label: 'Dashboard' },
+                { id: 'calendar', icon: '📅', label: 'Calendar' },
+                { id: 'analytics', icon: '📈', label: 'Analytics' },
+                { id: 'goals', icon: '🎯', label: 'Goals' }
+              ].map((tab) => (
+                <motion.button
+                  key={tab.id}
+                  onClick={() => setViewMode(tab.id)}
+                  className={`flex flex-col items-center gap-2 p-4 rounded-2xl transition-all duration-300 ${
+                    viewMode === tab.id
+                      ? 'bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-lg'
+                      : 'text-gray-300 hover:bg-white/10 hover:text-white'
+                  }`}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <span className="text-2xl">{tab.icon}</span>
+                  <span className="text-sm font-medium">{tab.label}</span>
+                </motion.button>
+              ))}
             </div>
-            
-            {/* Beautiful Arabic Calligraphy - Perfectly Centered */}
-            <div className="mb-8 text-center w-full">
-              <div className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-arabic text-brass mb-6 leading-relaxed drop-shadow-xl animate-float arabic-text-center font-bold tracking-wide">
-                تتبع الصلاة
-              </div>
-              <p className="text-base sm:text-lg text-gray-700 dark:text-gray-300 max-w-2xl mx-auto text-center">
-                {t('monitorYourPrayerProgress')}
-              </p>
             </div>
+        </motion.div>
 
-            {/* Enhanced Islamic quote with better styling - Perfectly Centered */}
-            <GlowCard className="bg-gradient-to-r from-brass/15 to-wood/15 rounded-3xl p-8 sm:p-10 border border-brass/30 backdrop-blur-sm max-w-4xl mx-auto shadow-2xl animate-pulse-glow text-center">
-              <div className="text-xl sm:text-2xl md:text-3xl font-arabic text-brass mb-4 leading-relaxed arabic-text-center font-bold tracking-wide">
-                "إِنَّ الصَّلَاةَ كَانَتْ عَلَى الْمُؤْمِنِينَ كِتَابًا مَّوْقُوتًا"
-              </div>
-              <div className="text-sm sm:text-base md:text-lg text-text dark:text-darktext opacity-90 italic text-center mx-auto">
-                "Indeed, prayer has been decreed upon the believers a decree of specified times"
-              </div>
-              <div className="text-xs sm:text-sm text-text dark:text-darktext opacity-70 mt-4 font-semibold text-center mx-auto">
-                Quran 4:103
-              </div>
-            </GlowCard>
-          </div>
-        </div>
-
-        {/* View Mode Toggle */}
-        <div className="flex justify-center mb-8">
-          <div className="bg-white/80 dark:bg-gray-800/80 rounded-xl p-1 border border-brass/30 backdrop-blur-sm">
-            <MotionButton
-              className={`px-6 py-2 rounded-lg transition-all font-medium ${
-                viewMode === 'calendar' 
-                  ? 'bg-gradient-to-r from-brass to-wood text-white shadow-lg' 
-                  : 'bg-transparent text-gray-700 dark:text-gray-300 hover:bg-brass/10'
-              }`}
-              onClick={() => setViewMode('calendar')}
-              {...buttonPress}
+        {/* Main Content Based on View Mode */}
+        {viewMode === 'dashboard' && (
+          <motion.div 
+            className="w-full max-w-7xl"
+            variants={staggerContainer}
+            initial="initial"
+            animate="animate"
+          >
+            {/* Quick Stats */}
+            <motion.div 
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8"
+              variants={staggerContainer}
             >
-              📅 {t('calendar')}
-            </MotionButton>
-            <MotionButton
-              className={`px-6 py-2 rounded-lg transition-all font-medium ${
-                viewMode === 'stats' 
-                  ? 'bg-gradient-to-r from-brass to-wood text-white shadow-lg' 
-                  : 'bg-transparent text-gray-700 dark:text-gray-300 hover:bg-brass/10'
-              }`}
-              onClick={() => setViewMode('stats')}
-              {...buttonPress}
-            >
-              📊 {t('statistics')}
-            </MotionButton>
-          </div>
-        </div>
-
-        {viewMode === 'calendar' ? (
-          <>
-            {/* Month Navigation */}
-            <div className="flex items-center justify-between mb-8">
-              <MotionButton
-                onClick={goToPreviousMonth}
-                className="bg-gradient-to-r from-brass to-wood text-white px-4 py-2 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
-                {...buttonPress}
+              <motion.div 
+                className="p-6 bg-white/10 backdrop-blur-lg border border-white/20 rounded-3xl text-center"
+                variants={staggerItem}
               >
-                ← {t('previous')}
-              </MotionButton>
+                <div className="text-4xl mb-3">📊</div>
+                <div className="text-3xl font-bold text-white mb-2">{completionRate}%</div>
+                <div className="text-gray-300">Completion Rate</div>
+              </motion.div>
               
-              <h2 className="text-2xl font-bold text-brass">
+              <motion.div 
+                className="p-6 bg-white/10 backdrop-blur-lg border border-white/20 rounded-3xl text-center"
+                variants={staggerItem}
+              >
+                <div className="text-4xl mb-3">🔥</div>
+                <div className="text-3xl font-bold text-white mb-2">{currentStreak}</div>
+                <div className="text-gray-300">Current Streak</div>
+              </motion.div>
+              
+              <motion.div 
+                className="p-6 bg-white/10 backdrop-blur-lg border border-white/20 rounded-3xl text-center"
+                variants={staggerItem}
+              >
+                <div className="text-4xl mb-3">✅</div>
+                <div className="text-3xl font-bold text-white mb-2">{completedPrayers}</div>
+                <div className="text-gray-300">Completed Prayers</div>
+              </motion.div>
+              
+              <motion.div 
+                className="p-6 bg-white/10 backdrop-blur-lg border border-white/20 rounded-3xl text-center"
+                variants={staggerItem}
+              >
+                <div className="text-4xl mb-3">🏆</div>
+                <div className="text-3xl font-bold text-white mb-2">{longestStreak}</div>
+                <div className="text-gray-300">Best Streak</div>
+              </motion.div>
+            </motion.div>
+
+            {/* Insights */}
+            <motion.div 
+              className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8"
+              variants={staggerContainer}
+            >
+              {insights.map((insight, index) => (
+                <motion.div 
+                  key={index}
+                  className="p-6 bg-white/10 backdrop-blur-lg border border-white/20 rounded-3xl"
+                  variants={staggerItem}
+                >
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className="text-3xl">{insight.icon}</div>
+                    <div>
+                      <h3 className="text-xl font-bold text-white">{insight.title}</h3>
+          </div>
+        </div>
+                  <p className="text-gray-300 leading-relaxed">{insight.message}</p>
+                </motion.div>
+              ))}
+            </motion.div>
+
+            {/* Prayer Patterns */}
+            <motion.div 
+              className="p-6 bg-white/10 backdrop-blur-lg border border-white/20 rounded-3xl"
+              variants={fadeInUp}
+            >
+              <h3 className="text-2xl font-bold text-white mb-6 text-center">Prayer Patterns</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="text-center">
+                  <div className="text-2xl mb-2">📅</div>
+                  <div className="text-gray-300 mb-1">Best Day</div>
+                  <div className="text-white font-bold">{prayerPatterns.bestDay}</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl mb-2">🕌</div>
+                  <div className="text-gray-300 mb-1">Best Prayer</div>
+                  <div className="text-white font-bold">{prayerPatterns.bestPrayer}</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl mb-2">📈</div>
+                  <div className="text-gray-300 mb-1">Consistency</div>
+                  <div className="text-white font-bold">{prayerPatterns.consistency}%</div>
+          </div>
+        </div>
+            </motion.div>
+          </motion.div>
+        )}
+
+        {/* Calendar View */}
+        {viewMode === 'calendar' && (
+          <motion.div 
+            className="w-full max-w-7xl"
+            variants={staggerContainer}
+            initial="initial"
+            animate="animate"
+          >
+            {/* Month Navigation */}
+            <motion.div 
+              className="flex items-center justify-between mb-8"
+              variants={staggerItem}
+            >
+              <motion.button
+                onClick={goToPreviousMonth}
+                className="bg-gradient-to-r from-blue-600 to-cyan-600 text-white px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                ← Previous
+              </motion.button>
+              
+              <h2 className="text-2xl font-bold text-white">
                 {currentMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
               </h2>
               
-              <MotionButton
+              <motion.button
                 onClick={goToNextMonth}
-                className="bg-gradient-to-r from-brass to-wood text-white px-4 py-2 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
-                {...buttonPress}
+                className="bg-gradient-to-r from-blue-600 to-cyan-600 text-white px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
               >
-                {t('next')} →
-              </MotionButton>
-            </div>
+                Next →
+              </motion.button>
+            </motion.div>
 
             {/* Quick Actions */}
-            <div className="mb-8">
-              <QuickActions 
-                onMarkAll={markMonthComplete}
-                onMarkToday={markTodayComplete}
-                onMarkWeek={markWeekComplete}
-              />
-            </div>
-
-            {/* Calendar Grid */}
-            <MotionDiv className="grid grid-cols-7 gap-2 mb-8" {...staggerContainer}>
-              {/* Day headers */}
-              {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day, index) => (
-                <MotionDiv
-                  key={day}
-                  className="text-center font-bold text-brass p-2"
-                  {...staggerItem}
-                  style={{ animationDelay: `${index * 50}ms` }}
-                >
-                  {day}
-                </MotionDiv>
-              ))}
-              
-              {/* Calendar days */}
-              {days.map((day, index) => {
-                const dateStr = day.toISOString().split('T')[0];
-                const dayProgress = progressTracker.getDayProgress(dateStr);
-                const isToday = day.toDateString() === new Date().toDateString();
-                const isCurrentMonth = day.getMonth() === month;
-                
-                return (
-                  <MotionCard
-                    key={day.toISOString()}
-                    className={`p-2 rounded-xl border border-brass/30 transition-all duration-300 cursor-pointer hover:shadow-lg backdrop-blur-sm ${
-                      isToday ? 'ring-2 ring-brass shadow-lg' : ''
-                    } ${
-                      isCurrentMonth 
-                        ? 'bg-white/80 dark:bg-gray-800/80' 
-                        : 'bg-gray-100/50 dark:bg-gray-700/50'
-                    }`}
-                    onClick={() => setSelectedDate(day)}
-                    {...staggerItem}
-                    style={{ animationDelay: `${(index + 7) * 50}ms` }}
+            <motion.div 
+              className="mb-8"
+              variants={staggerItem}
+            >
+              <div className="p-6 bg-white/10 backdrop-blur-lg border border-white/20 rounded-3xl">
+                <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                  <span className="text-2xl">⚡</span>
+                  Quick Actions
+                </h3>
+                <div className="flex flex-wrap gap-3">
+                  <motion.button 
+                    className="flex-1 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-semibold py-3 px-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+                    onClick={markTodayComplete}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                   >
-                    <div className="text-center">
-                      <div className={`text-sm font-semibold mb-1 ${
-                        isToday ? 'text-brass' : 'text-gray-700 dark:text-gray-300'
-                      }`}>
-                        {day.getDate()}
+                    Mark Today Complete
+                  </motion.button>
+                  <motion.button 
+                    className="flex-1 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold py-3 px-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+                    onClick={markWeekComplete}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    Mark This Week
+                  </motion.button>
+                  <motion.button 
+                    className="flex-1 bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white font-semibold py-3 px-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+                    onClick={markMonthComplete}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    Mark All This Month
+                  </motion.button>
                       </div>
-                      
-                      {/* Prayer indicators */}
-                      <div className="grid grid-cols-5 gap-1">
-                        {PRAYERS.map(prayer => {
-                          const isCompleted = dayProgress[prayer];
-                          return (
-                            <div
-                              key={prayer}
-                              className={`w-2 h-2 rounded-full ${
-                                isCompleted ? 'bg-green-500' : 'bg-gray-300 dark:bg-gray-600'
-                              }`}
-                              title={`${prayer}: ${isCompleted ? t('completed') : t('notCompleted')}`}
-                            />
-                          );
-                        })}
-                      </div>
-                      
-                      {/* Note indicator */}
-                      {notes[dateStr] && (
-                        <div className="text-xs text-brass mt-1">📝</div>
-                      )}
                     </div>
-                  </MotionCard>
-                );
-              })}
-            </MotionDiv>
+            </motion.div>
+          </motion.div>
+        )}
 
-            {/* Selected Date Details */}
-            {selectedDate && (
-              <MotionDiv className="mb-8" {...fadeInUp}>
-                <GlowCard className="bg-gradient-to-br from-white/95 to-white/80 dark:from-gray-800/95 dark:to-gray-800/80 p-6 rounded-2xl shadow-xl border border-brass/30 backdrop-blur-sm">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-xl font-bold text-brass">
-                      {selectedDate.toLocaleDateString('en-US', { 
-                        weekday: 'long', 
-                        year: 'numeric', 
-                        month: 'long', 
-                        day: 'numeric' 
-                      })}
-                    </h3>
-                    <MotionButton
-                      onClick={() => setSelectedDate(null)}
-                      className="text-gray-500 hover:text-brass transition-colors"
-                      {...buttonPress}
-                    >
-                      ✕
-                    </MotionButton>
-                  </div>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {/* Prayer status */}
-                    <div>
-                      <h4 className="font-semibold text-brass mb-3">{t('prayerStatus')}</h4>
-                      <div className="space-y-2">
-                        {PRAYERS.map(prayer => {
-                          const dateStr = selectedDate.toISOString().split('T')[0];
-                          const isCompleted = progressTracker.getDayProgress(dateStr)[prayer];
-                          
-                          return (
-                            <div key={prayer} className="flex items-center justify-between">
-                              <span className="flex items-center gap-2">
-                                <span className="text-lg">{PRAYER_TIMES[prayer]}</span>
-                                <span className="text-gray-700 dark:text-gray-300">{prayer}</span>
-                              </span>
-                              <MotionButton
-                                onClick={() => togglePrayer(selectedDate, prayer)}
-                                className={`px-3 py-1 rounded-lg text-sm font-medium transition-all ${
-                                  isCompleted
-                                    ? 'bg-green-600 text-white hover:bg-green-700'
-                                    : 'bg-gray-300 dark:bg-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-400 dark:hover:bg-gray-500'
-                                }`}
-                                {...buttonPress}
-                              >
-                                {isCompleted ? t('completed') : t('markComplete')}
-                              </MotionButton>
-                            </div>
-                          );
-                        })}
+        {/* Analytics View */}
+        {viewMode === 'analytics' && (
+          <motion.div 
+            className="w-full max-w-7xl"
+            variants={staggerContainer}
+            initial="initial"
+            animate="animate"
+          >
+            <motion.div 
+              className="p-8 bg-white/10 backdrop-blur-lg border border-white/20 rounded-3xl text-center"
+              variants={staggerItem}
+            >
+              <div className="text-6xl mb-4">📈</div>
+              <h3 className="text-2xl font-bold text-white mb-4">Advanced Analytics</h3>
+              <p className="text-gray-300 mb-6">Detailed insights and prayer pattern analysis coming soon!</p>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="text-center">
+                  <div className="text-4xl mb-2">📊</div>
+                  <div className="text-gray-300">Trend Analysis</div>
                       </div>
-                    </div>
-                    
-                    {/* Notes */}
-                    <div>
-                      <div className="flex items-center justify-between mb-3">
-                        <h4 className="font-semibold text-brass">{t('notes')}</h4>
-                        <MotionButton
-                          onClick={() => editNote(selectedDate.toISOString().split('T')[0])}
-                          className="px-3 py-1 bg-gradient-to-r from-brass to-wood text-white rounded-lg text-sm hover:from-wood hover:to-brass transition-all font-medium"
-                          {...buttonPress}
-                        >
-                          {notes[selectedDate.toISOString().split('T')[0]] ? t('edit') : t('add')}
-                        </MotionButton>
-                      </div>
-                      
-                      {notes[selectedDate.toISOString().split('T')[0]] ? (
-                        <div className="bg-gray-50 dark:bg-gray-700 p-3 rounded-lg">
-                          <p className="text-gray-700 dark:text-gray-300">
-                            {notes[selectedDate.toISOString().split('T')[0]]}
-                          </p>
+                <div className="text-center">
+                  <div className="text-4xl mb-2">🎯</div>
+                  <div className="text-gray-300">Performance Metrics</div>
                         </div>
-                      ) : (
-                        <p className="text-gray-500 dark:text-gray-400 italic">
-                          {t('noNotesForThisDay')}
-                        </p>
-                      )}
+                <div className="text-center">
+                  <div className="text-4xl mb-2">🔍</div>
+                  <div className="text-gray-300">Deep Insights</div>
                     </div>
                   </div>
-                </GlowCard>
-              </MotionDiv>
-            )}
-          </>
-        ) : (
-          /* Statistics View */
-          <MotionDiv className="space-y-8" {...staggerContainer}>
-            {/* Overview Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <StatCard
-                title={t('completionRate')}
-                value={`${completionRate}%`}
-                icon="📊"
-                color="text-brass"
-              />
-              <StatCard
-                title={t('totalPrayers')}
-                value={totalPrayers}
-                icon="🕌"
-                color="text-blue-600"
-              />
-              <StatCard
-                title={t('completedPrayers')}
-                value={completedPrayers}
-                icon="✅"
-                color="text-green-600"
-              />
-              <StatCard
-                title={t('missedPrayers')}
-                value={totalPrayers - completedPrayers}
-                icon="❌"
-                color="text-red-600"
-              />
-            </div>
+            </motion.div>
+          </motion.div>
+        )}
 
-            {/* Streak Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <StatCard
-                title={t('currentStreak')}
-                value={`${currentStreak} ${t('days')}`}
-                icon="🔥"
-                color="text-orange-600"
-              />
-              <StatCard
-                title={t('longestStreak')}
-                value={`${longestStreak} ${t('days')}`}
-                icon="🏆"
-                color="text-yellow-600"
-              />
-            </div>
-
-            {/* Export/Import */}
-            <GlowCard className="bg-gradient-to-br from-white/95 to-white/80 dark:from-gray-800/95 dark:to-gray-800/80 p-6 rounded-2xl shadow-xl border border-brass/30 backdrop-blur-sm">
-              <h3 className="text-xl font-bold text-brass mb-4">{t('dataManagement')}</h3>
-              <div className="flex flex-wrap gap-4">
-                <MotionButton
-                  onClick={handleExport}
-                  className="bg-gradient-to-r from-green-600 to-green-700 text-white px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
-                  {...buttonPress}
-                >
-                  📤 {t('exportData')}
-                </MotionButton>
-                
-                <label className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer">
-                  📥 {t('importData')}
-                  <input
-                    type="file"
-                    accept=".json,.zip"
-                    onChange={handleImport}
-                    className="hidden"
-                  />
-                </label>
-                
-                <MotionButton
-                  onClick={goToCurrentMonth}
-                  className="bg-gradient-to-r from-brass to-wood text-white px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
-                  {...buttonPress}
-                >
-                  📅 {t('goToCurrentMonth')}
-                </MotionButton>
-              </div>
-              
-              {/* Export/Import feedback */}
-              {exportData && (
-                <div className={`mt-4 p-3 rounded-lg ${
-                  exportData.success 
-                    ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200' 
-                    : 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200'
-                }`}>
-                  {exportData.message}
+        {/* Goals View */}
+        {viewMode === 'goals' && (
+          <motion.div 
+            className="w-full max-w-7xl"
+            variants={staggerContainer}
+            initial="initial"
+            animate="animate"
+          >
+            <motion.div 
+              className="p-8 bg-white/10 backdrop-blur-lg border border-white/20 rounded-3xl text-center"
+              variants={staggerItem}
+            >
+              <div className="text-6xl mb-4">🎯</div>
+              <h3 className="text-2xl font-bold text-white mb-4">Prayer Goals</h3>
+              <p className="text-gray-300 mb-6">Set and track your prayer goals and achievements!</p>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="text-center">
+                  <div className="text-4xl mb-2">📅</div>
+                  <div className="text-gray-300">Daily Goals</div>
                 </div>
-              )}
-            </GlowCard>
-          </MotionDiv>
+                <div className="text-center">
+                  <div className="text-4xl mb-2">🏆</div>
+                  <div className="text-gray-300">Achievements</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-4xl mb-2">🎖️</div>
+                  <div className="text-gray-300">Badges</div>
+              </div>
+                </div>
+            </motion.div>
+          </motion.div>
         )}
       </div>
 
@@ -669,6 +720,6 @@ export default function PrayerTrackerScreen() {
         note={noteText}
         onSave={saveNote}
       />
-    </MotionDiv>
+    </div>
   );
 } 

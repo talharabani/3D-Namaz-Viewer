@@ -1,22 +1,25 @@
 import { useEffect, useState } from 'react';
+import { motion } from 'framer-motion';
 import { ToggleLeft } from '../components/ToggleLeft';
 import { useSettings } from '../contexts/SettingsContext';
 import { useTranslation } from '../utils/translations';
-import { GlowCard } from '../components/nurui/spotlight-card';
+import ThemeToggle from '../components/ThemeToggle';
+import LanguageToggle from '../components/LanguageToggle';
+import { useToast } from '../components/Toast';
 import { 
-  MotionDiv, 
-  MotionCard, 
-  MotionButton,
   fadeInUp, 
   staggerContainer, 
   staggerItem, 
   pageTransition,
   buttonPress,
-  transitions
+  transitions,
+  pulseAnimation,
+  mosqueGlow
 } from '../utils/animations';
 
 export default function SettingsScreen() {
-  const { t } = useTranslation();
+  const { t, currentLang, setLanguage } = useTranslation();
+  const { success, error } = useToast();
   const { 
     settings, 
     updateSettings, 
@@ -32,8 +35,6 @@ export default function SettingsScreen() {
   const [loading, setLoading] = useState(false);
   const [notificationPermission, setNotificationPermission] = useState('default');
   const [activeSection, setActiveSection] = useState('notifications');
-  const [showToast, setShowToast] = useState(false);
-  const [toastMessage, setToastMessage] = useState('');
 
   useEffect(() => {
     // Check notification permission
@@ -42,17 +43,24 @@ export default function SettingsScreen() {
     }
   }, []);
 
-  const showToastMessage = (message) => {
-    setToastMessage(message);
-    setShowToast(true);
-    setTimeout(() => setShowToast(false), 3000);
+  const showToastMessage = (message, type = 'success') => {
+    if (type === 'success') {
+      success(message);
+    } else {
+      error(message);
+    }
   };
 
   const handleLocationUpdate = async () => {
     setLoading(true);
-    const result = await updateLocation();
-    setLoading(false);
-    showToastMessage(result.message);
+    try {
+      const result = await updateLocation();
+      setLoading(false);
+      showToastMessage(result.message, result.success ? 'success' : 'error');
+    } catch (err) {
+      setLoading(false);
+      showToastMessage('Failed to update location', 'error');
+    }
   };
 
   const handleThemeUpdate = (theme) => {
@@ -278,18 +286,23 @@ export default function SettingsScreen() {
             <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-200 dark:border-gray-700 shadow-lg">
               <h3 className="text-xl font-bold text-purple-800 dark:text-purple-200 mb-4">{t('appearanceSettings')}</h3>
               
-              <div className="space-y-4">
+              <div className="space-y-6">
+                {/* Theme Toggle */}
                 <div className="p-4 rounded-xl bg-gradient-to-r from-purple-50 to-pink-50 dark:from-gray-700 dark:to-gray-600 border border-purple-200 dark:border-purple-700">
-                  <label className="block text-gray-700 dark:text-gray-300 font-semibold mb-2">{t('theme')}</label>
-                  <select
-                    value={settings.theme}
-                    onChange={(e) => handleThemeUpdate(e.target.value)}
-                    className="w-full rounded-lg border border-purple-300 dark:border-purple-600 bg-white dark:bg-gray-700 px-3 py-2 text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                  >
-                    <option value="auto">{t('autoSystem')}</option>
-                    <option value="light">{t('light')}</option>
-                    <option value="dark">{t('dark')}</option>
-                  </select>
+                  <ThemeToggle 
+                    theme={settings.theme} 
+                    onThemeChange={handleThemeUpdate}
+                    className="justify-center"
+                  />
+                </div>
+                
+                {/* Language Toggle */}
+                <div className="p-4 rounded-xl bg-gradient-to-r from-purple-50 to-pink-50 dark:from-gray-700 dark:to-gray-600 border border-purple-200 dark:border-purple-700">
+                  <LanguageToggle 
+                    currentLang={currentLang} 
+                    onLanguageChange={setLanguage}
+                    className="justify-center"
+                  />
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -469,49 +482,74 @@ export default function SettingsScreen() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-      <div className="w-full max-w-7xl mx-auto py-8 px-4">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-3xl md:text-4xl font-heading text-amber-800 dark:text-amber-200 font-bold mb-4 drop-shadow">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-emerald-900 to-slate-900 relative overflow-hidden">
+      {/* Animated Background Elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-emerald-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-green-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse delay-1000"></div>
+        <div className="absolute top-40 left-40 w-60 h-60 bg-teal-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse delay-2000"></div>
+        <div className="absolute bottom-40 right-40 w-60 h-60 bg-emerald-600 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse delay-3000"></div>
+      </div>
+
+      <div className="relative z-10 w-full max-w-7xl mx-auto flex flex-col items-center gap-12 py-12 px-4">
+        {/* Header Section */}
+        <motion.div 
+          className="w-full text-center mb-12"
+          variants={fadeInUp}
+          initial="initial"
+          animate="animate"
+          transition={transitions.smooth}
+        >
+          <div className="relative">
+            <motion.div 
+              className="text-6xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-indigo-400 via-purple-400 to-blue-400 bg-clip-text text-transparent"
+              variants={pulseAnimation}
+              animate="animate"
+            >
             ⚙️ {t('settings')}
-          </h1>
-          <p className="text-gray-700 dark:text-gray-300 text-lg max-w-2xl mx-auto">
+            </motion.div>
+            <div className="text-xl md:text-2xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
             {t('settingsHeaderSubtitle')}
-          </p>
+            </div>
         </div>
+        </motion.div>
 
         {/* Navigation Tabs */}
-        <div className="mb-8">
-          <div className="flex flex-wrap gap-2 justify-center">
+        <motion.div 
+          className="w-full max-w-4xl mb-8"
+          variants={staggerContainer}
+          initial="initial"
+          animate="animate"
+        >
+          <motion.div 
+            className="flex flex-wrap gap-3 justify-center"
+            variants={staggerContainer}
+          >
             {sections.map((section) => (
-              <button
+              <motion.button
                 key={section.id}
                 onClick={() => setActiveSection(section.id)}
-                className={`px-4 py-2 rounded-lg transition-all font-medium ${
+                className={`px-6 py-3 rounded-2xl transition-all font-medium backdrop-blur-sm ${
                   activeSection === section.id
-                    ? 'bg-amber-600 text-white shadow-lg'
-                    : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-amber-50 dark:hover:bg-gray-700 border border-amber-300 dark:border-amber-600'
+                    ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-500/25'
+                    : 'bg-white/10 text-gray-300 hover:bg-white/20 border border-white/20'
                 }`}
+                variants={staggerItem}
+                whileHover={{ scale: 1.05, y: -2 }}
+                whileTap={{ scale: 0.95 }}
               >
                 <span className="mr-2">{section.icon}</span>
                 {section.title}
-              </button>
+              </motion.button>
             ))}
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
 
         {/* Content Area */}
         <div className="max-w-4xl mx-auto">
           {renderSection()}
         </div>
 
-        {/* Toast Notification */}
-        {showToast && (
-          <div className="fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-slideIn">
-            {toastMessage}
-          </div>
-        )}
       </div>
     </div>
   );

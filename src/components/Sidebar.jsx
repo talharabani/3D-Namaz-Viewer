@@ -12,7 +12,7 @@ export default function Sidebar({ isOpen, onClose, currentLang }) {
     {
       title: t('mainFeatures'),
       items: [
-        { key: 'home', to: '/', label: t('home'), icon: '🏠', description: t('homeDescription') },
+        { key: 'home', to: '/dashboard', label: t('home'), icon: '🏠', description: t('homeDescription') },
         { key: 'prayer-times', to: '/prayer-times', label: t('prayerTimes'), icon: '🕐', description: t('viewDailyPrayerTimes') },
         { key: 'qibla', to: '/qibla', label: t('qibla'), icon: '🧭', description: t('findPrayerDirection') },
         { key: 'namaz', to: '/namaz', label: t('namaz'), icon: '🕌', description: t('stepByStepPrayerGuide') },

@@ -1,19 +1,20 @@
 import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { progressTracker } from '../utils/progressTracker';
 import { ToggleLeft } from '../components/ToggleLeft';
 import { BaseProgressDemo } from '../components/ProgressTracker';
 import { useTranslation } from '../utils/translations';
-import { GlowCard } from '../components/nurui/spotlight-card';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 import { 
-  MotionDiv, 
-  MotionCard, 
-  MotionButton,
   fadeInUp, 
   staggerContainer, 
   staggerItem, 
   pageTransition,
   buttonPress,
-  transitions
+  transitions,
+  pulseAnimation,
+  mosqueGlow
 } from '../utils/animations';
 
 function getNotesList() {
@@ -35,6 +36,181 @@ function getPrayerHistory() {
     const data = localStorage.getItem('prayer_tracker');
     return data ? JSON.parse(data).marked || {} : {};
   } catch { return {}; }
+}
+
+// PDF Export Function
+function exportProgressToPDF(progress, achievements, notes, prayerHistory, t) {
+  const doc = new jsPDF();
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const pageHeight = doc.internal.pageSize.getHeight();
+  
+  // Colors
+  const primaryColor = [37, 99, 235]; // Blue
+  const secondaryColor = [245, 158, 11]; // Amber
+  const textColor = [31, 41, 55]; // Gray-800
+  const lightGray = [243, 244, 246]; // Gray-100
+  
+  // Header
+  doc.setFillColor(...primaryColor);
+  doc.rect(0, 0, pageWidth, 40, 'F');
+  
+  // Title
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(24);
+  doc.setFont('helvetica', 'bold');
+  doc.text('📊 Islamic Learning Progress Report', 20, 25);
+  
+  // Date
+  doc.setFontSize(12);
+  doc.setFont('helvetica', 'normal');
+  doc.text(`Generated on: ${new Date().toLocaleDateString()}`, pageWidth - 20, 25, { align: 'right' });
+  
+  // Reset text color
+  doc.setTextColor(...textColor);
+  
+  let yPosition = 60;
+  
+  // Overall Progress Section
+  doc.setFontSize(18);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Overall Progress', 20, yPosition);
+  yPosition += 15;
+  
+  // Progress bar background
+  doc.setFillColor(...lightGray);
+  doc.rect(20, yPosition, 150, 8, 'F');
+  
+  // Progress bar fill
+  doc.setFillColor(...secondaryColor);
+  const progressWidth = (progress.completionPercentage / 100) * 150;
+  doc.rect(20, yPosition, progressWidth, 8, 'F');
+  
+  yPosition += 20;
+  
+  // Progress details
+  doc.setFontSize(12);
+  doc.setFont('helvetica', 'normal');
+  doc.text(`Completion: ${progress.completionPercentage}%`, 20, yPosition);
+  doc.text(`Current Step: ${progress.currentStep}/8`, 20, yPosition + 10);
+  doc.text(`Learning Streak: ${progress.streakDays} days`, 20, yPosition + 20);
+  doc.text(`Prayer Streak: ${progress.prayerStreak} days`, 20, yPosition + 30);
+  
+  yPosition += 50;
+  
+  // Points and Achievements Section
+  doc.setFontSize(18);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Points & Achievements', 20, yPosition);
+  yPosition += 15;
+  
+  // Points table
+  const pointsData = [
+    ['Total Points', progress.points?.total || 0],
+    ['Today\'s Points', progress.points?.today || 0],
+    ['This Week', progress.points?.thisWeek || 0],
+    ['Challenge Streak', progress.challengeStreak || 0]
+  ];
+  
+  autoTable(doc, {
+    startY: yPosition,
+    head: [['Category', 'Value']],
+    body: pointsData,
+    theme: 'grid',
+    headStyles: { fillColor: primaryColor, textColor: [255, 255, 255] },
+    styles: { fontSize: 10 },
+    margin: { left: 20, right: 20 }
+  });
+  
+  yPosition += 60; // Approximate height for the table
+  
+  // Study Statistics
+  doc.setFontSize(18);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Study Statistics', 20, yPosition);
+  yPosition += 15;
+  
+  const studyData = [
+    ['Study Hours', `${Math.round(progress.totalStudyTime / 60 * 10) / 10} hours`],
+    ['Quizzes Taken', progress.quizStats.totalQuizzes],
+    ['Notes Added', getNotesCount()],
+    ['Full Prayer Days', progress.prayerFullDays]
+  ];
+  
+  autoTable(doc, {
+    startY: yPosition,
+    head: [['Metric', 'Value']],
+    body: studyData,
+    theme: 'grid',
+    headStyles: { fillColor: secondaryColor, textColor: [255, 255, 255] },
+    styles: { fontSize: 10 },
+    margin: { left: 20, right: 20 }
+  });
+  
+  yPosition += 60; // Approximate height for the table
+  
+  // Prayer History Section
+  if (Object.keys(prayerHistory).length > 0) {
+    doc.setFontSize(18);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Recent Prayer History', 20, yPosition);
+    yPosition += 15;
+    
+    // Get last 10 prayer entries
+    const prayerEntries = Object.entries(prayerHistory)
+      .sort(([a], [b]) => b.localeCompare(a))
+      .slice(0, 10);
+    
+    const prayerTableData = prayerEntries.map(([date, prayers]) => {
+      const prayerStatus = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'].map((prayer, index) => 
+        prayers[index] ? '✓' : '✗'
+      );
+      return [date, ...prayerStatus];
+    });
+    
+    autoTable(doc, {
+      startY: yPosition,
+      head: [['Date', 'Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha']],
+      body: prayerTableData,
+      theme: 'grid',
+      headStyles: { fillColor: primaryColor, textColor: [255, 255, 255] },
+      styles: { fontSize: 9 },
+      margin: { left: 20, right: 20 }
+    });
+    
+    yPosition += 60; // Approximate height for the table
+  }
+  
+  // Notes Section
+  if (notes.length > 0) {
+    doc.setFontSize(18);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Your Notes', 20, yPosition);
+    yPosition += 15;
+    
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    notes.forEach((note, index) => {
+      if (note && note.trim() !== '') {
+        const noteText = doc.splitTextToSize(`${index + 1}. ${note}`, pageWidth - 40);
+        doc.text(noteText, 20, yPosition);
+        yPosition += noteText.length * 5 + 5;
+      }
+    });
+  }
+  
+  // Footer
+  const footerY = pageHeight - 30;
+  doc.setFillColor(...lightGray);
+  doc.rect(0, footerY, pageWidth, 30, 'F');
+  
+  doc.setTextColor(...textColor);
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'normal');
+  doc.text('Generated by Namaz Web - Your Islamic Learning Companion', 20, footerY + 15);
+  doc.text('Keep up the great work in your spiritual journey! 🌟', 20, footerY + 25);
+  
+  // Save the PDF
+  doc.save(`islamic-progress-report-${new Date().toISOString().split('T')[0]}.pdf`);
 }
 
 export default function ProgressDashboardScreen() {
@@ -84,12 +260,60 @@ export default function ProgressDashboardScreen() {
   }
 
   return (
-    <div className={`min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 ${isRTL ? 'rtl' : 'ltr'}`} dir={isRTL ? 'rtl' : 'ltr'}>
-      <div className="w-full max-w-2xl mx-auto flex flex-col gap-6 py-8 px-4">
-        <div className="flex justify-between items-center mb-2">
-          <h1 className="text-3xl font-heading text-amber-800 dark:text-amber-200 font-bold text-center">{t('yourProgress')}</h1>
-          <button className="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-lg font-medium transition-colors ml-4" onClick={loadProgress} title={t('refresh')}>🔄 {t('refresh')}</button>
+    <div className={`min-h-screen bg-gradient-to-br from-slate-900 via-cyan-900 to-slate-900 relative overflow-hidden ${isRTL ? 'rtl' : 'ltr'}`} dir={isRTL ? 'rtl' : 'ltr'}>
+      {/* Animated Background Elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-cyan-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-blue-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse delay-1000"></div>
+        <div className="absolute top-40 left-40 w-60 h-60 bg-teal-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse delay-2000"></div>
+        <div className="absolute bottom-40 right-40 w-60 h-60 bg-cyan-600 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse delay-3000"></div>
         </div>
+
+      <div className="relative z-10 w-full max-w-7xl mx-auto flex flex-col gap-12 py-12 px-4">
+        {/* Header Section */}
+        <motion.div 
+          className="w-full text-center mb-12"
+          variants={fadeInUp}
+          initial="initial"
+          animate="animate"
+          transition={transitions.smooth}
+        >
+          <div className="relative">
+            <motion.div 
+              className="text-6xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-cyan-400 via-blue-400 to-teal-400 bg-clip-text text-transparent"
+              variants={pulseAnimation}
+              animate="animate"
+            >
+              📊 {t('your Progress')}
+            </motion.div>
+            <div className="text-xl md:text-2xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
+              Track your learning journey and achievements
+            </div>
+            <div className="flex gap-4 justify-center mt-4">
+              <motion.button 
+                className="px-6 py-3 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+                onClick={loadProgress}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                🔄 {t('Refresh')}
+              </motion.button>
+              
+              <motion.button 
+                className="px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+                onClick={() => {
+                  if (progress) {
+                    exportProgressToPDF(progress, achievements, getNotesList(), getPrayerHistory(), t);
+                  }
+                }}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                📄 {t('Export Progress')}
+              </motion.button>
+            </div>
+          </div>
+        </motion.div>
       
       {/* Achievement Notification */}
       {showAchievement && (
@@ -104,10 +328,10 @@ export default function ProgressDashboardScreen() {
 
       {/* Overall Progress */}
       <div className="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-xl border border-amber-200 dark:border-amber-700">
-        <h2 className="text-xl font-heading text-amber-800 dark:text-amber-200 font-bold mb-4">{t('learningProgress')}</h2>
+        <h2 className="text-xl font-heading text-amber-800 dark:text-amber-200 font-bold mb-4">{t('Learning Progress')}</h2>
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <span className="text-gray-700 dark:text-gray-300 font-medium">{t('completion')}</span>
+            <span className="text-gray-700 dark:text-gray-300 font-medium">{t('Completion')}</span>
             <span className="text-amber-600 dark:text-amber-400 font-bold text-lg">{progress.completionPercentage}%</span>
           </div>
           <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
@@ -117,7 +341,7 @@ export default function ProgressDashboardScreen() {
             />
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-gray-700 dark:text-gray-300 font-medium">{t('currentStep')}</span>
+            <span className="text-gray-700 dark:text-gray-300 font-medium">{t('Current Step')}</span>
             <span className="text-amber-600 dark:text-amber-400 font-bold">{progress.currentStep}/8</span>
           </div>
         </div>
@@ -125,7 +349,7 @@ export default function ProgressDashboardScreen() {
 
       {/* Progress Tracker Demo */}
       <div className="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-xl border border-amber-200 dark:border-amber-700">
-        <h2 className="text-xl font-heading text-amber-800 dark:text-amber-200 font-bold mb-4">{t('progressTrackerDemo')}</h2>
+        <h2 className="text-xl font-heading text-amber-800 dark:text-amber-200 font-bold mb-4">{t('Progress Tracker Demo')}</h2>
         <div className="flex justify-center">
           <BaseProgressDemo />
         </div>
@@ -133,32 +357,32 @@ export default function ProgressDashboardScreen() {
 
       {/* Points Section */}
       <div className="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-xl border border-amber-200 dark:border-amber-700">
-        <h2 className="text-xl font-heading text-amber-800 dark:text-amber-200 font-bold mb-4">🏆 {t('pointsAchievements')}</h2>
+        <h2 className="text-xl font-heading text-amber-800 dark:text-amber-200 font-bold mb-4">🏆 {t('Points Achievements')}</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="text-center p-4 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 rounded-lg border border-amber-200 dark:border-amber-700">
             <div className="text-3xl text-amber-600 dark:text-amber-400 font-bold">{progress.points?.total || 0}</div>
-            <div className="text-sm text-gray-700 dark:text-gray-300">{t('totalPoints')}</div>
+            <div className="text-sm text-gray-700 dark:text-gray-300">{t('Total Points')}</div>
           </div>
           <div className="text-center p-4 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 rounded-lg border border-amber-200 dark:border-amber-700">
             <div className="text-3xl text-amber-600 dark:text-amber-400 font-bold">{progress.points?.today || 0}</div>
-            <div className="text-sm text-gray-700 dark:text-gray-300">{t('todaysPoints')}</div>
+            <div className="text-sm text-gray-700 dark:text-gray-300">{t('Todays Points')}</div>
           </div>
           <div className="text-center p-4 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 rounded-lg border border-amber-200 dark:border-amber-700">
             <div className="text-3xl text-amber-600 dark:text-amber-400 font-bold">{progress.points?.thisWeek || 0}</div>
-            <div className="text-sm text-gray-700 dark:text-gray-300">{t('thisWeek')}</div>
+            <div className="text-sm text-gray-700 dark:text-gray-300">{t('This Week')}</div>
           </div>
           <div className="text-center p-4 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 rounded-lg border border-amber-200 dark:border-amber-700">
             <div className="text-3xl text-amber-600 dark:text-amber-400 font-bold">{progress.challengeStreak || 0}</div>
-            <div className="text-sm text-gray-700 dark:text-gray-300">{t('challengeStreak')}</div>
+            <div className="text-sm text-gray-700 dark:text-gray-300">{t('Challenge Streak')}</div>
           </div>
         </div>
         <div className="mt-4 p-3 bg-gradient-to-r from-amber-50/50 to-orange-50/50 dark:from-amber-900/10 dark:to-orange-900/10 rounded-lg border border-amber-200 dark:border-amber-700">
           <div className="text-center">
             <div className="text-sm text-gray-700 dark:text-gray-300">
-              {t('completedChallengesToday', { count: progress.completedChallengesToday || 0 })}
+              {t('Completed Challenges Today', { count: progress.completedChallengesToday || 0 })}
             </div>
             <div className="text-xs text-gray-700 dark:text-gray-300 opacity-80 mt-1">
-              {t('keepUpGreatWork')}
+              {t('Keep Up Great Work')}
             </div>
           </div>
         </div>
@@ -166,41 +390,41 @@ export default function ProgressDashboardScreen() {
 
       {/* Study & Prayer Statistics (merged) */}
       <div className="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-xl border border-amber-200 dark:border-amber-700">
-        <h2 className="text-xl font-heading text-amber-800 dark:text-amber-200 font-bold mb-4">{t('studyPrayerStatistics')}</h2>
+        <h2 className="text-xl font-heading text-amber-800 dark:text-amber-200 font-bold mb-4">{t('Study and Prayer Statistics')}</h2>
         <div className="grid grid-cols-2 gap-4">
           <div className="text-center">
             <div className="text-2xl text-amber-600 dark:text-amber-400 font-bold">{progress.streakDays}</div>
-            <div className="text-sm text-gray-700 dark:text-gray-300">{t('learningStreak')}</div>
+            <div className="text-sm text-gray-700 dark:text-gray-300">{t('LearningS treak')}</div>
           </div>
           <div className="text-center">
             <div className="text-2xl text-amber-600 dark:text-amber-400 font-bold">{progress.prayerStreak}</div>
-            <div className="text-sm text-gray-700 dark:text-gray-300">{t('prayerStreak')}</div>
+            <div className="text-sm text-gray-700 dark:text-gray-300">{t('PrayerS treak')}</div>
           </div>
           <div className="text-center">
             <div className="text-2xl text-amber-600 dark:text-amber-400 font-bold">{Math.round(progress.totalStudyTime / 60 * 10) / 10}</div>
-            <div className="text-sm text-gray-700 dark:text-gray-300">{t('studyHours')}</div>
+            <div className="text-sm text-gray-700 dark:text-gray-300">{t('Study Hours')}</div>
           </div>
           <div className="text-center">
             <div className="text-2xl text-amber-600 dark:text-amber-400 font-bold">{progress.quizStats.totalQuizzes}</div>
-            <div className="text-sm text-gray-700 dark:text-gray-300">{t('quizzesTaken')}</div>
+            <div className="text-sm text-gray-700 dark:text-gray-300">{t('QuizzesTaken')}</div>
           </div>
           <div className="text-center">
             <div className="text-2xl text-amber-600 dark:text-amber-400 font-bold">{getNotesCount()}</div>
-            <div className="text-sm text-gray-700 dark:text-gray-300">{t('notesAdded')}</div>
+            <div className="text-sm text-gray-700 dark:text-gray-300">{t('Notes Added')}</div>
           </div>
           <div className="text-center">
             <div className="text-2xl text-amber-600 dark:text-amber-400 font-bold">{progress.prayerFullDays}</div>
-            <div className="text-sm text-gray-700 dark:text-gray-300">{t('fullPrayerDays')}</div>
+            <div className="text-sm text-gray-700 dark:text-gray-300">{t('Full Prayer Days')}</div>
           </div>
         </div>
       </div>
 
       {/* Notes List */}
       <div className="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-xl border border-amber-200 dark:border-amber-700">
-        <h2 className="text-xl font-heading text-amber-800 dark:text-amber-200 font-bold mb-4">{t('yourNotes')}</h2>
+        <h2 className="text-xl font-heading text-amber-800 dark:text-amber-200 font-bold mb-4">{t('Your Notes')}</h2>
         <ul className="list-disc pl-6 space-y-2">
           {getNotesList().filter(n => n && n.trim() !== '').length === 0 ? (
-            <li className="text-gray-700 dark:text-gray-300">{t('noNotesYet')}</li>
+            <li className="text-gray-700 dark:text-gray-300">{t('No Notes Yet')}</li>
           ) : (
             getNotesList().map((note, idx) => note && note.trim() !== '' && (
               <NoteItem key={idx} note={note} idx={idx} refresh={loadProgress} />
@@ -211,15 +435,15 @@ export default function ProgressDashboardScreen() {
 
       {/* Prayer History */}
       <div className="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-xl border border-amber-200 dark:border-amber-700 overflow-x-auto">
-        <h2 className="text-xl font-heading text-amber-800 dark:text-amber-200 font-bold mb-4">{t('prayerHistory')}</h2>
+        <h2 className="text-xl font-heading text-amber-800 dark:text-amber-200 font-bold mb-4">{t('Prayer History')}</h2>
         {/* Filters */}
         <div className="flex flex-wrap gap-4 mb-4 items-center">
           <label className="flex items-center gap-2 text-sm">
-            {t('start')}:
+            {t('Start')}:
             <input type="date" value={prayerStart} onChange={e => setPrayerStart(e.target.value)} className="rounded border p-1" />
           </label>
           <label className="flex items-center gap-2 text-sm">
-            {t('end')}:
+            {t('End')}:
             <input type="date" value={prayerEnd} onChange={e => setPrayerEnd(e.target.value)} className="rounded border p-1" />
           </label>
           <label className="flex items-center gap-2 text-sm">
@@ -228,18 +452,18 @@ export default function ProgressDashboardScreen() {
               onChange={(active) => setShowFullDaysOnly(active)}
               stroke="#956D37"
             />
-            <span>{t('showOnlyFullDays')}</span>
+            <span>{t('Show Only Full Days')}</span>
           </label>
         </div>
         <table className="min-w-full border-collapse text-sm">
           <thead>
             <tr>
-              <th className="p-2 border-b border-gray-300 dark:border-gray-600 text-left">{t('date')}</th>
-              <th className="p-2 border-b border-gray-300 dark:border-gray-600 text-center">{t('fajr')}</th>
-              <th className="p-2 border-b border-gray-300 dark:border-gray-600 text-center">{t('dhuhr')}</th>
-              <th className="p-2 border-b border-gray-300 dark:border-gray-600 text-center">{t('asr')}</th>
-              <th className="p-2 border-b border-gray-300 dark:border-gray-600 text-center">{t('maghrib')}</th>
-              <th className="p-2 border-b border-gray-300 dark:border-gray-600 text-center">{t('isha')}</th>
+              <th className="p-2 border-b border-gray-300 dark:border-gray-600 text-left">{t('Date')}</th>
+              <th className="p-2 border-b border-gray-300 dark:border-gray-600 text-center">{t('Fajr')}</th>
+              <th className="p-2 border-b border-gray-300 dark:border-gray-600 text-center">{t('Dhuhr')}</th>
+              <th className="p-2 border-b border-gray-300 dark:border-gray-600 text-center">{t('Asr')}</th>
+              <th className="p-2 border-b border-gray-300 dark:border-gray-600 text-center">{t('Maghrib')}</th>
+              <th className="p-2 border-b border-gray-300 dark:border-gray-600 text-center">{t('Isha')}</th>
             </tr>
           </thead>
           <tbody>
@@ -249,7 +473,7 @@ export default function ProgressDashboardScreen() {
               if (prayerEnd) entries = entries.filter(([date]) => date <= prayerEnd);
               if (showFullDaysOnly) entries = entries.filter(([_, arr]) => arr.length === 5 && arr.every(Boolean));
                              if (entries.length === 0) return (
-                 <tr><td colSpan={6} className="p-2 text-center text-gray-700 dark:text-gray-300">{t('noPrayerHistory')}</td></tr>
+                 <tr><td colSpan={6} className="p-2 text-center text-gray-700 dark:text-gray-300">{t('No Prayer History')}</td></tr>
                );
               // Highlight streaks: consecutive full days
               let streak = 0;

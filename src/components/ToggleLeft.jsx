@@ -61,15 +61,15 @@ const ToggleLeft = ({
       onKeyDown={handleKeyDown}
       className={`
         relative inline-flex items-center rounded-full transition-all duration-300 ease-in-out 
-        focus:outline-none focus:ring-2 focus:ring-brass focus:ring-offset-2
+        focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2
         ${sizeClasses[size]}
         ${isActive 
-          ? 'bg-brass shadow-inner' 
+          ? 'bg-gradient-to-r from-emerald-500 to-green-500 shadow-lg' 
           : 'bg-gray-300 dark:bg-gray-600'
         }
         ${disabled 
           ? 'opacity-50 cursor-not-allowed' 
-          : 'cursor-pointer hover:shadow-md active:scale-95'
+          : 'cursor-pointer hover:shadow-md active:scale-95 hover:scale-105'
         }
       `}
       {...props}

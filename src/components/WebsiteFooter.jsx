@@ -1,9 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from '../utils/translations';
+import { useToast } from './Toast';
 
 export default function WebsiteFooter() {
   const { t, currentLang } = useTranslation();
+  const { success, error } = useToast();
+  const [email, setEmail] = useState('');
+  const [isSubscribing, setIsSubscribing] = useState(false);
   const currentYear = new Date().getFullYear();
 
   const footerSections = [
@@ -48,6 +52,47 @@ export default function WebsiteFooter() {
     { name: 'Instagram', icon: '📷', href: '#' },
     { name: 'YouTube', icon: '📺', href: '#' },
   ];
+
+  const handleSubscribe = async (e) => {
+    e.preventDefault();
+    
+    if (!email) {
+      error(t('pleaseEnterEmail'));
+      return;
+    }
+
+    if (!isValidEmail(email)) {
+      error(t('pleaseEnterValidEmail'));
+      return;
+    }
+
+    setIsSubscribing(true);
+    
+    try {
+      // Simulate API call - in real app, this would call your backend
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Store subscription in localStorage for demo
+      const subscriptions = JSON.parse(localStorage.getItem('newsletter_subscriptions') || '[]');
+      if (!subscriptions.includes(email)) {
+        subscriptions.push(email);
+        localStorage.setItem('newsletter_subscriptions', JSON.stringify(subscriptions));
+        success(t('subscriptionSuccessful'));
+        setEmail('');
+      } else {
+        error(t('alreadySubscribed'));
+      }
+    } catch (err) {
+      error(t('subscriptionFailed'));
+    } finally {
+      setIsSubscribing(false);
+    }
+  };
+
+  const isValidEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
 
   return (
     <footer className="bg-gray-900 text-white">
@@ -111,16 +156,23 @@ export default function WebsiteFooter() {
             <p className="text-gray-400 text-sm mb-4">
               {t('newsletterDescription')}
             </p>
-            <div className="flex space-x-2">
+            <form onSubmit={handleSubscribe} className="flex space-x-2">
               <input
                 type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 placeholder={t('enterEmail')}
                 className="flex-1 px-4 py-2 bg-gray-800 border border-gray-700 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                disabled={isSubscribing}
               />
-              <button className="px-6 py-2 bg-blue-600 hover:bg-blue-700 rounded-md text-white font-medium transition-colors">
-                {t('subscribe')}
+              <button 
+                type="submit"
+                disabled={isSubscribing}
+                className="px-6 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed rounded-md text-white font-medium transition-colors"
+              >
+                {isSubscribing ? '...' : t('subscribe')}
               </button>
-            </div>
+            </form>
           </div>
         </div>
 

@@ -1,20 +1,20 @@
 import { useEffect, useState, useRef } from 'react';
+import { motion } from 'framer-motion';
 import audioService from '../utils/audioService';
 import notificationService from '../utils/notificationService';
+import prayerTimesService from '../utils/prayerTimesService';
 import { ToggleLeft } from '../components/ToggleLeft';
 import { useSettings } from '../contexts/SettingsContext';
-import { GlowCard } from '../components/nurui/spotlight-card';
 import { useTranslation } from '../utils/translations';
 import { 
-  MotionDiv, 
-  MotionCard, 
-  MotionButton,
   fadeInUp, 
   staggerContainer, 
   staggerItem, 
   pageTransition,
   buttonPress,
-  transitions
+  transitions,
+  pulseAnimation,
+  mosqueGlow
 } from '../utils/animations';
 
 const PRAYERS = ['Fajr', 'Sunrise', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
@@ -98,7 +98,15 @@ export default function PrayerTimesScreen() {
   const [countdown, setCountdown] = useState({ h: 0, m: 0, s: 0, total: 0 });
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
   const [showNotificationAlert, setShowNotificationAlert] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [prayerHistory, setPrayerHistory] = useState([]);
+  const [showHistory, setShowHistory] = useState(false);
+  const [qiblaDirection, setQiblaDirection] = useState(null);
+  const [showQibla, setShowQibla] = useState(false);
   const [currentPrayerAlert, setCurrentPrayerAlert] = useState(null);
+  const [lastFetchTime, setLastFetchTime] = useState(0);
+  const [isFetching, setIsFetching] = useState(false);
   
   const azanRef = useRef();
   const [coords, setCoords] = useState(null);
@@ -112,6 +120,18 @@ export default function PrayerTimesScreen() {
       case 'Maghrib': return t('maghrib');
       case 'Isha': return t('isha');
       default: return key;
+    }
+  };
+
+  const getPrayerIcon = (key) => {
+    switch (key) {
+      case 'Fajr': return '🌅';
+      case 'Sunrise': return '☀️';
+      case 'Dhuhr': return '🌞';
+      case 'Asr': return '🌇';
+      case 'Maghrib': return '🌆';
+      case 'Isha': return '🌙';
+      default: return '🕌';
     }
   };
 
@@ -159,7 +179,8 @@ export default function PrayerTimesScreen() {
 
   // Check notification permission status (without requesting)
   useEffect(() => {
-    const checkNotificationStatus = () => {
+    const checkNotificationStatus = async () => {
+      await notificationService.checkPermissionStatus();
       const enabled = notificationService.isEnabled();
       setNotificationsEnabled(enabled);
     };
@@ -167,11 +188,11 @@ export default function PrayerTimesScreen() {
   }, []);
 
   // Show prayer notification
-  const showPrayerNotification = (prayerName) => {
+  const showPrayerNotification = async (prayerName) => {
     const enhancedMessage = `🕌 Allahu Akbar! Allah is calling you for ${prayerName} prayer at ${times[prayerName]}`;
     
     // Show browser notification with enhanced features
-    notificationService.showPrayerNotification(prayerName, times[prayerName]);
+    await notificationService.showPrayerNotification(prayerName, times[prayerName]);
 
     // Show in-app alert with enhanced message
     setCurrentPrayerAlert({
@@ -192,31 +213,51 @@ export default function PrayerTimesScreen() {
   // Get user location and fetch prayer times
   useEffect(() => {
     setLoading(true);
-    if (!navigator.geolocation) {
-      setError(t('geolocationNotSupported'));
-      setLoading(false);
-      return;
-    }
-    navigator.geolocation.getCurrentPosition(async pos => {
-      const { latitude, longitude } = pos.coords;
-      setCoords({ latitude, longitude });
+    setError(null);
+    
+    const fetchPrayerTimes = async (latitude, longitude) => {
+      // Prevent excessive API calls
+      const now = Date.now();
+      const timeSinceLastFetch = now - lastFetchTime;
+      const minFetchInterval = 60000; // 60 seconds minimum between fetches
+      
+      if (isFetching || (timeSinceLastFetch < minFetchInterval && lastFetchTime > 0)) {
+        console.log('Skipping fetch - too soon or already fetching');
+        return;
+      }
+      
+      // If we have cached data and it's recent, don't fetch
+      if (times && lastFetchTime > 0 && timeSinceLastFetch < 300000) { // 5 minutes
+        console.log('Using existing data - too recent to refetch');
+        return;
+      }
+      
+      // Check if offline
+      if (!navigator.onLine) {
+        console.log('Offline - using cached data or mock data');
+        setLoading(false);
+        return;
+      }
+      
       try {
+        setIsFetching(true);
+        setLastFetchTime(now);
+        
         // Handle different fiqh calculations using settings
         let school = 0; // Default Shafi
         if (settings.fiqh === 'hanafi') {
           school = 1;
         } else if (settings.fiqh === 'ahl-e-hadith') {
-          // Ahl-e-Hadith uses different calculation method
           school = 0; // Similar to Shafi but with specific adjustments
         }
         
-        const res = await fetch(`https://api.aladhan.com/v1/timings?latitude=${latitude}&longitude=${longitude}&method=${settings.prayerMethod}&school=${school}`, {
-          timeout: 10000 // 10 second timeout
-        });
-        if (!res.ok) {
-          throw new Error(`Prayer times API responded with status: ${res.status}`);
-        }
-        const data = await res.json();
+        // Use our prayer times service with CORS handling
+        const data = await prayerTimesService.getPrayerTimes(
+          latitude, 
+          longitude, 
+          settings.prayerMethod, 
+          school
+        );
         if (data.code === 200 && data.data && data.data.timings) {
           let prayerTimes = data.data.timings;
           
@@ -229,20 +270,58 @@ export default function PrayerTimesScreen() {
           setHijri(`${data.data.date.hijri.day} ${data.data.date.hijri.month.en} ${data.data.date.hijri.year} AH`);
           
           // Schedule notifications for all prayer times
-          notificationService.schedulePrayerNotifications(prayerTimes);
+          await notificationService.schedulePrayerNotifications(prayerTimes);
         } else {
-          throw new Error('Invalid prayer times data');
+          throw new Error('Invalid prayer times data received');
         }
       } catch (error) {
-        console.warn('Prayer times API failed:', error);
+        console.error('Prayer times fetch error:', error);
         setError(t('failedToFetchPrayerTimes'));
+      } finally {
+        setLoading(false);
+        setIsFetching(false);
       }
+    };
+
+    if (!navigator.geolocation) {
+      setError(t('geolocationNotSupported'));
       setLoading(false);
-    }, () => {
-      setError(t('locationDeniedOrUnavailable'));
+      return;
+    }
+
+    // Try to get location with better error handling
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        const { latitude, longitude } = pos.coords;
+        setCoords({ latitude, longitude });
+        await fetchPrayerTimes(latitude, longitude);
+      },
+      (error) => {
+        console.warn('Geolocation error:', error);
+        let errorMessage = t('locationDeniedOrUnavailable');
+        
+        switch (error.code) {
+          case error.PERMISSION_DENIED:
+            errorMessage = 'Location access denied. Please enable location permissions in your browser settings.';
+            break;
+          case error.POSITION_UNAVAILABLE:
+            errorMessage = 'Location information unavailable. Please check your device settings.';
+            break;
+          case error.TIMEOUT:
+            errorMessage = 'Location request timed out. Please try again.';
+            break;
+        }
+        
+        setError(errorMessage);
       setLoading(false);
-    });
-  }, [settings.prayerMethod, settings.fiqh]);
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 15000,
+        maximumAge: 300000 // 5 minutes
+      }
+    );
+  }, [settings.prayerMethod, settings.fiqh, t]);
 
   // Find next prayer and update countdown
   useEffect(() => {
@@ -311,9 +390,23 @@ export default function PrayerTimesScreen() {
   
   if (error) return (
     <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[#44403c] via-[#78716c] to-[#d6d3d1] flex items-center justify-center">
-      <div className="text-center">
-        <div className="text-4xl mb-4">⚠️</div>
-        <div className="text-xl text-error font-bold">{error}</div>
+      <div className="text-center max-w-md mx-auto p-6">
+        <div className="text-6xl mb-6">⚠️</div>
+        <div className="text-xl text-error font-bold mb-4">{error}</div>
+        <div className="text-gray-300 mb-6">
+          Please check your internet connection and location permissions.
+        </div>
+        <button
+          onClick={() => {
+            setError(null);
+            setLoading(true);
+            // Trigger re-fetch by updating a dummy state
+            window.location.reload();
+          }}
+          className="px-6 py-3 bg-gradient-to-r from-amber-500 to-yellow-500 text-gray-900 font-bold rounded-xl hover:from-amber-600 hover:to-yellow-600 transition-all duration-300 shadow-lg"
+        >
+          🔄 Try Again
+        </button>
       </div>
     </div>
   );
@@ -321,25 +414,58 @@ export default function PrayerTimesScreen() {
   if (!times) return null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-      <div className="w-full max-w-6xl mx-auto flex flex-col items-center gap-8 py-8 px-2 md:px-4 relative">
-        {/* Decorative pattern */}
-        <div className="absolute inset-0 -z-10 opacity-5 dark:opacity-10 pointer-events-none select-none">
-          <div className="w-full h-full" style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23956D37' fill-opacity='0.1'%3E%3Cpath d='M30 30c0-11.046-8.954-20-20-20s-20 8.954-20 20 8.954 20 20 20 20-8.954 20-20zm0 0c0 11.046 8.954 20 20 20s20-8.954 20-20-8.954-20-20-20-20 8.954-20 20z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-            backgroundSize: '60px 60px'
-          }} />
-        </div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-emerald-900 to-slate-900 relative overflow-hidden">
+      {/* Animated Background Elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-emerald-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-green-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse delay-1000"></div>
+        <div className="absolute top-40 left-40 w-60 h-60 bg-teal-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse delay-2000"></div>
+        <div className="absolute bottom-40 right-40 w-60 h-60 bg-emerald-600 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse delay-3000"></div>
+      </div>
+
+      <div className="relative z-10 w-full max-w-7xl mx-auto flex flex-col items-center gap-8 sm:gap-12 py-6 sm:py-12 px-3 sm:px-4">
 
         {/* Header Section */}
-        <div className="w-full text-center mb-8">
-          <div className="text-3xl md:text-4xl font-heading text-amber-800 dark:text-amber-200 font-bold drop-shadow mb-4">
-            🕌 {t('prayerTimesHeader')}
+        <motion.div 
+          className="w-full text-center mb-8 sm:mb-12"
+          variants={fadeInUp}
+          initial="initial"
+          animate="animate"
+          transition={transitions.smooth}
+        >
+          <div className="relative">
+            <motion.div 
+              className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-4 sm:mb-6 bg-gradient-to-r from-amber-400 via-orange-400 to-yellow-400 bg-clip-text text-transparent"
+              variants={pulseAnimation}
+              animate="animate"
+            >
+              🕌 {t('prayerTimesHeader')}
+            </motion.div>
+            <div className="text-lg sm:text-xl md:text-2xl text-gray-300 max-w-3xl mx-auto leading-relaxed px-2">
+              {new Date().toLocaleDateString('en-US', { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+              })}
+            </div>
+            <div className="text-lg text-amber-300 mt-2">
+              {hijri}
+            </div>
+            <motion.button
+              onClick={() => {
+                setLoading(true);
+                setError(null);
+                window.location.reload();
+              }}
+              className="mt-4 px-6 py-3 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              🔄 Refresh Times
+            </motion.button>
           </div>
-          <div className="text-gray-700 dark:text-gray-300 text-lg opacity-90 max-w-2xl mx-auto">
-            {t('checkPrayerTimingsSubtitle')}
-          </div>
-        </div>
+        </motion.div>
 
         {/* Prayer Time Alert Modal */}
         {currentPrayerAlert && (
@@ -395,10 +521,10 @@ export default function PrayerTimesScreen() {
 
         {/* Settings Info Section */}
         <div className="w-full max-w-4xl">
-          <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-xl border border-gray-200 dark:border-gray-700">
-            <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-              <div className="text-2xl font-heading text-amber-800 dark:text-amber-200 font-bold">{t('currentSettings')}</div>
-              <div className="flex gap-4 text-sm">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 sm:p-6 shadow-xl border border-gray-200 dark:border-gray-700">
+            <div className="flex flex-col sm:flex-row justify-between items-center gap-3 sm:gap-4">
+              <div className="text-lg sm:text-xl md:text-2xl font-heading text-amber-800 dark:text-amber-200 font-bold">{t('currentSettings')}</div>
+              <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 text-xs sm:text-sm">
                 <div className="text-gray-700 dark:text-gray-300">
                   <span className="text-amber-600 dark:text-amber-400 font-bold">{t('methodLabel')}</span> {METHODS.find(m => m.id === settings.prayerMethod)?.name}
                 </div>
@@ -414,83 +540,90 @@ export default function PrayerTimesScreen() {
         </div>
 
         {/* Prayer Times Display */}
-        <div className="w-full max-w-4xl">
-          <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-xl border border-gray-200 dark:border-gray-700">
-            <div className="flex justify-between items-center mb-6">
-              <div className="text-sm text-gray-700 dark:text-gray-300 font-body">
-                <span className="text-amber-600 dark:text-amber-400 font-bold">{t('fiqhLabel')}</span> {FIQHS.find(f => f.id === settings.fiqh)?.name}
+        <motion.div 
+          className="w-full max-w-6xl"
+          variants={staggerContainer}
+          initial="initial"
+          animate="animate"
+        >
+          <motion.div 
+            className="p-8 bg-white/10 backdrop-blur-lg border border-white/20 rounded-3xl shadow-2xl"
+            variants={staggerItem}
+          >
+            <div className="flex justify-between items-center mb-8">
+              <div className="text-sm text-gray-300">
+                <span className="text-amber-400 font-bold">{t('fiqhLabel')}</span> {FIQHS.find(f => f.id === settings.fiqh)?.name}
                 {settings.fiqh === 'ahl-e-hadith' && (
-                  <span className="ml-2 text-xs text-amber-500 dark:text-amber-400">
+                  <span className="ml-2 text-xs text-amber-300">
                     {t('fiqhNoteAhlEHadith')}
                   </span>
                 )}
               </div>
-              <div className="text-right text-amber-600 dark:text-amber-400 font-bold font-body">{hijri}</div>
+              <div className="text-right text-amber-300 font-bold">{hijri}</div>
             </div>
             
-            <div className="space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               {PRAYERS.map((p, i) => (
-                <div
+                <motion.div
                   key={p}
-                  className={`relative flex items-center justify-between p-4 rounded-xl transition-all duration-300 ${
+                  className={`relative p-4 sm:p-6 rounded-2xl sm:rounded-3xl transition-all duration-500 backdrop-blur-sm ${
                     i === nextIdx 
-                      ? 'bg-gradient-to-r from-accent/20 to-accent2/20 border-2 border-accent2 shadow-vibrant' 
-                      : 'bg-gradient-to-r from-card/80 to-card/60 border border-brass/20'
+                      ? 'bg-gradient-to-br from-amber-500/30 to-orange-500/30 border-2 border-amber-400/50 shadow-2xl shadow-amber-500/25' 
+                      : 'bg-white/10 border border-white/20 hover:bg-white/20'
                   }`}
-                  style={{ animationDelay: `${i * 0.1 + 0.1}s` }}
+                  variants={staggerItem}
+                  whileHover={{ scale: 1.05, y: -5 }}
+                  whileTap={{ scale: 0.95 }}
                 >
-                  <div className="flex flex-col">
-                    <span className="text-xl font-heading text-brass font-bold">{getPrayerDisplayName(p)}</span>
-                    <span className="text-lg text-text dark:text-darktext font-body">{formatTime(times[p])}</span>
+                  <div className="text-center">
+                    <div className="text-3xl sm:text-4xl mb-3 sm:mb-4">{getPrayerIcon(p)}</div>
+                    <h3 className="text-lg sm:text-xl font-bold text-white mb-2">{getPrayerDisplayName(p)}</h3>
+                    <div className="text-xl sm:text-2xl font-bold text-amber-300 mb-3 sm:mb-4">{formatTime(times[p])}</div>
+                    
+                    {i === nextIdx && p !== 'Sunrise' && (
+                      <div className="mt-3 sm:mt-4">
+                        <div className="text-xs sm:text-sm text-gray-300 mb-1 sm:mb-2">Next Prayer In:</div>
+                        <div className="text-base sm:text-lg font-bold text-amber-300">{formatCountdown(countdown)}</div>
+                        <div className="text-xl sm:text-2xl mt-1 sm:mt-2 animate-pulse">🔊</div>
+                      </div>
+                    )}
                   </div>
-                  {i === nextIdx && p !== 'Sunrise' ? (
-                    <div className="flex items-center gap-3">
-                      {/* Countdown ring */}
-                      <svg width="48" height="48" viewBox="0 0 48 48">
-                        <circle cx="24" cy="24" r="20" fill="none" stroke="rgba(181, 166, 66, 0.2)" strokeWidth="6" />
-                        <circle
-                          cx="24" cy="24" r="20"
-                          fill="none"
-                          stroke="currentColor"
-                          className="text-accent"
-                          strokeWidth="6"
-                          strokeDasharray={2 * Math.PI * 20}
-                          strokeDashoffset={(2 * Math.PI * 20) * (1 - countdown.total / (60 * 60))}
-                          style={{ transition: 'stroke-dashoffset 1s linear' }}
-                        />
-                        <text x="24" y="28" textAnchor="middle" fontSize="14" className="text-accent" fill="currentColor">{formatCountdown(countdown)}</text>
-                      </svg>
-                      {/* Azan icon pulse */}
-                      <span className={`text-3xl text-accent2 ${countdown.total < 60 ? 'animate-azan-pulse' : ''}`}>🔊</span>
-                    </div>
-                  ) : null}
-                </div>
+                </motion.div>
               ))}
             </div>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
         
         {/* Notification Status */}
-        <div className="w-full max-w-4xl">
-          <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-xl border border-gray-200 dark:border-gray-700">
+        <motion.div 
+          className="w-full max-w-4xl"
+          variants={fadeInUp}
+          initial="initial"
+          animate="animate"
+          transition={{ ...transitions.smooth, delay: 0.3 }}
+        >
+          <div className="p-6 bg-white/10 backdrop-blur-lg border border-white/20 rounded-3xl shadow-xl">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-amber-800 dark:text-amber-200 font-bold text-lg mb-2">{t('prayerNotificationsTitle')}</h3>
-                <p className="text-gray-700 dark:text-gray-300">
+                <h3 className="text-white font-bold text-xl mb-2">{t('prayerNotificationsTitle')}</h3>
+                <p className="text-gray-300">
                   {notificationsEnabled 
                     ? t('notificationsEnabledStatus')
                     : t('notificationsDisabledStatus')
                   }
                 </p>
               </div>
-              <ToggleLeft
-                isActive={notificationsEnabled}
-                onChange={enableNotifications}
-                stroke="#956D37"
-              />
+              <motion.button
+                onClick={enableNotifications}
+                className="px-6 py-3 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white rounded-xl font-bold transition-all duration-300 shadow-lg"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                {notificationsEnabled ? t('disable') : t('enable')}
+              </motion.button>
             </div>
           </div>
-        </div>
+        </motion.div>
         
         <audio ref={azanRef} src={AZAN_AUDIO} preload="auto" />
       </div>

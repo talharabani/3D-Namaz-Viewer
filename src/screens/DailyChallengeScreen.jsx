@@ -1,11 +1,9 @@
 import { useState, useEffect } from 'react';
 import { progressTracker } from '../utils/progressTracker';
 import { useTranslation } from '../utils/translations';
+import { motion } from 'framer-motion';
 import { GlowCard } from '../components/nurui/spotlight-card';
 import { 
-  MotionDiv, 
-  MotionCard, 
-  MotionButton,
   fadeInUp, 
   staggerContainer, 
   staggerItem, 
@@ -38,8 +36,8 @@ export default function DailyChallengeScreen() {
   const getTranslatedDailyChallenges = () => [
     {
       id: 'pray_tahajjud',
-      title: t('prayTahajjud'),
-      description: t('prayTahajjudDesc'),
+      title: t('Pray Tahajjud'),
+      description: t('Pray Tahajjud Desc'),
       icon: '🌙',
       reward: 15,
       category: 'prayer',
@@ -54,8 +52,8 @@ export default function DailyChallengeScreen() {
     },
     {
       id: 'do_dhikr',
-      title: t('doDhikr'),
-      description: t('doDhikrDesc'),
+      title: t('Do Dhikr'),
+      description: t('Do Dhikr Desc'),
       icon: '📿',
       reward: 10,
       category: 'worship',
@@ -70,8 +68,8 @@ export default function DailyChallengeScreen() {
     },
     {
       id: 'read_quran',
-      title: t('readQuran'),
-      description: t('readQuranDesc'),
+      title: t('Read Quran'),
+      description: t('Read Quran Desc'),
       icon: '📖',
       reward: 8,
       category: 'quran',
@@ -86,8 +84,8 @@ export default function DailyChallengeScreen() {
     },
     {
       id: 'perfect_sajda',
-      title: t('perfectSajda'),
-      description: t('perfectSajdaDesc'),
+      title: t('Perfect Sajda'),
+      description: t('Perfect Sajda Desc'),
       icon: '🤲',
       reward: 5,
       category: 'prayer',
@@ -102,8 +100,8 @@ export default function DailyChallengeScreen() {
     },
     {
       id: 'recite_fatiha',
-      title: t('reciteFatiha'),
-      description: t('reciteFatihaDesc'),
+      title: t('Recite Fatiha'),
+      description: t('Recite Fatiha Desc'),
       icon: '🎯',
       reward: 3,
       category: 'quran',
@@ -118,8 +116,8 @@ export default function DailyChallengeScreen() {
     },
     {
       id: 'reflect_takbir',
-      title: t('reflectTakbir'),
-      description: t('reflectTakbirDesc'),
+      title: t('Reflect Takbir'),
+      description: t('Reflect Takbir Desc'),
       icon: '🕌',
       reward: 4,
       category: 'prayer',
@@ -134,8 +132,8 @@ export default function DailyChallengeScreen() {
     },
     {
       id: 'mindful_qiyam',
-      title: t('mindfulQiyam'),
-      description: t('mindfulQiyamDesc'),
+      title: t('Mindful Qiyam'),
+      description: t('Mindful Qiyam Desc'),
       icon: '🧘',
       reward: 3,
       category: 'prayer',
@@ -150,8 +148,8 @@ export default function DailyChallengeScreen() {
     },
     {
       id: 'humble_rukoo',
-      title: t('humbleRukoo'),
-      description: t('humbleRukooDesc'),
+      title: t('Humble Rukoo'),
+      description: t('Humble Rukoo Desc'),
       icon: '🙇',
       reward: 4,
       category: 'prayer',
@@ -166,8 +164,8 @@ export default function DailyChallengeScreen() {
     },
     {
       id: 'add_notes',
-      title: t('addNotes'),
-      description: t('addNotesDesc'),
+      title: t('Add Notes'),
+      description: t('Add Notes Desc'),
       icon: '📝',
       reward: 2,
       category: 'learning',
@@ -182,8 +180,8 @@ export default function DailyChallengeScreen() {
     },
     {
       id: 'complete_quiz',
-      title: t('completeQuiz'),
-      description: t('completeQuizDesc'),
+      title: t('Complete Quiz'),
+      description: t('Complete Quiz Desc'),
       icon: '🏆',
       reward: 10,
       category: 'learning',
@@ -198,8 +196,8 @@ export default function DailyChallengeScreen() {
     },
     {
       id: 'pray_sunnah',
-      title: t('praySunnah'),
-      description: t('praySunnahDesc'),
+      title: t('Pray Sunnah'),
+      description: t('Pray Sunnah Desc'),
       icon: '☀️',
       reward: 6,
       category: 'prayer',
@@ -214,8 +212,8 @@ export default function DailyChallengeScreen() {
     },
     {
       id: 'make_dua',
-      title: t('makeDua'),
-      description: t('makeDuaDesc'),
+      title: t('Make Dua'),
+      description: t('Make Dua Desc'),
       icon: '🙏',
       reward: 5,
       category: 'worship',
@@ -230,8 +228,8 @@ export default function DailyChallengeScreen() {
     },
     {
       id: 'learn_hadith',
-      title: t('learnHadith'),
-      description: t('learnHadithDesc'),
+      title: t('Learn Hadith'),
+      description: t('Learn Hadith Desc'),
       icon: '📚',
       reward: 4,
       category: 'learning',
@@ -246,8 +244,8 @@ export default function DailyChallengeScreen() {
     },
     {
       id: 'help_others',
-      title: t('helpOthers'),
-      description: t('helpOthersDesc'),
+      title: t('Help Others'),
+      description: t('Help Others Desc'),
       icon: '🤝',
       reward: 7,
       category: 'good_deeds',
@@ -291,8 +289,8 @@ export default function DailyChallengeScreen() {
         <div class="flex items-center gap-2">
           <span class="text-2xl">✅</span>
           <div>
-            <div class="font-bold">${t('alreadyCompleted')}</div>
-            <div class="text-sm">${t('alreadyCompletedToday')}</div>
+            <div class="font-bold">${t('Already Completed')}</div>
+            <div class="text-sm">${t('Already Completed Today')}</div>
           </div>
         </div>
       `;
@@ -315,8 +313,8 @@ export default function DailyChallengeScreen() {
         <div class="flex items-center gap-2">
           <span class="text-2xl">🎉</span>
           <div>
-            <div class="font-bold">${t('challengeCompleted')}</div>
-            <div class="text-sm">+${challenge.reward} ${t('pointsEarned')}</div>
+            <div class="font-bold">${t('Challenge Completed')}</div>
+            <div class="text-sm">+${challenge.reward} ${t('Points Earned')}</div>
           </div>
         </div>
       `;
@@ -350,33 +348,41 @@ export default function DailyChallengeScreen() {
   };
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[#44403c] via-[#78716c] to-[#d6d3d1]">
-      <div className="w-full max-w-7xl mx-auto flex flex-col items-center gap-8 py-8 px-4">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-emerald-900 to-slate-900 relative overflow-hidden">
+      {/* Animated Background Elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-emerald-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-green-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse delay-1000"></div>
+        <div className="absolute top-40 left-40 w-60 h-60 bg-teal-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse delay-2000"></div>
+        <div className="absolute bottom-40 right-40 w-60 h-60 bg-emerald-600 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse delay-3000"></div>
+      </div>
+      
+      <div className="relative z-10 w-full max-w-7xl mx-auto flex flex-col items-center gap-6 sm:gap-8 py-6 sm:py-8 px-3 sm:px-4">
         {/* Header Section */}
-        <div className="w-full text-center mb-8">
-          <div className="text-5xl font-heading text-brass font-bold drop-shadow-2xl mb-4 bg-gradient-to-r from-brass to-wood bg-clip-text text-transparent">
-            {t('dailyChallenges')}
+        <div className="w-full text-center mb-6 sm:mb-8">
+          <div className="text-3xl sm:text-4xl md:text-5xl font-heading text-white font-bold drop-shadow-2xl mb-3 sm:mb-4 bg-gradient-to-r from-emerald-400 via-green-400 to-teal-400 bg-clip-text text-transparent">
+            {t('Daily Challenges')}
           </div>
-          <div className="text-lg text-text dark:text-darktext opacity-90 max-w-2xl mx-auto">
-            {t('completeDailyChallengesToEarnPoints')}
+          <div className="text-base sm:text-lg text-gray-300 opacity-90 max-w-2xl mx-auto px-2">
+            {t('Complete Daily Challenges To Earn Points')}
           </div>
         </div>
 
         {/* Points Summary */}
         <div className="w-full max-w-4xl">
-          <div className="card p-6 bg-gradient-to-r from-brass/10 to-wood/10 border border-brass/20 backdrop-blur-sm">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
-              <div className="p-4 bg-gradient-to-r from-brass/20 to-wood/20 rounded-lg border border-brass/30">
-                <div className="text-3xl text-brass font-bold">{points}</div>
-                <div className="text-sm text-text dark:text-darktext">{t('totalPoints')}</div>
+          <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl sm:rounded-3xl p-4 sm:p-6">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 text-center">
+              <div className="p-4 bg-white/10 backdrop-blur-lg rounded-lg border border-white/20">
+                <div className="text-3xl text-emerald-400 font-bold">{points}</div>
+                <div className="text-sm text-gray-300">{t('Total Points')}</div>
               </div>
-              <div className="p-4 bg-gradient-to-r from-brass/20 to-wood/20 rounded-lg border border-brass/30">
-                <div className="text-3xl text-brass font-bold">{challengeStreak}</div>
-                <div className="text-sm text-text dark:text-darktext">{t('challengeStreak')}</div>
+              <div className="p-4 bg-white/10 backdrop-blur-lg rounded-lg border border-white/20">
+                <div className="text-3xl text-emerald-400 font-bold">{challengeStreak}</div>
+                <div className="text-sm text-gray-300">{t('Challenge Streak')}</div>
               </div>
-              <div className="p-4 bg-gradient-to-r from-brass/20 to-wood/20 rounded-lg border border-brass/30">
-                <div className="text-3xl text-brass font-bold">{completedToday}</div>
-                <div className="text-sm text-text dark:text-darktext">{t('completedToday')}</div>
+              <div className="p-4 bg-white/10 backdrop-blur-lg rounded-lg border border-white/20">
+                <div className="text-3xl text-emerald-400 font-bold">{completedToday}</div>
+                <div className="text-sm text-gray-300">{t('Completed Today')}</div>
               </div>
             </div>
           </div>
@@ -388,11 +394,11 @@ export default function DailyChallengeScreen() {
             // Get translated category name
             const getCategoryName = (cat) => {
               switch (cat) {
-                case 'prayer': return t('prayerChallenges');
-                case 'worship': return t('worshipChallenges');
-                case 'quran': return t('quranChallenges');
-                case 'learning': return t('learningChallenges');
-                case 'good_deeds': return t('goodDeedsChallenges');
+                case 'prayer': return t('Prayer Challenges');
+                case 'worship': return t('Worship Challenges');
+                case 'quran': return t('Quran Challenges');
+                case 'learning': return t('Learning Challenges');
+                case 'good_deeds': return t('Good Deeds Challenges');
                 default: return cat.replace('_', ' ');
               }
             };
@@ -400,7 +406,7 @@ export default function DailyChallengeScreen() {
               <div key={category} className="mb-8">
                 <div className="flex items-center gap-3 mb-4">
                   <span className="text-2xl">{categoryIcons[category]}</span>
-                  <h2 className="text-2xl font-heading text-brass font-bold capitalize">
+                  <h2 className="text-2xl font-heading text-white font-bold capitalize">
                     {getCategoryName(category)}
                   </h2>
                 </div>
@@ -410,10 +416,10 @@ export default function DailyChallengeScreen() {
                     return (
                       <div 
                         key={challenge.id}
-                        className={`card p-6 hover:shadow-2xl transition-all duration-500 hover:scale-105 backdrop-blur-sm border ${
+                        className={`bg-white/10 backdrop-blur-lg p-6 hover:shadow-2xl transition-all duration-500 hover:scale-105 hover:bg-white/20 rounded-3xl border ${
                           isCompleted 
-                            ? 'bg-gradient-to-br from-green-500/20 to-green-600/20 border-green-300' 
-                            : 'bg-gradient-to-br from-card/80 to-card/60 border-brass/20'
+                            ? 'border-emerald-400/50 bg-emerald-500/20' 
+                            : 'border-white/20'
                         }`}
                       >
                         {/* Header */}
@@ -452,7 +458,7 @@ export default function DailyChallengeScreen() {
                             onClick={() => completeChallenge(challenge)}
                             disabled={isCompleted}
                           >
-                            {isCompleted ? `✅ ${t('completed')}` : `🎯 ${t('complete')}`}
+                            {isCompleted ? `✅ ${t('Completed')}` : `🎯 ${t('Complete')}`}
                           </button>
                         </div>
                       </div>
@@ -522,8 +528,8 @@ export default function DailyChallengeScreen() {
                     disabled={progressTracker.isChallengeCompletedToday(selectedChallenge.id)}
                   >
                     {progressTracker.isChallengeCompletedToday(selectedChallenge.id) 
-                      ? `✅ ${t('challengeCompletedToday')}` 
-                      : `🎯 ${t('completeChallenge')} (+${selectedChallenge.reward} ${t('points')})`}
+                      ? `✅ ${t('Challenge Completed Today')}` 
+                      : `🎯 ${t('Complete Challenge')} (+${selectedChallenge.reward} ${t('Points')})`}
                   </button>
                 </div>
               </div>

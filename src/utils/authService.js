@@ -1,4 +1,23 @@
 // Authentication Service for Namaz Web
+import { 
+  signInWithEmailAndPassword, 
+  createUserWithEmailAndPassword, 
+  signInWithPopup, 
+  GoogleAuthProvider, 
+  signOut, 
+  onAuthStateChanged,
+  updateProfile
+} from 'firebase/auth';
+import { auth } from './firebase';
+const googleProvider = new GoogleAuthProvider();
+
+// Configure Google provider
+googleProvider.addScope('email');
+googleProvider.addScope('profile');
+googleProvider.setCustomParameters({
+  prompt: 'select_account'
+});
+
 class AuthService {
   constructor() {
     this.currentUser = null;
@@ -8,79 +27,40 @@ class AuthService {
   }
 
   init() {
-    // Load user from localStorage on app start
-    const savedUser = localStorage.getItem('namaz_user');
-    if (savedUser) {
-      try {
-        this.currentUser = JSON.parse(savedUser);
+    // Listen for Firebase auth state changes
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        this.currentUser = {
+          id: user.uid,
+          email: user.email,
+          name: user.displayName || user.email.split('@')[0],
+          picture: user.photoURL,
+          provider: user.providerData[0]?.providerId || 'email',
+          createdAt: user.metadata.creationTime,
+          lastLogin: user.metadata.lastSignInTime
+        };
         this.isAuthenticated = true;
-        this.notifyListeners();
-      } catch (error) {
-        console.error('Error loading saved user:', error);
-        this.logout();
+        localStorage.setItem('namaz_user', JSON.stringify(this.currentUser));
+      } else {
+        this.currentUser = null;
+        this.isAuthenticated = false;
+        localStorage.removeItem('namaz_user');
       }
-    }
-  }
-
-  // Gmail OAuth Integration
-  async signInWithGmail() {
-    try {
-      // Initialize Google Sign-In
-      if (!window.google) {
-        await this.loadGoogleScript();
-      }
-
-      const auth2 = window.gapi.auth2.getAuthInstance();
-      if (!auth2) {
-        await window.gapi.auth2.init({
-          client_id: 'YOUR_GOOGLE_CLIENT_ID', // Replace with your Google Client ID
-          scope: 'email profile'
-        });
-      }
-
-      const googleUser = await auth2.signIn();
-      const profile = googleUser.getBasicProfile();
-      const idToken = googleUser.getAuthResponse().id_token;
-
-      // Create user object
-      const user = {
-        id: profile.getId(),
-        email: profile.getEmail(),
-        name: profile.getName(),
-        picture: profile.getImageUrl(),
-        provider: 'google',
-        idToken: idToken,
-        createdAt: new Date().toISOString(),
-        lastLogin: new Date().toISOString()
-      };
-
-      // Save user data
-      await this.saveUser(user);
-      return user;
-
-    } catch (error) {
-      console.error('Gmail sign-in error:', error);
-      throw new Error('Failed to sign in with Gmail');
-    }
-  }
-
-  // Load Google Script
-  loadGoogleScript() {
-    return new Promise((resolve, reject) => {
-      if (window.google) {
-        resolve();
-        return;
-      }
-
-      const script = document.createElement('script');
-      script.src = 'https://apis.google.com/js/platform.js';
-      script.onload = () => {
-        window.gapi.load('auth2', resolve);
-      };
-      script.onerror = reject;
-      document.head.appendChild(script);
+      this.notifyListeners();
     });
   }
+
+  // Google OAuth Integration
+  async signInWithGmail() {
+    try {
+      const result = await signInWithPopup(auth, googleProvider);
+      return result.user;
+    } catch (error) {
+      console.error('Google sign-in error:', error);
+      throw new Error('Failed to sign in with Google');
+    }
+  }
+
 
   // Email/Password Authentication
   async signUpWithEmail(email, password, name) {
@@ -90,89 +70,33 @@ class AuthService {
         throw new Error('Please enter a valid email address');
       }
 
-      // Check if user already exists
-      const existingUser = this.getUserByEmail(email);
-      if (existingUser) {
-        throw new Error('User with this email already exists');
-      }
+      // Create user with Firebase
+      const result = await createUserWithEmailAndPassword(auth, email, password);
+      
+      // Update user profile with display name
+      await updateProfile(result.user, {
+        displayName: name
+      });
 
-      // Create user object
-      const user = {
-        id: this.generateUserId(),
-        email: email.toLowerCase(),
-        name: name,
-        password: await this.hashPassword(password), // In production, use proper hashing
-        provider: 'email',
-        createdAt: new Date().toISOString(),
-        lastLogin: new Date().toISOString(),
-        profile: {
-          avatar: null,
-          preferences: {
-            language: 'en',
-            childrenMode: false,
-            notifications: true,
-            theme: 'light'
-          }
-        }
-      };
-
-      // Save user data
-      await this.saveUser(user);
-      return user;
+      return result.user;
 
     } catch (error) {
       console.error('Email sign-up error:', error);
-      throw error;
+      throw new Error(this.getFirebaseErrorMessage(error.code));
     }
   }
 
   async signInWithEmail(email, password) {
     try {
-      const user = this.getUserByEmail(email);
-      if (!user) {
-        throw new Error('User not found');
-      }
-
-      // Verify password (in production, use proper verification)
-      if (user.password !== await this.hashPassword(password)) {
-        throw new Error('Invalid password');
-      }
-
-      // Update last login
-      user.lastLogin = new Date().toISOString();
-      await this.saveUser(user);
-
-      return user;
-
+      const result = await signInWithEmailAndPassword(auth, email, password);
+      return result.user;
     } catch (error) {
       console.error('Email sign-in error:', error);
-      throw error;
+      throw new Error(this.getFirebaseErrorMessage(error.code));
     }
   }
 
   // User Data Management
-  async saveUser(user) {
-    try {
-      // Save to localStorage
-      localStorage.setItem('namaz_user', JSON.stringify(user));
-      
-      // Save to IndexedDB for larger data
-      await this.saveToIndexedDB('users', user);
-      
-      // Update current user
-      this.currentUser = user;
-      this.isAuthenticated = true;
-      
-      // Notify listeners
-      this.notifyListeners();
-      
-      return user;
-    } catch (error) {
-      console.error('Error saving user:', error);
-      throw error;
-    }
-  }
-
   async updateUserProfile(updates) {
     try {
       if (!this.currentUser) {
@@ -183,8 +107,8 @@ class AuthService {
       this.currentUser = { ...this.currentUser, ...updates };
       this.currentUser.updatedAt = new Date().toISOString();
 
-      // Save updated user
-      await this.saveUser(this.currentUser);
+      // Save to localStorage
+      localStorage.setItem('namaz_user', JSON.stringify(this.currentUser));
       
       return this.currentUser;
     } catch (error) {
@@ -206,8 +130,8 @@ class AuthService {
         lastUpdated: new Date().toISOString()
       };
 
-      // Save updated user
-      await this.saveUser(this.currentUser);
+      // Save to localStorage
+      localStorage.setItem('namaz_user', JSON.stringify(this.currentUser));
       
       return this.currentUser.progress;
     } catch (error) {
@@ -217,28 +141,10 @@ class AuthService {
   }
 
   // Logout
-  logout() {
+  async logout() {
     try {
-      // Clear localStorage
-      localStorage.removeItem('namaz_user');
-      
-      // Clear IndexedDB
-      this.clearIndexedDB();
-      
-      // Reset current user
-      this.currentUser = null;
-      this.isAuthenticated = false;
-      
-      // Notify listeners
-      this.notifyListeners();
-      
-      // Sign out from Google if applicable
-      if (window.google && window.gapi) {
-        const auth2 = window.gapi.auth2.getAuthInstance();
-        if (auth2) {
-          auth2.signOut();
-        }
-      }
+      await signOut(auth);
+      // Firebase auth state change will handle the rest
     } catch (error) {
       console.error('Logout error:', error);
     }
@@ -250,65 +156,22 @@ class AuthService {
     return emailRegex.test(email);
   }
 
-  generateUserId() {
-    return 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+  getFirebaseErrorMessage(errorCode) {
+    const errorMessages = {
+      'auth/user-not-found': 'No user found with this email address',
+      'auth/wrong-password': 'Incorrect password',
+      'auth/email-already-in-use': 'An account with this email already exists',
+      'auth/weak-password': 'Password should be at least 6 characters',
+      'auth/invalid-email': 'Invalid email address',
+      'auth/user-disabled': 'This account has been disabled',
+      'auth/too-many-requests': 'Too many failed attempts. Please try again later',
+      'auth/network-request-failed': 'Network error. Please check your connection',
+      'auth/popup-closed-by-user': 'Sign-in popup was closed',
+      'auth/cancelled-popup-request': 'Sign-in was cancelled'
+    };
+    return errorMessages[errorCode] || 'An error occurred. Please try again';
   }
 
-  async hashPassword(password) {
-    // In production, use proper password hashing (bcrypt, argon2, etc.)
-    // For now, using a simple hash for demonstration
-    const encoder = new TextEncoder();
-    const data = encoder.encode(password);
-    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-  }
-
-  getUserByEmail(email) {
-    // In a real app, this would query a database
-    // For now, we'll check localStorage
-    const savedUser = localStorage.getItem('namaz_user');
-    if (savedUser) {
-      const user = JSON.parse(savedUser);
-      if (user.email === email.toLowerCase()) {
-        return user;
-      }
-    }
-    return null;
-  }
-
-  // IndexedDB Operations
-  async saveToIndexedDB(storeName, data) {
-    return new Promise((resolve, reject) => {
-      const request = indexedDB.open('NamazWebDB', 1);
-      
-      request.onerror = () => reject(request.error);
-      request.onsuccess = () => {
-        const db = request.result;
-        const transaction = db.transaction([storeName], 'readwrite');
-        const store = transaction.objectStore(storeName);
-        const saveRequest = store.put(data);
-        
-        saveRequest.onsuccess = () => resolve(saveRequest.result);
-        saveRequest.onerror = () => reject(saveRequest.error);
-      };
-      
-      request.onupgradeneeded = (event) => {
-        const db = event.target.result;
-        if (!db.objectStoreNames.contains(storeName)) {
-          db.createObjectStore(storeName, { keyPath: 'id' });
-        }
-      };
-    });
-  }
-
-  async clearIndexedDB() {
-    return new Promise((resolve, reject) => {
-      const request = indexedDB.deleteDatabase('NamazWebDB');
-      request.onsuccess = () => resolve();
-      request.onerror = () => reject(request.error);
-    });
-  }
 
   // Event Listeners
   addListener(callback) {
