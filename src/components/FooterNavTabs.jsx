@@ -175,28 +175,28 @@ export default function FooterNavTabs({ onNavigate, className = '' }) {
       to: '/prayer-times', 
       label: t('prayerTimes'), 
       icon: Icons.Clock, 
-      color: 'from-emerald-500 to-emerald-600'
+      color: 'from-blue-500 to-blue-600'
     },
     { 
       key: 'namaz', 
       to: '/namaz', 
       label: t('namaz'), 
       icon: Icons.BookOpen, 
-      color: 'from-green-500 to-green-600'
+      color: 'from-blue-500 to-blue-600'
     },
     { 
       key: 'qibla', 
       to: '/qibla', 
       label: t('qibla'), 
       icon: Icons.Compass, 
-      color: 'from-amber-500 to-amber-600'
+      color: 'from-blue-500 to-blue-600'
     },
     { 
       key: 'learn', 
       to: '/learn', 
       label: t('learn'), 
       icon: Icons.BookOpen, 
-      color: 'from-purple-500 to-purple-600'
+      color: 'from-blue-500 to-blue-600'
     }
   ];
 
@@ -207,56 +207,56 @@ export default function FooterNavTabs({ onNavigate, className = '' }) {
       to: '/hadith', 
       label: t('hadith'), 
       icon: Icons.BookOpen, 
-      color: 'from-indigo-500 to-indigo-600'
+      color: 'from-blue-500 to-blue-600'
     },
     { 
       key: 'duas', 
       to: '/duas', 
       label: t('duas'), 
       icon: Icons.BookOpen, 
-      color: 'from-teal-500 to-teal-600'
+      color: 'from-blue-500 to-blue-600'
     },
     { 
       key: 'tracker', 
       to: '/tracker', 
       label: t('tracker'), 
       icon: Icons.History, 
-      color: 'from-orange-500 to-orange-600'
+      color: 'from-blue-500 to-blue-600'
     },
     { 
       key: 'quiz', 
       to: '/quiz', 
       label: t('quiz'), 
       icon: Icons.Trophy, 
-      color: 'from-pink-500 to-pink-600'
+      color: 'from-blue-500 to-blue-600'
     },
     { 
       key: 'mistakes', 
       to: '/mistakes', 
       label: t('mistakes'), 
       icon: Icons.AlertTriangle, 
-      color: 'from-red-500 to-red-600'
+      color: 'from-blue-500 to-blue-600'
     },
     { 
       key: 'ai-assistant', 
       to: '/ai-assistant', 
       label: t('aiAssistant'), 
       icon: Icons.Bot, 
-      color: 'from-cyan-500 to-cyan-600'
+      color: 'from-blue-500 to-blue-600'
     },
     { 
       key: 'progress', 
       to: '/progress', 
       label: t('progress'), 
       icon: Icons.History, 
-      color: 'from-violet-500 to-violet-600'
+      color: 'from-blue-500 to-blue-600'
     },
     { 
       key: 'settings', 
       to: '/settings', 
       label: t('settings'), 
       icon: Icons.Cog6Tooth, 
-      color: 'from-gray-500 to-gray-600'
+      color: 'from-blue-500 to-blue-600'
     }
   ];
 
@@ -348,7 +348,7 @@ export default function FooterNavTabs({ onNavigate, className = '' }) {
                 </motion.div>
                 <motion.span 
                   className={`
-                    text-[10px] font-medium text-center leading-tight
+                    text-[9px] font-medium text-center leading-tight
                     ${isNarrow ? 'hidden' : 'block'}
                     ${isActive ? 'text-white' : 'text-gray-600 dark:text-gray-400'}
                   `}
@@ -403,7 +403,7 @@ export default function FooterNavTabs({ onNavigate, className = '' }) {
               </motion.div>
               <motion.span 
                 className={`
-                  text-[10px] font-medium text-center leading-tight
+                  text-[9px] font-medium text-center leading-tight
                   ${isNarrow ? 'hidden' : 'block'}
                   ${showOverflow ? 'text-white' : 'text-gray-600 dark:text-gray-400'}
                 `}
@@ -476,7 +476,7 @@ export default function FooterNavTabs({ onNavigate, className = '' }) {
                       >
                         <IconComponent isActive={isActive} />
                       </motion.div>
-                      <span className="text-[10px] font-medium text-center leading-tight">
+                      <span className="text-[9px] font-medium text-center leading-tight">
                         {item.label}
                       </span>
                     </NavLink>
