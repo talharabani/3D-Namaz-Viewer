@@ -140,7 +140,7 @@ function App() {
 
             {/* Main Content */}
             <main className="flex-1 flex flex-col min-h-0">
-              <div className={`flex-1 ${isMobile ? 'pb-16' : ''}`}>
+              <div className={`flex-1 ${isMobile ? 'pb-20' : ''}`}>
                 <Routes>
                   <Route path="/" element={<LandingPage />} />
                   <Route path="/dashboard" element={<HomeScreen />} />
@@ -162,11 +162,12 @@ function App() {
               </div>
             </main>
 
-            {/* Website Footer */}
-            <WebsiteFooter />
-
-            {/* Mobile Footer Navigation */}
-            {isMobile && <FooterNavTabs currentLang={currentLang} />}
+            {/* Footer - Desktop shows WebsiteFooter, Mobile shows FooterNavTabs */}
+            {isMobile ? (
+              <FooterNavTabs currentLang={currentLang} />
+            ) : (
+              <WebsiteFooter />
+            )}
 
 
             
