@@ -49,6 +49,9 @@ const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
 
+  // Debug: Log when Navbar renders
+  console.log('Navbar component rendered');
+
   // Navigation items
   const navItems = [
     { key: 'home', to: '/dashboard', label: t('home'), icon: Icons.Home },

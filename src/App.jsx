@@ -135,7 +135,7 @@ function App() {
             <main className="flex-1 flex flex-col min-h-0 pt-16">
               <div className="flex-1">
                 <Routes>
-                  <Route path="/" element={<LandingPage />} />
+                  <Route path="/" element={<HomeScreen />} />
                   <Route path="/dashboard" element={<HomeScreen />} />
                   <Route path="/namaz" element={<NamazScreen />} />
                   <Route path="/hadith" element={<HadithScreen />} />
