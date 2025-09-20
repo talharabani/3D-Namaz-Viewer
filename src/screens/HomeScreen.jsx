@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useTranslation } from '../utils/translations';
-import SearchBar from '../components/SearchBar';
 
 // Animation variants
 const fadeInUp = {
@@ -155,17 +154,6 @@ export default function HomeScreen() {
       {/* Hero Section */}
       <div className="relative z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-          {/* Search Bar */}
-          <motion.div 
-            className="mb-8"
-            variants={fadeInUp}
-            initial="initial"
-            animate="animate"
-          >
-            <div className="max-w-2xl mx-auto">
-              <SearchBar />
-            </div>
-          </motion.div>
 
           <motion.div 
             className="text-center"
