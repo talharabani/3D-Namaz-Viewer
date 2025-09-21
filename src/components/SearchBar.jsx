@@ -337,7 +337,7 @@ const SearchBar = ({ className = "" }) => {
             onKeyDown={handleKeyDown}
             onFocus={() => query && setIsOpen(true)}
             placeholder="Search pages, Duas, Hadith..."
-            className="w-full pl-10 pr-10 py-3 bg-white/5 backdrop-blur-lg border border-emerald-400/20 rounded-xl text-white placeholder-emerald-300/70 focus:outline-none focus:border-emerald-400/50 focus:bg-white/10 transition-all duration-300 text-base shadow-lg"
+            className="w-full pl-10 pr-10 py-3 bg-white/5 backdrop-blur-lg border border-emerald-400/20 rounded-xl text-white placeholder-emerald-300/70 focus:outline-none focus:border-emerald-400/50 focus:bg-white/10 transition-all duration-300 text-sm sm:text-base shadow-lg"
           />
 
           {/* Clear Button */}

@@ -1236,3 +1236,95 @@
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   }
 }
+
+/* ========================================
+   MOBILE UI FIXES
+   ======================================== */
+
+/* Prevent content overflow on mobile */
+@media (max-width: 768px) {
+  * {
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  /* Fix mobile viewport issues */
+  body {
+    overflow-x: hidden;
+  }
+
+  /* Mobile-specific grid adjustments */
+  .grid {
+    gap: 0.75rem;
+  }
+
+  /* Mobile card adjustments */
+  .card {
+    margin: 0.5rem;
+    padding: 1rem;
+  }
+
+  /* Mobile text sizing */
+  .text-xs { font-size: 0.75rem; }
+  .text-sm { font-size: 0.875rem; }
+  .text-base { font-size: 1rem; }
+  .text-lg { font-size: 1.125rem; }
+  .text-xl { font-size: 1.25rem; }
+
+  /* Mobile spacing */
+  .space-y-2 > * + * { margin-top: 0.5rem; }
+  .space-y-4 > * + * { margin-top: 1rem; }
+  .space-y-6 > * + * { margin-top: 1.5rem; }
+
+  /* Mobile padding adjustments */
+  .p-4 { padding: 1rem; }
+  .p-6 { padding: 1.5rem; }
+  .p-8 { padding: 2rem; }
+
+  /* Mobile margin adjustments */
+  .m-4 { margin: 1rem; }
+  .m-6 { margin: 1.5rem; }
+  .m-8 { margin: 2rem; }
+
+  /* Fix mobile search bar */
+  .search-bar {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  /* Fix mobile containers */
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+    max-width: 100%;
+  }
+
+  /* Fix mobile cards */
+  .bg-white\/10 {
+    margin: 0.5rem;
+  }
+
+  /* Fix mobile text overflow */
+  .truncate {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* Fix mobile button sizing */
+  .btn {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Fix mobile modal sizing */
+  .modal {
+    margin: 1rem;
+    max-width: calc(100vw - 2rem);
+  }
+
+  /* Fix mobile form elements */
+  input, textarea, select {
+    font-size: 16px; /* Prevents zoom on iOS */
+  }
+}

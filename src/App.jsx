@@ -11,6 +11,7 @@ import ProgressDashboardScreen from './screens/ProgressDashboardScreen';
 import DailyChallengeScreen from './screens/DailyChallengeScreen';
 import SignInScreen from './screens/SignInScreen';
 import SignUpScreen from './screens/SignUpScreen';
+import WelcomeScreen from './screens/WelcomeScreen';
 import { useState, useEffect, useRef } from 'react';
 import reactLogo from './assets/react.svg';
 import viteLogo from '/vite.svg';
@@ -60,6 +61,8 @@ function AppContent() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userProfile, setUserProfile] = useState(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [showWelcome, setShowWelcome] = useState(false);
+  const [hasSeenWelcome, setHasSeenWelcome] = useState(false);
 
   useEffect(() => {
     localStorage.setItem('childrenMode', JSON.stringify(childrenMode));
@@ -88,17 +91,36 @@ function AppContent() {
 
     initServices();
 
+    // Check if user has seen welcome screen
+    const seenWelcome = localStorage.getItem('hasSeenWelcome');
+    setHasSeenWelcome(seenWelcome === 'true');
+
     // Initialize authentication
     const currentUser = authService.getCurrentUser();
     if (currentUser) {
       setIsAuthenticated(true);
       setUserProfile(currentUser);
+      // Show welcome screen for new users
+      if (!seenWelcome) {
+        setShowWelcome(true);
+      }
+    } else {
+      // Show auth modal for unauthenticated users
+      setShowAuthModal(true);
     }
 
     // Listen for auth changes
     const handleAuthChange = (user, authenticated) => {
       setIsAuthenticated(authenticated);
       setUserProfile(user);
+      
+      if (authenticated && user && !hasSeenWelcome) {
+        setShowWelcome(true);
+        setShowAuthModal(false);
+      } else if (!authenticated) {
+        setShowAuthModal(true);
+        setShowWelcome(false);
+      }
     };
 
     authService.addListener(handleAuthChange);
@@ -106,7 +128,7 @@ function AppContent() {
     return () => {
       authService.removeListener(handleAuthChange);
     };
-  }, []);
+  }, [hasSeenWelcome]);
 
 
 
@@ -119,7 +141,21 @@ function AppContent() {
 
   const handleLogout = () => {
     authService.logout();
+    setShowWelcome(false);
+    setHasSeenWelcome(false);
+    localStorage.removeItem('hasSeenWelcome');
   };
+
+  const handleWelcomeClose = () => {
+    setShowWelcome(false);
+    setHasSeenWelcome(true);
+    localStorage.setItem('hasSeenWelcome', 'true');
+  };
+
+  // Show welcome screen if needed
+  if (showWelcome) {
+    return <WelcomeScreen onClose={handleWelcomeClose} />;
+  }
 
   return (
     <div className={`min-h-screen font-sans text-gray-900 dark:text-gray-100 flex flex-col text-sm${childrenMode ? ' children' : ''} ${isRTL ? 'rtl' : 'ltr'}`}

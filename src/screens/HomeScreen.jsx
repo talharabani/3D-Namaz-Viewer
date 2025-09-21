@@ -199,19 +199,20 @@ const HomeScreen = () => {
       {/* Floating Authentication Button */}
       {!isAuthenticated && (
         <motion.div
-          className="fixed top-20 right-4 z-40"
+          className="fixed top-20 right-2 sm:right-4 z-40"
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.8, delay: 0.5 }}
         >
           <motion.button
-            onClick={() => handleAuthClick('login')}
-            className="bg-white/10 backdrop-blur-lg border border-white/20 text-white px-6 py-3 rounded-xl hover:bg-white/20 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center gap-2"
+            onClick={() => handleAuthClick('Login')}
+            className="bg-white/10 backdrop-blur-lg border border-white/20 text-white px-3 sm:px-6 py-2 sm:py-3 rounded-xl hover:bg-white/20 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center gap-1 sm:gap-2 text-sm sm:text-base"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
-            <span className="text-lg">🔐</span>
-            <span className="font-medium">{t('signIn')}</span>
+            <span className="text-sm sm:text-lg">🔐</span>
+            <span className="font-medium hidden sm:inline">{t('signIn')}</span>
+            <span className="font-medium sm:hidden">Sign In</span>
           </motion.button>
         </motion.div>
       )}
@@ -258,7 +259,7 @@ const HomeScreen = () => {
               <div className="relative">
                 {/* Bismillah in Arabic */}
                 <motion.div 
-                  className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-arabic text-white mb-6 leading-relaxed animate-text-shimmer"
+                  className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-arabic text-white mb-4 sm:mb-6 leading-relaxed animate-text-shimmer"
                   initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 1, delay: 0.5 }}
@@ -268,7 +269,7 @@ const HomeScreen = () => {
                 
                 {/* English Translation */}
                 <motion.p 
-                  className="text-xl sm:text-2xl text-emerald-200 font-light"
+                  className="text-lg sm:text-xl md:text-2xl text-emerald-200 font-light px-2"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.8, delay: 0.7 }}
@@ -280,7 +281,7 @@ const HomeScreen = () => {
 
             {/* Current Time Section */}
             <motion.div 
-              className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl p-6 shadow-xl inline-block animate-glow"
+              className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl p-4 sm:p-6 shadow-xl inline-block animate-glow mx-2 sm:mx-0"
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.6, delay: 0.8 }}
@@ -313,7 +314,7 @@ const HomeScreen = () => {
           className="text-center mb-16"
         >
           <motion.h2 
-            className="text-4xl md:text-5xl font-black bg-gradient-to-r from-emerald-400 via-green-400 to-teal-400 bg-clip-text text-transparent mb-6 animate-text-shimmer"
+            className="text-3xl sm:text-4xl md:text-5xl font-black bg-gradient-to-r from-emerald-400 via-green-400 to-teal-400 bg-clip-text text-transparent mb-4 sm:mb-6 animate-text-shimmer px-4"
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
@@ -321,7 +322,7 @@ const HomeScreen = () => {
             Quick Actions
           </motion.h2>
           <motion.p 
-            className="text-xl text-gray-300 max-w-3xl mx-auto mb-8"
+            className="text-lg sm:text-xl text-gray-300 max-w-3xl mx-auto mb-6 sm:mb-8 px-4"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.4 }}
@@ -340,20 +341,20 @@ const HomeScreen = () => {
               <>
                 <motion.button
                   onClick={() => handleAuthClick('login')}
-                  className="px-8 py-4 bg-gradient-to-r from-emerald-500 to-green-600 text-white font-bold rounded-xl hover:from-emerald-600 hover:to-green-700 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center gap-3"
+                  className="px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-emerald-500 to-green-600 text-white font-bold rounded-xl hover:from-emerald-600 hover:to-green-700 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center gap-2 sm:gap-3 text-sm sm:text-base"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >
-                  <span className="text-2xl">🔐</span>
+                  <span className="text-xl sm:text-2xl">🔐</span>
                   {t('signIn')}
                 </motion.button>
                 <motion.button
                   onClick={() => handleAuthClick('signup')}
-                  className="px-8 py-4 bg-white/10 backdrop-blur-lg border border-white/20 text-white font-bold rounded-xl hover:bg-white/20 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center gap-3"
+                  className="px-6 sm:px-8 py-3 sm:py-4 bg-white/10 backdrop-blur-lg border border-white/20 text-white font-bold rounded-xl hover:bg-white/20 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center gap-2 sm:gap-3 text-sm sm:text-base"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >
-                  <span className="text-2xl">📝</span>
+                  <span className="text-xl sm:text-2xl">📝</span>
                   {t('signUp')}
                 </motion.button>
               </>
