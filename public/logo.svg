@@ -1,0 +1,99 @@
+<svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background Circle with Gradient -->
+  <circle cx="100" cy="100" r="95" fill="url(#gradient1)" stroke="url(#gradient2)" stroke-width="4"/>
+  
+  <!-- Inner Circle -->
+  <circle cx="100" cy="100" r="80" fill="none" stroke="url(#gradient3)" stroke-width="2" opacity="0.6"/>
+  
+  <!-- Crescent Moon -->
+  <path d="M 60 100 A 40 40 0 1 1 140 100 A 40 40 0 1 1 60 100" fill="url(#gradient4)" opacity="0.9"/>
+  <path d="M 70 100 A 30 30 0 1 1 130 100 A 30 30 0 1 1 70 100" fill="url(#gradient1)"/>
+  
+  <!-- Star -->
+  <path d="M 100 30 L 105 45 L 120 45 L 108 55 L 113 70 L 100 60 L 87 70 L 92 55 L 80 45 L 95 45 Z" fill="url(#gradient5)"/>
+  
+  <!-- Islamic Geometric Pattern -->
+  <g transform="translate(100, 100)">
+    <!-- Central Hexagon -->
+    <polygon points="0,-25 22,-12.5 22,12.5 0,25 -22,12.5 -22,-12.5" fill="none" stroke="url(#gradient6)" stroke-width="2" opacity="0.7"/>
+    
+    <!-- Inner Star -->
+    <path d="M 0,-15 L 4,-7 L 12,-7 L 6,-2 L 9,6 L 0,2 L -9,6 L -6,-2 L -12,-7 L -4,-7 Z" fill="url(#gradient7)" opacity="0.8"/>
+    
+    <!-- Corner Decorations -->
+    <circle cx="0" cy="-35" r="3" fill="url(#gradient8)"/>
+    <circle cx="30" cy="-17" r="3" fill="url(#gradient8)"/>
+    <circle cx="30" cy="17" r="3" fill="url(#gradient8)"/>
+    <circle cx="0" cy="35" r="3" fill="url(#gradient8)"/>
+    <circle cx="-30" cy="17" r="3" fill="url(#gradient8)"/>
+    <circle cx="-30" cy="-17" r="3" fill="url(#gradient8)"/>
+  </g>
+  
+  <!-- Text -->
+  <text x="100" y="160" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="url(#gradient9)">NAMAZ</text>
+  <text x="100" y="180" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="normal" fill="url(#gradient10)">WEB</text>
+  
+  <!-- Gradients -->
+  <defs>
+    <!-- Main gradient for background -->
+    <radialGradient id="gradient1" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" style="stop-color:#10B981;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#059669;stop-opacity:1" />
+    </radialGradient>
+    
+    <!-- Border gradient -->
+    <linearGradient id="gradient2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#34D399;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#10B981;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#059669;stop-opacity:1" />
+    </linearGradient>
+    
+    <!-- Inner circle gradient -->
+    <linearGradient id="gradient3" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#6EE7B7;stop-opacity:0.6" />
+      <stop offset="100%" style="stop-color:#34D399;stop-opacity:0.6" />
+    </linearGradient>
+    
+    <!-- Crescent gradient -->
+    <linearGradient id="gradient4" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#FCD34D;stop-opacity:0.9" />
+      <stop offset="100%" style="stop-color:#F59E0B;stop-opacity:0.9" />
+    </linearGradient>
+    
+    <!-- Star gradient -->
+    <linearGradient id="gradient5" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FCD34D;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#F59E0B;stop-opacity:1" />
+    </linearGradient>
+    
+    <!-- Hexagon gradient -->
+    <linearGradient id="gradient6" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#6EE7B7;stop-opacity:0.7" />
+      <stop offset="100%" style="stop-color:#34D399;stop-opacity:0.7" />
+    </linearGradient>
+    
+    <!-- Inner star gradient -->
+    <linearGradient id="gradient7" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FCD34D;stop-opacity:0.8" />
+      <stop offset="100%" style="stop-color:#F59E0B;stop-opacity:0.8" />
+    </linearGradient>
+    
+    <!-- Corner dots gradient -->
+    <radialGradient id="gradient8" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" style="stop-color:#FCD34D;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#F59E0B;stop-opacity:1" />
+    </radialGradient>
+    
+    <!-- Text gradient -->
+    <linearGradient id="gradient9" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#1F2937;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#374151;stop-opacity:1" />
+    </linearGradient>
+    
+    <!-- Subtitle gradient -->
+    <linearGradient id="gradient10" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#6B7280;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#9CA3AF;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+</svg>

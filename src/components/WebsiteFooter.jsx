@@ -3,8 +3,8 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from '../utils/translations';
 import { useToast } from './Toast';
 
-export default function WebsiteFooter() {
-  const { t, currentLang } = useTranslation();
+const WebsiteFooter = () => {
+  const { t } = useTranslation();
   const { success, error } = useToast();
   const [email, setEmail] = useState('');
   const [isSubscribing, setIsSubscribing] = useState(false);
@@ -12,36 +12,37 @@ export default function WebsiteFooter() {
 
   const footerSections = [
     {
-      title: t('quickLinks'),
-      links: [
-        { name: t('prayerTimes'), href: '/prayer-times' },
-        { name: t('qibla'), href: '/qibla' },
-        { name: t('learn'), href: '/learn' },
-        { name: t('hadith'), href: '/hadith' },
-        { name: t('duas'), href: '/duas' },
-        { name: t('tracker'), href: '/tracker' },
-      ]
-    },
-    {
       title: t('features'),
       links: [
-        { name: t('aiAssistant'), href: '/ai-assistant' },
-        { name: t('quiz'), href: '/quiz' },
-        { name: t('dailyChallenge'), href: '/daily-challenge' },
-        { name: t('progress'), href: '/progress' },
-        { name: t('mistakes'), href: '/mistakes' },
-        { name: t('settings'), href: '/settings' },
+        { name: t('Prayer Times'), href: '/prayer-times' },
+        { name: t('Namaz'), href: '/namaz' },
+        { name: t('Hadith'), href: '/hadith' },
+        { name: t('Duas'), href: '/duas' },
+        { name: t('Qibla'), href: '/qibla' },
+        { name: t('Tracker'), href: '/tracker' },
+        { name: t('Quiz'), href: '/quiz' },
+        { name: t('AiAssistant'), href: '/ai-assistant' }
       ]
     },
     {
-      title: t('support'),
+      title: t('Learn'),
       links: [
-        { name: t('help'), href: '/help' },
-        { name: t('contact'), href: '/contact' },
-        { name: t('about'), href: '/about' },
-        { name: t('privacy'), href: '/privacy' },
-        { name: t('terms'), href: '/terms' },
-        { name: t('feedback'), href: '/feedback' },
+        { name: t('Learn'), href: '/learn' },
+        { name: t('Mistakes'), href: '/mistakes' },
+        { name: t('Progress'), href: '/progress' },
+        { name: t('Daily Challenge'), href: '/daily-challenge' },
+        { name: t('Settings'), href: '/settings' }
+      ]
+    },
+    {
+      title: t('Support'),
+      links: [
+        { name: t('Help'), href: '/help' },
+        { name: t('Contact'), href: '/contact' },
+        { name: t('About'), href: '/about' },
+        { name: t('Privacy'), href: '/privacy' },
+        { name: t('Terms'), href: '/terms' },
+        { name: t('Feedback'), href: '/feedback' }
       ]
     }
   ];
@@ -50,40 +51,39 @@ export default function WebsiteFooter() {
     { name: 'Facebook', icon: '📘', href: '#' },
     { name: 'Twitter', icon: '🐦', href: '#' },
     { name: 'Instagram', icon: '📷', href: '#' },
-    { name: 'YouTube', icon: '📺', href: '#' },
+    { name: 'YouTube', icon: '📺', href: '#' }
   ];
 
   const handleSubscribe = async (e) => {
     e.preventDefault();
     
     if (!email) {
-      error(t('pleaseEnterEmail'));
+      error(t('Email Required'));
       return;
     }
 
     if (!isValidEmail(email)) {
-      error(t('pleaseEnterValidEmail'));
+      error(t('Invalid Email'));
       return;
     }
 
     setIsSubscribing(true);
     
     try {
-      // Simulate API call - in real app, this would call your backend
+      // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));
       
-      // Store subscription in localStorage for demo
-      const subscriptions = JSON.parse(localStorage.getItem('newsletter_subscriptions') || '[]');
-      if (!subscriptions.includes(email)) {
-        subscriptions.push(email);
-        localStorage.setItem('newsletter_subscriptions', JSON.stringify(subscriptions));
-        success(t('subscriptionSuccessful'));
+      // Check if already subscribed (simulate)
+      const isAlreadySubscribed = false;
+      
+      if (!isAlreadySubscribed) {
+        success(t('Subscription Successful'));
         setEmail('');
       } else {
-        error(t('alreadySubscribed'));
+        error(t('Already Subscribed'));
       }
     } catch (err) {
-      error(t('subscriptionFailed'));
+      error(t('Subscription Failed'));
     } finally {
       setIsSubscribing(false);
     }
@@ -95,9 +95,9 @@ export default function WebsiteFooter() {
   };
 
   return (
-    <footer className="bg-gray-900 text-white">
+        <footer className="bg-gray-900 text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Brand Section */}
           <div className="lg:col-span-2">
             <div className="flex items-center space-x-3 mb-4">
@@ -109,7 +109,7 @@ export default function WebsiteFooter() {
                 <p className="text-gray-400 text-sm">Islamic Prayer Companion</p>
               </div>
             </div>
-            <p className="text-gray-400 mb-6 max-w-md">
+            <p className="text-gray-400 mb-6 max-w-lg leading-relaxed">
               Your comprehensive Islamic companion for prayer times, learning, and spiritual growth. 
               Stay connected with your faith through accurate prayer times, educational content, and daily reminders.
             </p>
@@ -120,8 +120,8 @@ export default function WebsiteFooter() {
                 <a
                   key={social.name}
                   href={social.href}
-                  className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center text-gray-400 hover:text-white hover:bg-gray-700 transition-colors"
-                  title={social.name}
+                  className="w-10 h-10 bg-gray-800 hover:bg-blue-600 rounded-lg flex items-center justify-center transition-colors duration-200"
+                  aria-label={social.name}
                 >
                   <span className="text-lg">{social.icon}</span>
                 </a>
@@ -151,49 +151,53 @@ export default function WebsiteFooter() {
 
         {/* Newsletter Signup */}
         <div className="mt-12 pt-8 border-t border-gray-800">
-          <div className="max-w-md">
+          <div className="max-w-2xl">
             <h4 className="text-lg font-semibold mb-2">{t('stayUpdated')}</h4>
             <p className="text-gray-400 text-sm mb-4">
-              {t('newsletterDescription')}
+              {t('News letter Description')}
             </p>
-            <form onSubmit={handleSubscribe} className="flex space-x-2">
+            <form onSubmit={handleSubscribe} className="flex flex-col sm:flex-row gap-2">
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder={t('enterEmail')}
-                className="flex-1 px-4 py-2 bg-gray-800 border border-gray-700 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder={t('Enter Email')}
+                className="flex-1 px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 disabled={isSubscribing}
               />
               <button 
                 type="submit"
                 disabled={isSubscribing}
-                className="px-6 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed rounded-md text-white font-medium transition-colors"
+                className="px-6 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed rounded-lg text-white font-medium transition-colors whitespace-nowrap"
               >
-                {isSubscribing ? '...' : t('subscribe')}
+                {isSubscribing ? '...' : t('Subscribe')}
               </button>
             </form>
           </div>
         </div>
 
         {/* Bottom Bar */}
-        <div className="mt-8 pt-8 border-t border-gray-800 flex flex-col md:flex-row justify-between items-center">
-          <div className="text-gray-400 text-sm">
-            © {currentYear} Namaz Web. {t('allRightsReserved')}.
-          </div>
-          <div className="flex items-center space-x-6 mt-4 md:mt-0">
-            <Link to="/privacy" className="text-gray-400 hover:text-white text-sm transition-colors">
-              {t('privacyPolicy')}
-            </Link>
-            <Link to="/terms" className="text-gray-400 hover:text-white text-sm transition-colors">
-              {t('termsOfService')}
-            </Link>
-            <Link to="/cookies" className="text-gray-400 hover:text-white text-sm transition-colors">
-              {t('cookiePolicy')}
-            </Link>
+        <div className="mt-8 pt-8 border-t border-gray-800">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center space-y-4 md:space-y-0">
+            <div className="text-gray-400 text-sm">
+              © {currentYear} Namaz Web. {t('All Rights Reserved')}.
+            </div>
+            <div className="flex flex-wrap items-center gap-4 md:gap-6">
+              <Link to="/privacy" className="text-gray-400 hover:text-white text-sm transition-colors whitespace-nowrap">
+                {t('PSrivacy Policy')}
+              </Link>
+              <Link to="/terms" className="text-gray-400 hover:text-white text-sm transition-colors whitespace-nowrap">
+                {t('Terms Of Service')}
+              </Link>
+              <Link to="/cookies" className="text-gray-400 hover:text-white text-sm transition-colors whitespace-nowrap">
+                {t('Cookie Policy')}
+              </Link>
+            </div>
           </div>
         </div>
       </div>
     </footer>
   );
-}
+};
+
+export default WebsiteFooter;

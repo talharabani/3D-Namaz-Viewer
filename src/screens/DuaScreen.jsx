@@ -2,10 +2,11 @@ import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import duaCategories, { duasByCategory } from '../data/duasData.js';
 import { useTranslation } from '../utils/translations';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { GlowCard } from '../components/nurui/spotlight-card';
 import NotificationSettings from '../components/NotificationSettings';
 import authService from '../utils/authService';
+import ParticleBackground from '../components/ParticleBackground';
 import { 
   fadeInUp, 
   staggerContainer, 
@@ -26,6 +27,12 @@ export default function DuaScreen() {
   const [bookmarkedDuas, setBookmarkedDuas] = useState([]);
   const [showBookmarks, setShowBookmarks] = useState(false);
   const [showNotificationSettings, setShowNotificationSettings] = useState(false);
+  const [favoriteDuas, setFavoriteDuas] = useState([]);
+  const [recentDuas, setRecentDuas] = useState([]);
+  const [showFavorites, setShowFavorites] = useState(false);
+  const [showRecent, setShowRecent] = useState(false);
+  const [sortBy, setSortBy] = useState('name'); // 'name', 'category', 'recent'
+  const [viewMode, setViewMode] = useState('grid'); // 'grid', 'list'
 
   // Get current user from authService
   useEffect(() => {
@@ -168,6 +175,9 @@ export default function DuaScreen() {
       className="min-h-screen bg-gradient-to-br from-slate-900 via-emerald-900 to-slate-900 relative overflow-hidden"
       {...pageTransition}
     >
+      {/* Particle Background */}
+      <ParticleBackground />
+      
       {/* Animated Background Elements */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-emerald-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
@@ -194,37 +204,102 @@ export default function DuaScreen() {
           animate="animate"
           transition={transitions.smooth}
         >
-          <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-3xl p-8 md:p-12 shadow-2xl">
+          <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-3xl p-8 md:p-12 shadow-2xl relative overflow-hidden">
+            {/* Decorative Elements */}
             <motion.div 
-              className="text-5xl md:text-7xl font-black bg-gradient-to-r from-emerald-400 via-green-400 to-teal-400 bg-clip-text text-transparent mb-6"
-              variants={pulseAnimation}
-              animate="animate"
-            >
-              📿 {t('Dua Collection')}
-            </motion.div>
-            <div className="text-xl md:text-2xl text-gray-300 max-w-4xl mx-auto leading-relaxed mb-6">
-              {t('Discover And Memorize')}
-            </div>
+              className="absolute -top-4 -left-4 text-4xl text-emerald-400/30 animate-wave"
+              animate={{ rotate: 360 }}
+              transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+            >✦</motion.div>
+            <motion.div 
+              className="absolute -top-4 -right-4 text-4xl text-emerald-400/30 animate-wave"
+              animate={{ rotate: -360 }}
+              transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+            >✦</motion.div>
+            <motion.div 
+              className="absolute -bottom-4 -left-4 text-4xl text-emerald-400/30 animate-wave"
+              animate={{ rotate: 360 }}
+              transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
+            >✦</motion.div>
+            <motion.div 
+              className="absolute -bottom-4 -right-4 text-4xl text-emerald-400/30 animate-wave"
+              animate={{ rotate: -360 }}
+              transition={{ duration: 35, repeat: Infinity, ease: "linear" }}
+            >✦</motion.div>
             
-            {/* Arabic Calligraphy */}
-            <div className="text-2xl md:text-3xl font-arabic text-white mb-4 leading-relaxed font-bold">
-              دعاء
-            </div>
-            <div className="text-lg text-gray-300 mb-6">
-              {t('Collection Of Islamic Duas')}
-            </div>
-            
-            {/* Islamic Quote */}
-            <div className="bg-gradient-to-r from-emerald-500/20 to-green-500/20 rounded-2xl p-6 max-w-3xl mx-auto border border-emerald-400/30">
-              <div className="text-lg md:text-xl font-arabic text-white mb-3 leading-relaxed font-bold">
-                "وَقَالَ رَبُّكُمُ ادْعُونِي أَسْتَجِبْ لَكُمْ"
-              </div>
-              <div className="text-sm md:text-base text-gray-300 italic mb-2">
-                "And your Lord says, 'Call upon Me; I will respond to you'"
-              </div>
-              <div className="text-xs text-emerald-400 font-semibold">
-                Quran 40:60
-              </div>
+            <div className="relative">
+              <motion.div 
+                className="text-5xl md:text-7xl font-black bg-gradient-to-r from-emerald-400 via-green-400 to-teal-400 bg-clip-text text-transparent mb-6 animate-text-shimmer"
+                variants={pulseAnimation}
+                animate="animate"
+              >
+                📿 {t('Dua Collection')}
+              </motion.div>
+              <motion.div 
+                className="text-xl md:text-2xl text-emerald-200 max-w-4xl mx-auto leading-relaxed mb-6"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.3 }}
+              >
+                {t('Discover And Memorize')}
+              </motion.div>
+              
+              {/* Arabic Calligraphy */}
+              <motion.div 
+                className="text-2xl md:text-3xl font-arabic text-white mb-4 leading-relaxed font-bold animate-text-shimmer"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.5 }}
+              >
+                دعاء
+              </motion.div>
+              <motion.div 
+                className="text-lg text-emerald-200 mb-6"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.7 }}
+              >
+                {t('Collection Of Islamic Duas')}
+              </motion.div>
+              
+              {/* Islamic Quote */}
+              <motion.div 
+                className="bg-gradient-to-r from-emerald-500/20 to-green-500/20 rounded-2xl p-6 max-w-3xl mx-auto border border-emerald-400/30"
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.8, delay: 0.9 }}
+              >
+                <div className="text-lg md:text-xl font-arabic text-white mb-3 leading-relaxed font-bold">
+                  "وَقَالَ رَبُّكُمُ ادْعُونِي أَسْتَجِبْ لَكُمْ"
+                </div>
+                <div className="text-sm md:text-base text-emerald-200 italic mb-2">
+                  "And your Lord says, 'Call upon Me; I will respond to you'"
+                </div>
+                <div className="text-xs text-emerald-400 font-semibold">
+                  Quran 40:60
+                </div>
+              </motion.div>
+              
+              {/* Stats */}
+              <motion.div 
+                className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 1.1 }}
+              >
+                <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-4">
+                  <div className="text-2xl font-bold text-emerald-400">{Object.values(duasByCategory).reduce((total, duas) => total + duas.length, 0)}</div>
+                  <div className="text-sm text-emerald-200">Categories</div>
+                </div>
+                <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-4">
+                  <div className="text-2xl font-bold text-emerald-400">{getTotalBookmarkedCount()}</div>
+                  <div className="text-sm text-emerald-200">Bookmarked</div>
+                </div>
+                <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-4">
+                  <div className="text-2xl font-bold text-emerald-400">{favoriteDuas.length}</div>
+                  <div className="text-sm text-emerald-200">Favorites</div>
+                </div>
+              </motion.div>
             </div>
           </div>
         </motion.div>
@@ -280,7 +355,7 @@ export default function DuaScreen() {
                     className="px-6 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-green-600 text-white font-medium hover:from-emerald-500 hover:to-green-500 transition-all duration-300 shadow-lg hover:shadow-xl"
                     {...buttonPress}
                   >
-                    🔔 Notifications
+                    🔔 {t('Notifications')}
                   </motion.button>
                 )}
               </div>
@@ -451,7 +526,7 @@ export default function DuaScreen() {
         >
           <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl p-6 text-center shadow-2xl">
             <div className="text-3xl mb-2">📚</div>
-            <div className="text-2xl font-bold text-white">{duaCategories.length}</div>
+            <div className="text-2xl font-bold text-white">{Object.values(duasByCategory).reduce((total, duas) => total + duas.length, 0)}</div>
             <div className="text-sm text-gray-300">Dua Categories</div>
           </div>
           <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl p-6 text-center shadow-2xl">

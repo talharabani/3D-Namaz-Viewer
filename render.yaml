@@ -26,6 +26,6 @@ services:
       - key: VITE_APP_NAME
         value: Namaz Web
       - key: VITE_APP_VERSION
-        value: 1.0.3
+        value: 1.0.4
       - key: VITE_APP_ENVIRONMENT
         value: production

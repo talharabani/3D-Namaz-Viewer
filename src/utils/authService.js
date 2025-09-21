@@ -53,8 +53,23 @@ class AuthService {
   // Google OAuth Integration
   async signInWithGmail() {
     try {
-      const result = await signInWithPopup(auth, googleProvider);
-      return result.user;
+      // Mock Google sign-in for demo purposes
+      const mockUser = {
+        id: 'google-demo-user-' + Date.now(),
+        email: 'demo@gmail.com',
+        name: 'Demo User',
+        picture: 'https://via.placeholder.com/150/4F46E5/FFFFFF?text=G',
+        provider: 'google.com',
+        createdAt: new Date().toISOString(),
+        lastLogin: new Date().toISOString()
+      };
+      
+      this.currentUser = mockUser;
+      this.isAuthenticated = true;
+      localStorage.setItem('namaz_user', JSON.stringify(mockUser));
+      this.notifyListeners();
+      
+      return { user: mockUser };
     } catch (error) {
       console.error('Google sign-in error:', error);
       throw new Error('Failed to sign in with Google');
@@ -70,15 +85,27 @@ class AuthService {
         throw new Error('Please enter a valid email address');
       }
 
-      // Create user with Firebase
-      const result = await createUserWithEmailAndPassword(auth, email, password);
-      
-      // Update user profile with display name
-      await updateProfile(result.user, {
-        displayName: name
-      });
-
-      return result.user;
+      // Mock authentication for demo purposes
+      if (email && password && password.length >= 6) {
+        const mockUser = {
+          id: 'demo-user-' + Date.now(),
+          email: email,
+          name: name || email.split('@')[0],
+          picture: null,
+          provider: 'email',
+          createdAt: new Date().toISOString(),
+          lastLogin: new Date().toISOString()
+        };
+        
+        this.currentUser = mockUser;
+        this.isAuthenticated = true;
+        localStorage.setItem('namaz_user', JSON.stringify(mockUser));
+        this.notifyListeners();
+        
+        return { user: mockUser };
+      } else {
+        throw new Error('Please enter a valid email and password (minimum 6 characters)');
+      }
 
     } catch (error) {
       console.error('Email sign-up error:', error);
@@ -88,11 +115,30 @@ class AuthService {
 
   async signInWithEmail(email, password) {
     try {
-      const result = await signInWithEmailAndPassword(auth, email, password);
-      return result.user;
+      // Mock authentication for demo purposes
+      if (email && password && password.length >= 6) {
+        const mockUser = {
+          id: 'demo-user-' + Date.now(),
+          email: email,
+          name: email.split('@')[0],
+          picture: null,
+          provider: 'email',
+          createdAt: new Date().toISOString(),
+          lastLogin: new Date().toISOString()
+        };
+        
+        this.currentUser = mockUser;
+        this.isAuthenticated = true;
+        localStorage.setItem('namaz_user', JSON.stringify(mockUser));
+        this.notifyListeners();
+        
+        return { user: mockUser };
+      } else {
+        throw new Error('Please enter a valid email and password (minimum 6 characters)');
+      }
     } catch (error) {
       console.error('Email sign-in error:', error);
-      throw new Error(this.getFirebaseErrorMessage(error.code));
+      throw new Error(error.message || 'Sign in failed. Please try again.');
     }
   }
 
@@ -143,8 +189,11 @@ class AuthService {
   // Logout
   async logout() {
     try {
-      await signOut(auth);
-      // Firebase auth state change will handle the rest
+      // Mock logout for demo purposes
+      this.currentUser = null;
+      this.isAuthenticated = false;
+      localStorage.removeItem('namaz_user');
+      this.notifyListeners();
     } catch (error) {
       console.error('Logout error:', error);
     }

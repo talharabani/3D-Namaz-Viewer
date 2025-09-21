@@ -31,7 +31,7 @@ class PrayerTimesService {
     try {
       // Try direct API call first
       const response = await this.fetchWithRetry(
-        `${this.baseUrl}/timings?latitude=${latitude}&longitude=${longitude}&method=${method}&school=${school}`
+        `${this.baseUrl}/timings/${this.getCurrentDate()}?latitude=${latitude}&longitude=${longitude}&method=${method}&school=${school}`
       );
       
       if (response.ok) {
@@ -227,7 +227,12 @@ class PrayerTimesService {
     return {
       currentPrayer,
       nextPrayer,
-      currentTime: now.toLocaleTimeString(),
+      currentTime: now.toLocaleTimeString('en-US', {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: true
+      }),
       isPrayerTime: currentPrayer !== null
     };
   }
@@ -269,6 +274,15 @@ class PrayerTimesService {
   // Get cache size
   getCacheSize() {
     return this.cache.size;
+  }
+
+  // Get current date in DD-MM-YYYY format for API
+  getCurrentDate() {
+    const now = new Date();
+    const day = String(now.getDate()).padStart(2, '0');
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const year = now.getFullYear();
+    return `${day}-${month}-${year}`;
   }
 }
 

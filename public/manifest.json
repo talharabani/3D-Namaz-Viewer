@@ -17,8 +17,14 @@
   },
   "icons": [
     {
-      "src": "/vite.svg",
+      "src": "/favicon.svg",
       "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/logo.svg",
+      "sizes": "200x200",
       "type": "image/svg+xml",
       "purpose": "any"
     }
@@ -39,7 +45,7 @@
       "url": "/learn",
       "icons": [
         {
-          "src": "/vite.svg",
+          "src": "/favicon.svg",
           "sizes": "any"
         }
       ]
@@ -51,7 +57,7 @@
       "url": "/prayer-times",
       "icons": [
         {
-          "src": "/vite.svg",
+          "src": "/favicon.svg",
           "sizes": "any"
         }
       ]

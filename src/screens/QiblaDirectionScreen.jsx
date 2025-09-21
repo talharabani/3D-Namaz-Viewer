@@ -154,22 +154,23 @@ function QiblaMap({ userLatLng, kaabaLatLng, isAligned, isDark, distance, onMapC
   }
 
   return (
-    <MapContainer 
-      center={userLatLng} 
-      zoom={4} 
-      scrollWheelZoom={true} 
-      style={{ width: '100%', height: '100%' }} 
-      zoomControl={false}
-      whenCreated={(map) => {
-        try {
-          mapRef.current = map;
-          onMapCreated?.(map);
-        } catch (error) {
-          console.error('Error creating map:', error);
-          onMapError?.(error);
-        }
-      }}
-    >
+    <div style={{ width: '100%', height: '100%', position: 'relative' }}>
+      <MapContainer 
+        center={userLatLng} 
+        zoom={4} 
+        scrollWheelZoom={true} 
+        style={{ width: '100%', height: '100%' }} 
+        zoomControl={false}
+        whenCreated={(map) => {
+          try {
+            mapRef.current = map;
+            onMapCreated?.(map);
+          } catch (error) {
+            console.error('Error creating map:', error);
+            onMapError?.(error);
+          }
+        }}
+      >
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         url={getTileLayerUrl(isDark)}
@@ -184,7 +185,8 @@ function QiblaMap({ userLatLng, kaabaLatLng, isAligned, isDark, distance, onMapC
       <FitBounds userLatLng={userLatLng} kaabaLatLng={kaabaLatLng} />
       <ZoomControl position="bottom right" />
       <RecenterButton userLatLng={userLatLng} label={t('center')} title={t('re Center On Your Location')} />
-    </MapContainer>
+      </MapContainer>
+    </div>
   );
 }
 
@@ -243,7 +245,7 @@ export default function QiblaDirectionScreen() {
 
   // Get user location
   useEffect(() => {
-    if ('geo location' in navigator) {
+    if (navigator && 'geolocation' in navigator) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const { latitude, longitude, accuracy: acc } = position.coords;
@@ -256,7 +258,7 @@ export default function QiblaDirectionScreen() {
           setIsLoading(false);
         },
         (error) => {
-          console.error('Geol ocation error:', error);
+          console.error('Geolocation error:', error);
           setError(t('unable To Get Location'));
           setIsLoading(false);
         },
@@ -361,7 +363,7 @@ export default function QiblaDirectionScreen() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-emerald-900 to-slate-900 flex items-center justify-center">
+      <div className="min-h-screen bg-slate-900 flex items-center justify-center">
         <div className="text-center">
           <div className="text-4xl mb-4">🧭</div>
           <div className="text-xl text-amber-800 dark:text-amber-200 font-bold">{t('loading Qibla Direction')}</div>
@@ -372,7 +374,7 @@ export default function QiblaDirectionScreen() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-emerald-900 to-slate-900 flex items-center justify-center">
+      <div className="min-h-screen bg-slate-900 flex items-center justify-center">
         <div className="text-center">
           <div className="text-4xl mb-4">⚠️</div>
           <div className="text-xl text-red-600 dark:text-red-400 font-bold">{error}</div>

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from '../utils/translations';
+import ParticleBackground from '../components/ParticleBackground';
 
 // Prayer Steps Data
 const prayerSteps = {
@@ -524,6 +525,9 @@ export default function LearnScreen() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-emerald-900 to-slate-900 relative overflow-hidden">
+      {/* Particle Background */}
+      <ParticleBackground />
+      
       {/* Animated Background Elements */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-emerald-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
@@ -540,14 +544,72 @@ export default function LearnScreen() {
           transition={{ duration: 0.8 }}
           className="text-center mb-12 sm:mb-16"
         >
-          <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl sm:rounded-3xl p-6 sm:p-8 md:p-12 shadow-2xl">
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-black bg-gradient-to-r from-emerald-400 via-green-400 to-teal-400 bg-clip-text text-transparent mb-4 sm:mb-6">
-              {t('learnToPray')}
-            </h1>
-            <p className="text-lg sm:text-xl md:text-2xl text-gray-300 max-w-4xl mx-auto leading-relaxed px-2">
-              {t('stepByStepGuide')} - {t('masterEachStep')}
-            </p>
-              </div>
+          <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl sm:rounded-3xl p-6 sm:p-8 md:p-12 shadow-2xl relative overflow-hidden">
+            {/* Decorative Elements */}
+            <motion.div 
+              className="absolute -top-4 -left-4 text-4xl text-emerald-400/30 animate-wave"
+              animate={{ rotate: 360 }}
+              transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+            >✦</motion.div>
+            <motion.div 
+              className="absolute -top-4 -right-4 text-4xl text-emerald-400/30 animate-wave"
+              animate={{ rotate: -360 }}
+              transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+            >✦</motion.div>
+            <motion.div 
+              className="absolute -bottom-4 -left-4 text-4xl text-emerald-400/30 animate-wave"
+              animate={{ rotate: 360 }}
+              transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
+            >✦</motion.div>
+            <motion.div 
+              className="absolute -bottom-4 -right-4 text-4xl text-emerald-400/30 animate-wave"
+              animate={{ rotate: -360 }}
+              transition={{ duration: 35, repeat: Infinity, ease: "linear" }}
+            >✦</motion.div>
+            
+            <div className="relative">
+              <motion.h1 
+                className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-black bg-gradient-to-r from-emerald-400 via-green-400 to-teal-400 bg-clip-text text-transparent mb-4 sm:mb-6 animate-text-shimmer"
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 1, delay: 0.5 }}
+              >
+                {t('learnToPray')}
+              </motion.h1>
+              <motion.p 
+                className="text-lg sm:text-xl md:text-2xl text-emerald-200 max-w-4xl mx-auto leading-relaxed px-2"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.7 }}
+              >
+                {t('stepByStepGuide')} - {t('masterEachStep')}
+              </motion.p>
+              
+              {/* Progress Indicator */}
+              <motion.div 
+                className="mt-8 bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-4"
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.6, delay: 0.9 }}
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-emerald-200 font-medium">Learning Progress</span>
+                  <span className="text-emerald-400 font-bold">{getProgressPercentage()}%</span>
+                </div>
+                <div className="w-full bg-white/10 rounded-full h-3">
+                  <motion.div 
+                    className="bg-gradient-to-r from-emerald-500 to-green-500 h-3 rounded-full"
+                    initial={{ width: 0 }}
+                    animate={{ width: `${getProgressPercentage()}%` }}
+                    transition={{ duration: 1, delay: 1.2 }}
+                  />
+                </div>
+                <p className="text-emerald-300 text-sm mt-2">
+                  {completedSteps.length} of {steps.length} steps completed
+                </p>
+              </motion.div>
+            </div>
+          </div>
         </motion.div>
 
         {/* All Steps Overview */}
@@ -557,14 +619,24 @@ export default function LearnScreen() {
           transition={{ duration: 0.8, delay: 0.2 }}
           className="w-full max-w-7xl mx-auto"
         >
-        <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-black bg-gradient-to-r from-slate-800 via-blue-600 to-purple-600 dark:from-slate-200 dark:via-blue-400 dark:to-purple-400 bg-clip-text text-transparent mb-3">
+          <div className="text-center mb-12">
+            <motion.h2 
+              className="text-3xl md:text-4xl font-black bg-gradient-to-r from-emerald-400 via-green-400 to-teal-400 bg-clip-text text-transparent mb-3 animate-text-shimmer"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.4 }}
+            >
               All Prayer Steps
-            </h2>
-            <p className="text-lg text-slate-600 dark:text-slate-300 font-medium">
+            </motion.h2>
+            <motion.p 
+              className="text-lg text-emerald-200 font-medium"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.6 }}
+            >
               Click any card to explore detailed learning content
-            </p>
-                  </div>
+            </motion.p>
+          </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
             {/* Complete Prayer Guide Card */}

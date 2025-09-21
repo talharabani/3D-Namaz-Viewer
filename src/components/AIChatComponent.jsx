@@ -34,7 +34,11 @@ const AIChatComponent = ({ onClose, initialQuestion = '' }) => {
       id: Date.now(),
       text: message,
       sender: 'user',
-      timestamp: new Date().toLocaleTimeString()
+      timestamp: new Date().toLocaleTimeString('en-US', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+      })
     };
 
     setMessages(prev => [...prev, userMessage]);
@@ -59,7 +63,11 @@ const AIChatComponent = ({ onClose, initialQuestion = '' }) => {
         id: Date.now() + 1,
         text: response,
         sender: 'ai',
-        timestamp: new Date().toLocaleTimeString()
+        timestamp: new Date().toLocaleTimeString('en-US', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+      })
       };
 
       setMessages(prev => [...prev, aiMessage]);

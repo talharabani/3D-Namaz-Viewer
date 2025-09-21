@@ -21,61 +21,61 @@ const AIAssistantScreen = () => {
   const aiFeatures = [
     {
       icon: '🕌',
-      title: t('prayer Guidance'),
-      description: t('prayer Guidance Desc'),
+      title: t('Prayer Guidance'),
+      description: t('Prayer Guidance Desc'),
       action: () => setShowChat(true),
       color: 'from-brass to-wood'
     },
     {
       icon: '📖',
-      title: t('islamic Knowledge'),
-      description: t('islamic Knowledge Desc'),
+      title: t('Islamic Knowledge'),
+      description: t('Islamic Knowledge Desc'),
       action: () => setShowChat(true),
       color: 'from-wood to-brass'
     },
     {
       icon: '🤲',
-      title: t('duas And Supplications'),
-      description: t('duas And Supplications Desc'),
+      title: t('Duas And Supplications'),
+      description: t('Duas And Supplications Desc'),
       action: () => setShowChat(true),
       color: 'from-brass to-wood'
     },
     {
       icon: '🧭',
-      title: t('spiritual Advice'),
-      description: t('spiritual Advice Desc'),
+      title: t('Spiritual Advice'),
+      description: t('Spiritual Advice Desc'),
       action: () => setShowChat(true),
       color: 'from-wood to-brass'
     },
     {
       icon: '📚',
-      title: t('hadith Explanations'),
-      description: t('hadith Explanations Desc'),
+      title: t('Hadith Explanations'),
+      description: t('Hadith Explanations Desc'),
       action: () => setShowChat(true),
       color: 'from-brass to-wood'
     },
     {
       icon: '🌟',
-      title: t('islamic Etiquette'),
-      description: t('islamic Etiquette Desc'),
+      title: t('Islamic Etiquette'),
+      description: t('Islamic Etiquette Desc'),
       action: () => setShowChat(true),
       color: 'from-wood to-brass'
     }
   ];
 
   const commonQuestions = [
-    t('how To Pray'),
-    t('prayer Benefits'),
-    t('concentration'),
-    t('missed Prayer'),
-    t('make Up Prayers'),
-    t('prayer Virtues'),
-    t('khushu'),
-    t('supplications'),
-    t('istikhara'),
-    t('tahajjud'),
-    t('mosque Behavior'),
-    t('quran Etiquette')
+    t('How To Pray'),
+    t('Prayer Benefits'),
+    t('Concentration'),
+    t('Missed Prayer'),
+    t('Make Up Prayers'),
+    t('Prayer Virtues'),
+    t('Khushu'),
+    t('Supplications'),
+    t('Istikhara'),
+    t('Tahajjud'),
+    t('Mosque Behavior'),
+    t('Quran Etiquette')
   ];
 
   return (
@@ -103,10 +103,10 @@ const AIAssistantScreen = () => {
               variants={pulseAnimation}
               animate="animate"
             >
-              {t('islamic AiAssistant Title')}
+              {t('Islamic Ai Assistant Title')}
             </motion.div>
             <div className="text-xl md:text-2xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
-              {t('islamic AiAssistant Subtitle')}
+              {t('Islamic Ai Assistant Subtitle')}
             </div>
           </div>
         </motion.div>
@@ -128,7 +128,7 @@ const AIAssistantScreen = () => {
             <div className="absolute inset-0 bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 opacity-0 group-hover:opacity-20 transition-opacity duration-500"></div>
             <div className="relative flex items-center gap-3">
               <span className="text-3xl group-hover:animate-bounce">🚀</span>
-              {t('start Chatting With Assistant')}
+              {t('Start Chatting With Assistant')}
             </div>
           </motion.button>
         </motion.div>
@@ -145,7 +145,7 @@ const AIAssistantScreen = () => {
             variants={staggerItem}
           >
             <h2 className="text-4xl font-bold text-white mb-4 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-              {t('what I Can Help With')}
+              {t('What I Can Help With')}
             </h2>
             <div className="w-24 h-1 bg-gradient-to-r from-purple-400 to-pink-400 mx-auto rounded-full"></div>
           </motion.div>
@@ -200,7 +200,7 @@ const AIAssistantScreen = () => {
           <div className="p-8 bg-white/10 backdrop-blur-lg border border-white/20 rounded-3xl">
             <div className="text-center mb-8">
               <h3 className="text-3xl font-bold text-white mb-4 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-                {t('common Questions')}
+                {t('Common Questions')}
               </h3>
               <p className="text-gray-300 text-lg">{t('click Any Question To Start')}</p>
             </div>

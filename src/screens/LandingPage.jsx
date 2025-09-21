@@ -102,7 +102,12 @@ export default function LandingPage() {
               <div className="text-center">
                 <div className="text-sm text-gray-600 mb-2">Current Time</div>
                 <div className="text-3xl md:text-4xl font-mono text-blue-600 font-bold">
-                  {currentTime.toLocaleTimeString()}
+                  {currentTime.toLocaleTimeString('en-US', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                    hour12: true
+                  })}
                 </div>
                 <div className="text-sm text-gray-500 mt-2">
                   {currentTime.toLocaleDateString('en-US', { 

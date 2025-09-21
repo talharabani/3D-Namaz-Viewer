@@ -1,6 +1,7 @@
 import React from 'react';
 import { useTranslation } from '../utils/translations';
 import { useLocation } from 'react-router-dom';
+import Logo from './Logo';
 
 export default function Header({ 
   onMenuClick, 
@@ -55,11 +56,7 @@ export default function Header({
 
             {/* Logo and Title */}
             <div className="flex items-center space-x-3">
-              <div className="flex-shrink-0">
-                <div className="w-8 h-8 bg-gradient-to-r from-brass to-wood rounded-lg flex items-center justify-center text-white font-bold text-lg">
-                  🕌
-                </div>
-              </div>
+              <Logo size="small" variant="icon" />
               <div className="hidden sm:block">
                 <h1 className="text-xl font-bold text-gray-900 dark:text-white">
                   Namaz Web

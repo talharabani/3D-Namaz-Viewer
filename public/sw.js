@@ -1,5 +1,5 @@
 // Service Worker for Daily Dua Notifications
-const CACHE_NAME = 'namaz-web-v1';
+const CACHE_NAME = 'namaz-web-v2';
 const urlsToCache = [
   '/',
   '/static/js/bundle.js',

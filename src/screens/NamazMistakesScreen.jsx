@@ -174,7 +174,7 @@ export default function NamazMistakesScreen() {
         >
           <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-2xl sm:rounded-3xl p-6 sm:p-8 md:p-12 shadow-2xl border border-slate-200/50 dark:border-slate-700/50">
             <motion.div 
-              className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-black bg-gradient-to-r from-slate-800 via-blue-600 to-purple-600 dark:from-slate-200 dark:via-blue-400 dark:to-purple-400 bg-clip-text text-transparent mb-4 sm:mb-6"
+              className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-black bg-gradient-to-r from-emerald-400 via-green-400 to-teal-400 bg-clip-text text-transparent mb-4 sm:mb-6"
               variants={pulseAnimation}
               animate="animate"
             >
@@ -277,7 +277,7 @@ export default function NamazMistakesScreen() {
             <div className="flex gap-2">
               <motion.button
                 onClick={getRandomMistake}
-                className="px-4 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-purple-600 text-white text-sm font-bold hover:from-purple-500 hover:to-blue-500 transition-all shadow-lg"
+                className="px-4 py-2 rounded-lg bg-gradient-to-r from-emerald-500 to-green-600 text-white text-sm font-bold hover:from-green-500 hover:to-emerald-500 transition-all shadow-lg"
                 {...buttonPress}
               >
                 🎲 {t('Random Mistake')}
@@ -333,7 +333,7 @@ export default function NamazMistakesScreen() {
                       {t('Severity')}: {mistake.severity}
                     </span>
                     <motion.button
-                      className="px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg text-sm font-semibold hover:from-purple-500 hover:to-blue-500 transition-all shadow-lg"
+                      className="px-4 py-2 bg-gradient-to-r from-emerald-500 to-green-600 text-white rounded-lg text-sm font-semibold hover:from-green-500 hover:to-emerald-500 transition-all shadow-lg"
                       onClick={(e) => {
                         e.stopPropagation();
                         setSelectedMistake(mistake);
@@ -406,7 +406,7 @@ export default function NamazMistakesScreen() {
               <div className="mt-6 flex gap-3">
                 <motion.button
                   onClick={() => setSelectedMistake(null)}
-                  className="flex-1 bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 rounded-xl hover:from-purple-500 hover:to-blue-500 transition-all"
+                  className="flex-1 bg-gradient-to-r from-emerald-500 to-green-600 text-white py-3 rounded-xl hover:from-green-500 hover:to-emerald-500 transition-all"
                   {...buttonPress}
                 >
                   {t('Close')}

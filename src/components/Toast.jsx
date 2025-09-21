@@ -87,7 +87,7 @@ function ToastItem({ toast, onRemove }) {
   return (
     <div
       className={`
-        max-w-sm w-full bg-white dark:bg-gray-800 shadow-lg rounded-lg border-l-4 p-4
+        max-w-sm w-full shadow-lg rounded-lg border-l-4 p-4
         transform transition-all duration-300 ease-in-out
         ${isVisible ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'}
         ${typeStyles[toast.type]}

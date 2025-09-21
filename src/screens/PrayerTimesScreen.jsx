@@ -380,33 +380,67 @@ export default function PrayerTimesScreen() {
   };
 
   if (loading) return (
-    <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[#44403c] via-[#78716c] to-[#d6d3d1] flex items-center justify-center">
-      <div className="text-center">
-        <div className="text-4xl mb-4">🕋</div>
-        <div className="text-xl text-brass font-bold">{t('loadingPrayerTimes')}</div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-emerald-900 to-slate-900 relative overflow-hidden">
+      {/* Animated Background Elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-emerald-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-green-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse delay-1000"></div>
+        <div className="absolute top-40 left-40 w-60 h-60 bg-teal-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse delay-2000"></div>
+        <div className="absolute bottom-40 right-40 w-60 h-60 bg-emerald-600 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse delay-3000"></div>
+      </div>
+      
+      <div className="relative z-10 flex items-center justify-center min-h-screen">
+        <motion.div 
+          className="text-center"
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.6 }}
+        >
+          <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-3xl p-8 shadow-2xl">
+            <div className="text-4xl mb-4">🕋</div>
+            <div className="text-xl text-emerald-200 font-bold">{t('loadingPrayerTimes')}</div>
+          </div>
+        </motion.div>
       </div>
     </div>
   );
   
   if (error) return (
-    <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[#44403c] via-[#78716c] to-[#d6d3d1] flex items-center justify-center">
-      <div className="text-center max-w-md mx-auto p-6">
-        <div className="text-6xl mb-6">⚠️</div>
-        <div className="text-xl text-error font-bold mb-4">{error}</div>
-        <div className="text-gray-300 mb-6">
-          Please check your internet connection and location permissions.
-        </div>
-        <button
-          onClick={() => {
-            setError(null);
-            setLoading(true);
-            // Trigger re-fetch by updating a dummy state
-            window.location.reload();
-          }}
-          className="px-6 py-3 bg-gradient-to-r from-amber-500 to-yellow-500 text-gray-900 font-bold rounded-xl hover:from-amber-600 hover:to-yellow-600 transition-all duration-300 shadow-lg"
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-emerald-900 to-slate-900 relative overflow-hidden">
+      {/* Animated Background Elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-emerald-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-green-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse delay-1000"></div>
+        <div className="absolute top-40 left-40 w-60 h-60 bg-teal-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse delay-2000"></div>
+        <div className="absolute bottom-40 right-40 w-60 h-60 bg-emerald-600 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse delay-3000"></div>
+      </div>
+      
+      <div className="relative z-10 flex items-center justify-center min-h-screen">
+        <motion.div 
+          className="text-center max-w-md mx-auto p-6"
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.6 }}
         >
-          🔄 Try Again
-        </button>
+          <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-3xl p-8 shadow-2xl">
+            <div className="text-6xl mb-6">⚠️</div>
+            <div className="text-xl text-red-400 font-bold mb-4">{error}</div>
+            <div className="text-emerald-200 mb-6">
+              Please check your internet connection and location permissions.
+            </div>
+            <button
+              onClick={() => {
+                setError(null);
+                setLoading(true);
+                // Trigger re-fetch by updating a dummy state
+                window.location.reload();
+              }}
+              className="px-6 py-3 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white font-bold rounded-xl hover:from-emerald-600 hover:to-emerald-700 transition-all duration-300 shadow-lg"
+            >
+              🔄 Try Again
+            </button>
+          </div>
+        </motion.div>
       </div>
     </div>
   );
